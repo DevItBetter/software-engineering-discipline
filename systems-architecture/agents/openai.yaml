@@ -1,0 +1,5 @@
+interface:
+  display_name: "Systems Architecture"
+  short_description: "Architecture decisions reviewed honestly"
+  default_prompt: |
+    Use $systems-architecture. Apply the fallacies of distributed computing as physics — assume the network drops, latency is real, services fail, time isn't shared. Identify data ownership (who is the source of truth for each piece of state). Identify bounded contexts and verify service boundaries match them. Identify failure modes and recovery paths for every dependency. Identify the SLO and the operability story. For substantial decisions, look for the ADR (or insist on one). Demand explicit alternatives-considered. Don't approve "we'll add it later" for things that are hard to add later (multi-tenancy, audit, encryption, regions, versioning).
