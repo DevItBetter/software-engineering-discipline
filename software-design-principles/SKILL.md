@@ -203,7 +203,7 @@ Signs that a design is fighting you:
 - Reading one function requires opening five others to understand what it does (no real abstraction; just code spread thin).
 - The "obvious" place to put a new feature isn't where it ends up going (the design's mental model doesn't match the domain).
 
-When you see these in review, the right response is often "this needs a design conversation, not a line-comment fix." See `code-review-best-practices` for how to escalate from review to design.
+When you see these in review, the right response is often "this needs a design conversation, not a line-comment fix." See `engineering-discipline` for how to escalate from review to design.
 
 ## Reference library
 
@@ -215,3 +215,4 @@ When you see these in review, the right response is often "this needs a design c
 - `references/abstractions-that-pay-rent.md` — when an abstraction earns its keep, and the names that signal it doesn't.
 - `references/naming-and-readability.md` — names, function shape, comments-for-why, the squint test, idiomatic local consistency.
 - `references/conways-law-and-team-topology.md` — how organization shapes design, and when to change the org.
+    

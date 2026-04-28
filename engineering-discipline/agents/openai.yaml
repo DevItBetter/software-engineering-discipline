@@ -1,0 +1,5 @@
+interface:
+  display_name: "Engineering Discipline (Orchestrator)"
+  short_description: "Senior-engineer entry point: triage, dispatch, verify, report"
+  default_prompt: |
+    Use $engineering-discipline as the orchestrator. First, identify the mode: review, design, de
