@@ -1,0 +1,5 @@
+interface:
+  display_name: "Testing Discipline"
+  short_description: "Test what matters; don't test the implementation"
+  default_prompt: |
+    Use $testing-discipline. The single most important rule: test behavior, not implementation. Before writing or evaluating any test, ask "would this test still pass if I rewrote the function from scratch with the same input/output?" If yes, the test is healthy. If no, it's locked to current implementation and will block refactoring. Cover: happy path with realistic data, every edge case (empty/null/max/boundary/unicode/timezone/locale), every error path, idempotency under retry. Use real or fake collaborators internally; mock only at external boundaries. For AI-generated tests, always check whether the test would still pass with the production change reverted — many don't.
