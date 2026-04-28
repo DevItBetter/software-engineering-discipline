@@ -1,0 +1,5 @@
+interface:
+  display_name: "API and Interface Design"
+  short_description: "APIs that are hard to misuse, easy to evolve, honest"
+  default_prompt: |
+    Use $api-and-interface-design. Treat Hyrum's Law as physics: every observable behavior becomes a contract. Make as little observable as possible; document and stabilize what you do expose. Make illegal states unrepresentable via types. Avoid boolean traps and primitive obsession at boundaries. Defaults must be safe under uncertainty. Errors are part of the contract — design them deliberately, with stable error codes and enough context. For any mutating operation that may be retried, design the idempotency model. When evaluating a change to an existing API, identify exactly which observable behavior is changing and who depends on the current behavior — assume someone does until proven otherwise.
