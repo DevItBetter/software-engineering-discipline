@@ -1,0 +1,5 @@
+interface:
+  display_name: "Concurrency and State"
+  short_description: "Find races, design for safe concurrent access"
+  default_prompt: |
+    Use $concurrency-and-state. Assume adversarial scheduling: the worst possible interleaving will eventually happen. Find every read-modify-write that isn't atomic or under a lock — they're all races. Verify lock ordering is consistent across call sites. Verify locks aren't held across I/O. For any operation that may be retried (queues, webhooks, network), require idempotency. For distributed state, identify the consistency model the system actually provides vs. what the code assumes — most bugs live in that gap. Don't trust intuition over the spec; if the change involves a published protocol or homegrown distributed coordination, escalate to a human distributed-systems reviewer.
