@@ -1,0 +1,5 @@
+interface:
+  display_name: "Documentation and Technical Writing"
+  short_description: "Write docs that hold up: design docs, ADRs, READMEs, commits"
+  default_prompt: |
+    Use $documentation-and-technical-writing. For organization, apply Diátaxis: every doc is one of tutorial / how-to / reference / explanation; mixing two produces a worse version of both. For design docs, the alternatives-considered section is non-negotiable — without it, the doc is advocacy not design. For commit messages: imperative subject line ≤50 chars, body explains *why*, not *what*. For READMEs: optimize for the first 30 seconds; a working quick-start beats prose. Be concrete (specific numbers, not "better"); be honest (state trade-offs, uncertainty); lead with the answer; cut filler. For postmortems, see the dedicated postmortem template.
