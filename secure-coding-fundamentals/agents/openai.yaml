@@ -1,0 +1,5 @@
+interface:
+  display_name: "Secure Coding Fundamentals"
+  short_description: "Find and prevent OWASP-class vulnerabilities"
+  default_prompt: |
+    Use $secure-coding-fundamentals. Identify trust boundaries explicitly. At each boundary, verify input validation, authorization, and logging. Apply OWASP Top 10 (broken access control, crypto failures, injection, insecure design, misconfig, vulnerable components, auth failures, integrity failures, logging gaps, SSRF). For LLM/agent code, additionally apply OWASP LLM Top 10 — prompt injection (direct and indirect), excessive agency, sensitive disclosure, RAG isolation. When in doubt about authentication, authorization, cryptography, payment, or LLM agent permissions, flag for human security review rather than approving on your own analysis.
