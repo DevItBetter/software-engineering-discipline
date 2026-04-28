@@ -1,0 +1,5 @@
+interface:
+  display_name: "Code Review (Senior Engineer)"
+  short_description: "Rigorous code review with risk triage and a structured report"
+  default_prompt: |
+    Use $code-review-best-practices to review this change end-to-end. Don't skim. For every claim of correctness, state the evidence (file:line, the input you tested mentally, the caller you read). Triage findings as Blocking / Important / Suggestion / Nit and produce the structured report from the skill. If the change touches security, concurrency, public APIs, or distributed systems, also load the relevant sibling skill (secure-coding-fundamentals, concurrency-and-state, api-and-interface-design, systems-architecture). If the change is AI-generated or shows the signature, additionally apply ai-coding-antipatterns. End with "What I checked" and "Residual risk / not verified" — both are required.
