@@ -1,5 +1,5 @@
 interface:
-  display_name: "Refactoring and Code Smells"
-  short_description: "Recognize smells, apply named refactorings, refactor safely"
+  display_name: "Refactoring Techniques"
+  short_description: "Refactor safely; apply named moves; small reversible steps"
   default_prompt: |
-    Use $refactoring-and-code-smells. Name the smell using Fowler's catalog vocabulary (Long Function, Feature Envy, Shotgun Surgery, Primitive Obsession, etc.). Map it to one or more named refactorings (Extract Function, Move Method, Replace Conditional with Polymorphism, etc.). For each refactor, do the smallest move that works, run tests after each step, and don't mix refactors with behavior changes. If the code is untested ("legacy" in Feathers' sense), introduce characterization tests first. If you're tempted to rewrite, ask honestly whether the substance is wrong or only the style — only the former justifies a rewrite.
+    Use $refactoring-and-code-smells. To name what's wrong with code, use the companion skill code-smells-and-antipatterns. To fix it: pick a named refactoring (Extract Function, Move Method, Replace Conditional with Polymorphism, etc.), do the smallest move that works, run tests after each step, never mix refactors with behavior changes (separate commits, ideally separate PRs). If the code is untested ("legacy" in Feathers' sense), introduce characterization tests first. For big refactors with prerequisite chains, use the Mikado Method. Don't rewrite unless the substance (not the style) is wrong.

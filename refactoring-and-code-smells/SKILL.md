@@ -1,143 +1,173 @@
 ---
 name: refactoring-and-code-smells
-description: Recognize code smells and apply the right refactoring move. Use this skill whenever the task involves refactoring, restructuring, cleaning up, modernizing, or untangling existing code — including questions like "how should I refactor this", "is this a code smell", "how do I break up this class/function", "how do I make this testable", "how do I get this under control", "what's wrong with this code", and reviews where the change would benefit from being preceded by a refactor. Also use it any time you're tempted to add complexity to existing complex code — the answer is often "refactor first, then make the easy change." Built on Fowler's Refactoring catalog (2nd ed.), with concrete smell→refactoring mappings and the discipline of when to refactor and when to leave alone.
+description: How to refactor safely and effectively — recognize when, choose the right named move, work in small reversible steps, attack legacy code with seams and characterization tests. Use this skill whenever the task is changing the structure of code without changing its behavior, including questions like "how should I refactor this", "how do I break up this class/function", "how do I make this testable", "how do I get this under control", and reviews where the change would benefit from being preceded by a refactor. The companion skill `code-smells-and-antipatterns` is the diagnostic side (finding what's wrong, with concrete examples); this skill is the corrective side (the moves, the process, the discipline). Built on Fowler (Refactoring 2nd ed.), Beck (Tidy First?), Feathers (Working Effectively with Legacy Code).
 ---
 
-# Refactoring and Code Smells
+# Refactoring (Techniques and Discipline)
 
 Refactoring is changing the structure of code without changing its behavior. The point is not aesthetics — it is to leave the code in a state where the *next* change is easy. Kent Beck's formulation: **make the change easy, then make the easy change.**
 
-This skill teaches you (a) the canonical smell vocabulary so you can name what's wrong, (b) the catalog of moves to fix it, (c) the discipline of when to refactor and when to defer, and (d) how to do it safely.
+This skill is the *corrective* side of code health: the catalog of named moves, the discipline of small steps, and how to attack untested legacy code safely. For the *diagnostic* side — naming what's wrong, with concrete code examples — see the sibling skill `code-smells-and-antipatterns`. The two skills are designed to be used together.
 
 ## When to refactor
 
 Three legitimate triggers, in priority order:
 
-1. **You're about to make a change and the current code makes that change hard.** Refactor first to make the change easy, then make the easy change. This is the most common and most valuable refactor — it has a concrete payoff (the change is now possible), so it's not speculative.
+1. **You're about to make a change and the current code makes that change hard.** Refactor first to make the change easy, then make the easy change. This is the most common and most valuable refactor — it has a concrete payoff (the change is now possible), so it isn't speculative.
 
-2. **You see a code smell while you're already in the file for another reason.** The "boy scout rule": leave it cleaner than you found it. Small, targeted refactors with the next change.
+2. **You see a smell while you're already in the file for another reason.** The "boy scout rule": leave it cleaner than you found it. Small, targeted refactors with the next change.
 
-3. **A specific design defect is causing a recurring cost** — bug after bug clusters in the same module, on-call keeps getting paged for the same kind of failure, every change to feature X requires touching files A, B, C, D. Refactor with intent and a clear hypothesis about what cost will go down.
+3. **A specific design defect is causing recurring cost** — bug after bug clusters in the same module, every change to feature X requires touching files A/B/C/D, on-call keeps getting paged for the same kind of failure. Refactor with intent and a clear hypothesis about what cost will go down.
 
 Bad triggers:
 
 - "This doesn't match my preferred style." Not a refactor; a re-skin.
 - "I read about a pattern I want to try." Don't.
 - "This is old." Age is not a smell. Working code that hasn't been touched in three years and works correctly is *good*.
-- "I want to apply SOLID more rigorously." Apply SOLID as a diagnostic, not as a renovation project. See `software-design-principles` for SOLID-with-nuance.
+- "I want to apply SOLID more rigorously." Apply SOLID as a diagnostic, not a renovation project. See `software-design-principles`.
+
+## Tidy First? (Kent Beck)
+
+Beck's recent framing: when you want to make a change that touches messy code, you have three options.
+
+- **Tidy first**: clean up, then change. One PR for the cleanup, one for the behavior change. Cleanup is reviewable in isolation; the behavior change is reviewable on tidy code.
+- **Change first**: make the behavior change in the messy code, then clean up. Sometimes the right call when the behavior change is small and the cleanup might churn against in-flight work.
+- **Don't tidy**: just change. Acceptable when you'll never touch this code again, or when the cleanup cost exceeds the value.
+
+The disciplines:
+- Tidy and behavior changes are **always separate commits**, ideally separate PRs. Mixing them makes review and bisect impossible.
+- Each tidying is small enough that "did I break anything" has a fast answer (the test suite passing).
+- Tidyings are **reversible** — if the tidy turns out to be wrong, you can roll back without losing the behavior change.
 
 ## How to refactor safely
 
 The discipline that separates refactoring from "rewriting and hoping":
 
-1. **Have a green test suite first.** Refactoring without tests is rearrangement; you can't tell if you broke anything. If the code has no tests, your first refactor is to add characterization tests (Michael Feathers' term — tests that capture the current behavior, even if it's wrong, so you can detect changes).
+1. **Have a green test suite first.** Refactoring without tests is rearrangement; you can't tell if you broke anything. If the code has no tests, your first refactor is to add **characterization tests** — tests that capture current behavior, even if it's wrong, so you can detect changes.
+
+   A characterization test is dumb on purpose. You aren't asserting what the code *should* do; you're snapshotting what it *currently* does, so a refactor that accidentally changes behavior is caught.
+
+   ```python
+   # The code has no tests. You need to refactor calculate_pricing.
+   # Don't refactor yet. First, characterize:
+
+   def test_characterize_calculate_pricing_basic():
+       result = calculate_pricing(items=[{"sku": "A", "qty": 2, "price": 10}], customer_tier="standard")
+       assert result == {"subtotal": 20, "discount": 0, "tax": 1.6, "total": 21.6}
+       # ^ You didn't compute this; you ran the function and pasted what it returned.
+
+   def test_characterize_calculate_pricing_gold_tier():
+       result = calculate_pricing(items=[{"sku": "A", "qty": 2, "price": 10}], customer_tier="gold")
+       assert result == {"subtotal": 20, "discount": 2, "tax": 1.44, "total": 19.44}
+
+   # Now you have a safety net. Refactor; the test fails if behavior changes.
+   ```
+
+   If a characterization test surfaces a bug ("wait, that tax is wrong"), don't fix it during the refactor. Note it; finish the refactor (with the wrong-but-stable behavior); fix the bug as a separate change with the test updated.
 
 2. **Make one small move at a time.** Each move is one of the named refactorings (Extract Function, Inline Variable, Move Method, Replace Conditional with Polymorphism, etc.). After each move, run the tests. If they fail, undo and try a smaller step.
 
-3. **Don't mix refactors with behavior changes.** If you find a bug while refactoring, finish the refactor (or revert it), commit, then fix the bug as a separate change. Two PRs. Mixing them makes both harder to review and harder to bisect.
+3. **Don't mix refactors with behavior changes.** If you find a bug while refactoring, finish the refactor (or revert it), commit, then fix the bug as a separate change. Two PRs. Mixing makes both harder to review and harder to bisect.
 
-4. **Commit frequently.** Each successful step gets a commit. Fewer "rebase nightmare" outcomes.
+4. **Commit frequently.** Each successful step gets a commit. Fewer "rebase nightmare" outcomes. Each commit message says what was refactored and why ("Extract Function: pull out customer normalization so we can reuse it in the import path").
 
-5. **For larger refactors, use the Mikado Method.** When you start a refactor and discover it requires another refactor first, which requires another refactor first, write a tree of dependencies. Do the leaves first, working back to the root. This avoids the half-done-everything state.
+5. **For larger refactors, use the Mikado Method.** When you start a refactor and discover it requires another refactor first, which requires another refactor first, write a tree of dependencies. Do the leaves first, working back to the root. Avoids the half-done-everything state.
 
-6. **Use the IDE / language tools.** Renames, extractions, and moves done by an IDE are mechanically correct. Done by hand they're a bug source.
+6. **Use the IDE / language tools.** Renames, extractions, and moves done by an IDE are mechanically correct. Done by hand they're a bug source. For dynamic languages (Python, JS), test coverage matters even more because the IDE has less to work with.
 
-## The smell catalog
+## The refactoring catalog (working subset)
 
-From Fowler's *Refactoring* (2nd ed.), grouped. Each smell maps to one or more refactorings.
+For each smell, the standard moves. The smells themselves — with concrete before/after code examples — live in the sibling `code-smells-and-antipatterns` skill.
 
-### Bloaters — code that has grown too large
+### Composing methods
 
-- **Long Function.** A function that has accumulated responsibilities. *Refactorings: Extract Function, Decompose Conditional, Replace Temp with Query.*
-- **Long Parameter List.** Too many parameters; easy to mix up; hard to remember at the call site. *Refactorings: Introduce Parameter Object, Preserve Whole Object, Replace Parameter with Query.*
-- **Large Class.** A class that's grown to do too much. *Refactorings: Extract Class, Extract Subclass, Extract Superclass.*
-- **Primitive Obsession.** Domain concepts represented as raw strings, ints, or maps. (`emailAddress: string` invites passing any string; `EmailAddress` value type forbids invalid emails by construction.) *Refactorings: Replace Primitive with Object, Replace Type Code with Subclasses, Replace Conditional with Polymorphism.*
-- **Data Clumps.** Same group of values travels together as parameters. They want to be a class. *Refactoring: Introduce Parameter Object, Extract Class.*
+- **Extract Function** — pull a coherent section into a new function with a name. The single most-used refactoring. Don't extract if the only available name is mechanical.
+- **Inline Function** — when a function is just a confusing layer over its body, fold it back in.
+- **Extract Variable** — pull an expression into a named variable; the name documents the meaning.
+- **Inline Variable** — when the variable is a thin alias for a clearer expression.
+- **Change Function Declaration** — rename, reorder parameters, change parameter type. IDE-assisted when possible.
+- **Encapsulate Variable** — replace direct field access with accessors so behavior can be added on access.
+- **Rename Variable / Function / Class** — the most underrated refactor. Do it constantly.
+- **Introduce Parameter Object** — when parameters travel together, name the bundle.
+- **Combine Functions into Class** — several functions on the same data want to be a class.
+- **Combine Functions into Transform** — several functions deriving values from the same input → one transform.
+- **Split Phase** — when one function does X-then-Y with a tangled intermediate, split into two with the intermediate explicit.
 
-### Object-orientation abusers
+### Moving features
 
-- **Switch Statements / `isinstance` chains over a closed set of types.** Behavior dispatching on type. *Refactorings: Replace Conditional with Polymorphism, Replace Type Code with Subclasses, Replace Conditional with Strategy.*
-- **Repeated Switches.** The same conditional structure appears in multiple places. Now adding a new case requires touching all of them. *Refactoring: Replace Conditional with Polymorphism.*
-- **Refused Bequest.** A subclass overrides parent methods to do nothing or throw. The "is-a" relationship doesn't hold. *Refactorings: Push Down Method/Field, Replace Subclass with Delegate.*
-- **Alternative Classes with Different Interfaces.** Two classes do similar things but their methods are named differently. *Refactorings: Rename Function, Move Function, Extract Superclass.*
+- **Move Function / Method** — Feature Envy fix; behavior moves to where its data lives.
+- **Move Field** — field moves to where it's mostly used.
+- **Move Statements into / out of Function** — setup or cleanup that always wraps a call belongs inside it (or vice versa).
+- **Slide Statements** — group related statements together; precursor to extraction.
+- **Replace Inline Code with Function Call** — when the function already exists.
 
-### Change preventers — design that makes change expensive
+### Organizing data
 
-- **Divergent Change.** One module changes for many unrelated reasons. (Low cohesion.) *Refactorings: Split Class, Split Phase, Move Function.*
-- **Shotgun Surgery.** One conceptual change requires touching many modules. (Tight coupling, missing abstraction.) *Refactorings: Move Function, Move Field, Combine Functions into Class, Inline Class.*
-- **Parallel Inheritance Hierarchies.** Adding a subclass to one hierarchy forces adding a corresponding subclass in another. *Refactoring: Move Function, Move Field to fold one into the other.*
+- **Replace Primitive with Object** — domain concept gets a type. `EmailAddress` not `string`; `Money` not `decimal`; `OrderId` not `string`. The type encodes the rules.
+- **Replace Type Code with Subclasses** — class with a `kind` field and conditional behavior → subclasses with polymorphism.
+- **Replace Type Code with State/Strategy** — same situation but the type can change at runtime.
+- **Encapsulate Collection** — return an unmodifiable view; expose `add`/`remove` methods that enforce invariants.
 
-### Dispensables — code that adds no value
+### Simplifying conditional logic
 
-- **Comments narrating code.** The comment explains what the next line does, not why. *Refactoring: Extract Function (give it the name the comment described), Rename Variable.*
-- **Duplicate Code.** Same logic in multiple places. *Refactorings: Extract Function, Pull Up Method, Form Template Method.*
-- **Lazy Class.** A class that doesn't do enough to justify existing. *Refactorings: Inline Class, Collapse Hierarchy.*
-- **Data Class.** A class that holds data with no behavior. Often fine in some idioms (records, value objects). Smell when the data has obvious operations that should be on it but live elsewhere — Tell, Don't Ask. *Refactorings: Move Function, Encapsulate Record.*
-- **Dead Code.** Unreachable, unused, commented-out. *Refactoring: Delete it. Version control remembers.*
-- **Speculative Generality.** Hooks, parameters, abstractions for hypothetical future needs. *Refactorings: Inline Function, Inline Class, Collapse Hierarchy, Remove Dead Code.*
+- **Decompose Conditional** — extract complex `if`/`else` bodies into named functions.
+- **Consolidate Conditional Expression** — multiple `if`s with the same body merge into one.
+- **Replace Nested Conditional with Guard Clauses** — preconditions become early returns; happy path lives at natural indentation.
+- **Replace Conditional with Polymorphism** — type-based dispatch becomes virtual methods.
+- **Introduce Special Case (Null Object)** — provide an object representing absence/special case; callers don't check.
+- **Replace Error Code with Exception (and vice versa)** — match the language idiom and the situation.
+- **Replace Exception with Precheck** — when the exception is being used to signal a condition the caller could test.
 
-### Couplers — code that knows too much about other code
+### Refactoring APIs
 
-- **Feature Envy.** A method uses another object's data more than its own. *Refactorings: Move Function, Extract Function.*
-- **Inappropriate Intimacy.** Two classes know each other's private details. *Refactorings: Move Function, Move Field, Change Bidirectional Association to Unidirectional, Replace Inheritance with Delegation.*
-- **Message Chains.** `a.b().c().d().e()` — caller knows the entire object graph. *Refactoring: Hide Delegate.*
-- **Middle Man.** A class that mostly delegates to another. *Refactoring: Remove Middle Man, Inline Function.*
-- **Insider Trading.** Modules trade information through back-channels. Make the dependencies explicit and narrow.
+- **Separate Query from Modifier** — split functions that both return and mutate.
+- **Parameterize Function** — combine near-duplicates with a parameter for the difference.
+- **Remove Flag Argument** — boolean parameters split into named functions.
+- **Preserve Whole Object** — pass the object instead of pulling fields off it (use judgment — can become Stamp Coupling).
+- **Replace Parameter with Query** — derive instead of pass when the function has access.
+- **Replace Query with Parameter** — pass instead of derive when isolation/testability matters.
+- **Remove Setting Method (Make Immutable)** — set in the constructor only.
+- **Replace Constructor with Factory Function** — when construction is non-trivial.
 
-### Other important smells (not in Fowler's original five buckets)
+### Dealing with inheritance
 
-- **Mysterious Name.** The name doesn't tell you what the thing does. *Refactoring: Rename. The most common and most valuable refactor; fix the moment you notice.*
-- **Global Data / Mutable State.** Shared mutable state with no clear ownership. *Refactoring: Encapsulate Variable, Replace Magic Literal, sometimes substantial restructuring.*
-- **Loops where you wanted a pipeline.** Long imperative loops doing filter/map/reduce by hand. *Refactoring: Replace Loop with Pipeline.*
-- **Boolean Trap.** Functions with several boolean parameters; combinatorial behavior at call sites. *Refactorings: Split Function (one per behavior), Replace Boolean with Enum, Introduce Parameter Object.*
-- **Temporary Field.** A class field used only sometimes. *Refactoring: Extract Class, Introduce Special Case.*
-
-## The most useful individual refactorings
-
-Most refactoring is small moves. The ones to know cold:
-
-- **Extract Function.** Pull a piece of code out and give it a name. The single most-used refactoring. The new function's *name* is the abstraction; if you can't name it, don't extract.
-- **Inline Function.** The opposite. When a function is just a confusing layer over its body, fold it back in.
-- **Rename Variable / Function / Class.** The most underrated refactor. A better name eliminates the need for a comment, makes the call site self-documenting, and improves grep. Do this constantly.
-- **Move Function / Field.** When behavior or data lives in the wrong place. Often follows from a Feature Envy diagnosis.
-- **Extract Class.** Carve out a coherent subset of a class's responsibilities into a new class.
-- **Introduce Parameter Object.** When parameters travel together, give them a name as a struct/class.
-- **Replace Conditional with Polymorphism.** When `if isinstance(...)` chains dispatch on type, replace with virtual methods on the type.
-- **Replace Magic Literal.** Give the constant a name. `MIN_ORDER_AMOUNT = 5` rather than `5`.
-- **Encapsulate Variable / Record.** Convert direct access to access through accessors so behavior can be added later.
-- **Split Phase.** When a function does X-then-Y where X produces an intermediate that Y consumes, split into two functions with the intermediate explicit. Often clarifies a confused function dramatically.
-- **Replace Loop with Pipeline.** A long imperative loop becomes `filter().map().reduce()` (or the language's equivalent). Often a big readability win when the operations are pure.
-
-See `references/refactoring-catalog.md` for an extended catalog with examples.
-
-## When NOT to refactor
-
-- **You're about to ship a hot fix.** Fix, ship, refactor in a follow-up. Refactoring under deadline pressure is when bugs slip in.
-- **The code is going to be deleted soon.** Refactoring code that's being decommissioned next quarter is wasted work.
-- **You don't understand what the code does.** Read first. Add tests that capture current behavior. *Then* refactor. Refactoring code you don't understand is "rewriting and hoping."
-- **The code works, isn't a bottleneck, and you're not going to touch the surrounding area.** Don't pick fights with code that's leaving you alone.
-- **You'd be doing it during a code review of someone else's PR.** Wrong scope, wrong moment. File a follow-up.
+- **Pull Up Method / Field** — duplicated in subclasses → in the superclass.
+- **Push Down Method / Field** — used by some subclasses → only in those.
+- **Replace Subclass with Delegate** — inheritance was for code reuse, not is-a → composition.
+- **Replace Inheritance with Delegation** — extension only used a few methods; hold the parent as a field.
+- **Replace Superclass with Delegate** — same medicine the other direction.
 
 ## The Mikado Method (for big refactors)
 
-When a desired change requires a prerequisite change, which requires a prerequisite change, which requires...
+When a desired change requires a prerequisite change which requires a prerequisite change…
 
 1. Try the goal change directly. Note what breaks.
-2. Don't fix the breaks; revert. Write down the prerequisite changes you discovered.
+2. Don't fix the breaks; revert. Write down the prerequisite changes you discovered as a tree.
 3. Try the first prerequisite. If it's still too big, recurse — note its prerequisites and revert.
-4. Eventually you reach a leaf change that you can do without breaking anything. Do it. Commit.
-5. Try the next-leaf-up. Now it works (because its dependency is in place). Commit.
+4. Eventually you reach a leaf change you can do without breaking anything. Do it. Commit.
+5. Try the next-leaf-up. Now it works (its dependency is in place). Commit.
 6. Work back up the tree. The original goal becomes possible.
 
-This avoids the "I started this refactor three days ago and now nothing compiles" failure mode.
+Avoids the "I started this refactor three days ago and now nothing compiles" failure mode.
 
-## Connecting to other skills
+## Working with legacy code (Feathers' framing)
 
-- For *recognizing* whether a smell is real, see `software-design-principles` (especially `complexity-and-deep-modules.md` and `cohesion-and-coupling.md`).
-- For *naming* problems sharply when you find them in review, see `code-review-best-practices` (`red-flag-patterns.md`).
-- For test discipline that makes refactoring safe, see `testing-discipline`.
+Feathers' definition of legacy code: **code without tests.** Whether it's old or new, written by someone else or by you yesterday — if no test tells you it works, it's legacy.
 
-## Reference library
+The fundamental problem: to change legacy code safely you need tests; to add tests you usually need to change the code. The cycle: change-to-test, test-to-change.
 
-- `references/refactoring-catalog.md` — extended catalog of moves, with the smell that triggers each and a brief example.
-- `references/legacy-code-strategies.md` — how to add tests to untested code, the "seam" concept, characterization tests; condensed Feathers.
+The way out is **seams** — places where you can alter behavior in a test context without editing production code at that point. Common seams:
+
+- **Object seams** — function takes a dependency as a parameter; tests pass a fake.
+- **Subclass seams** — method is virtual; tests subclass and override.
+- **Module-import seams** (Python, Ruby, JS) — replace the import in the test environment.
+- **Link seams** (C/C++) — link a different implementation.
+
+When code has no seams, the first move is to introduce one. The smallest possible change that creates a seam is the right starting point.
+
+### Sprout and Wrap
+
+When you can't safely refactor the legacy code itself, do new work alongside it and integrate at one point.
+
+- **Sprout Method** — new behavior in a new method on the existing class, tested independently. Old method calls it.
+- **Sprout Class** — new behavior in a
