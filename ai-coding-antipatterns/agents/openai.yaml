@@ -1,0 +1,5 @@
+interface:
+  display_name: "AI Coding Antipatterns"
+  short_description: "Catch the failure modes specific to LLM-generated code"
+  default_prompt: |
+    Use $ai-coding-antipatterns. The defining problem: AI-generated code looks plausible, follows conventions, and passes shallow review while being subtly or obviously wrong. Apply the verification gate: every external API call → does it exist? Every new dependency → is it real? Every try/except → is the recovery real or suppression? Every test → does it fail when the production change is reverted? Every "fix" → is the root cause identified? Every claim of "I removed/improved/refactored X" → did you actually verify it? Trust nothing you didn't check. AI confidence is not evidence. Specifically watch for: hallucinated APIs, fabricated dependencies, sycophantic agreement, defensive over-handling, ignoring local conventions, fake tests, scope creep, deletion aversion, and made-up examples in docstrings.
