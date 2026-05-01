@@ -1,5 +1,0 @@
-interface:
-  display_name: "DEPRECATED — Use engineering-discipline"
-  short_description: "This skill has been renamed; see engineering-discipline"
-  default_prompt: |
-    DEPRECATED. Do not use this skill. Use $engineering-discipline instead — the orchestrator was

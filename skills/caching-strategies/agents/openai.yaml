@@ -1,0 +1,25 @@
+interface:
+  display_name: "Caching Strategies"
+  short_description: "Placement, invalidation, stampede protection, eviction; trade freshness for latency"
+  default_prompt: |
+    Use $caching-strategies. The bar: every cache trades freshness for latency, throughput, and load reduction — name what you're trading and bound the staleness.
+
+    Priorities, in order:
+
+    1. Frame the trade. A cache is not free. Cached values are potentially stale. AWS's "cache addiction" is the failure mode: the cache becomes load-bearing and cache loss becomes an outage.
+
+    2. Placement. Browser / CDN / reverse-proxy / app-in-process / distributed (Redis, Memcached) / DB / materialized view. Each layer has different reach and different invalidation cost. Multiple layers are often correct; each layer's invalidation must work.
+
+    3. Strategies. Cache-aside (most common; on update write source first then invalidate). Read-through, write-through, write-back, write-around — pick by consistency vs. latency vs. write-throughput needs. Refresh-ahead for predictable hot keys.
+
+    4. Invalidation: TTL, event-driven (CDC, pub/sub), tag/dependency-based (Russian-doll, DHH 2012), versioned keys (`app.a1b2c3.js` with HTTP `immutable`), manual purge. Choose by staleness tolerance and write rate. TTLs derive from the staleness SLO, not from gut feel.
+
+    5. Stampede protection: single-flight (Go `singleflight`, Caffeine LoadingCache); probabilistic early expiration (Vattani et al. VLDB 2015); stale-while-revalidate (RFC 5861, RFC 9111). Default: single-flight in-process plus stale-while-revalidate at the cache layer.
+
+    6. Sizing: max size + TTL always. Watch key cardinality (same problem as metric labels). LRU is the safe default; W-TinyLFU is the modern default for serious workloads; S3-FIFO is the new entrant.
+
+    7. HTTP caching (RFC 9111, June 2022): `Cache-Control` directives (`public/private`, `max-age`, `s-maxage`, `no-cache` ≠ `no-store`, `stale-while-revalidate`, `immutable`). `Vary: Authorization` for personalized content. Immutable content-hashed assets are the cleanest invalidation strategy.
+
+    8. Dual-write problem: writing to DB + cache without a distributed transaction is non-atomic. Transactional outbox + CDC is the standard solution.
+
+    Common findings to flag: cache without max size or TTL; cache-aside writing to cache before source; in-process cache treated as shared in a multi-instance service; negative-cache TTL longer than time-to-create; cached auth-dependent response without `Vary: Authorization`; 5xx cached for minutes; "just add Redis" as a fix for a slow query; TTL chosen by gut feel; cache as hidden source of truth (deploy that flushes Redis loses data); unprotected cold-cache stampede; cache key including unbounded user input.

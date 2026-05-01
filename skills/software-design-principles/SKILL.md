@@ -69,7 +69,7 @@ The targets:
 
 This is the entire content of "Single Responsibility Principle" stated honestly. SRP is "high cohesion + low coupling, named." See `references/cohesion-and-coupling.md`.
 
-A useful diagnostic when something feels wrong: **do you keep changing the same files for unrelated reasons?** That's low cohesion (divergent change). **Do you keep needing to change many files for one logical change?** That's tight coupling (shotgun surgery). Each is a smell with a known fix in `refactoring-and-code-smells`.
+A useful diagnostic when something feels wrong: **do you keep changing the same files for unrelated reasons?** That's low cohesion (divergent change). **Do you keep needing to change many files for one logical change?** That's tight coupling (shotgun surgery). Each is a smell with a known fix in `refactoring`.
 
 ## Information hiding (Parnas, 1972)
 
@@ -167,7 +167,7 @@ A perennial design question. The honest heuristic:
 
 **Don't extract when the only available name is mechanical.** `doFirstStep`, `helperForLoop`, `processItem` — these are signs that the extraction is purely physical, not conceptual. The reader gains nothing by jumping; they lose context.
 
-The Sandi Metz rule of "≤5 lines per method" is a useful provocation but applied dogmatically it produces functions named for their position in another function. Use the rule as a *prompt* — "is there a real concept here that wants extracting?" — not as a constraint.
+The Sandi Metz rule of "≤5 lines per method" (Ruby Rogues podcast episode 87, January 2013, alongside ≤100-line classes, ≤4 parameters, and one-instance-variable-per-controller-action) is a useful provocation but applied dogmatically it produces functions named for their position in another function. Use the rule as a *prompt* — "is there a real concept here that wants extracting?" — not as a constraint.
 
 ## Encapsulate what varies, not what doesn't
 

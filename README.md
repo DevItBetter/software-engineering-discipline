@@ -1,22 +1,22 @@
 # Rock Solid Engineering Skills
 
-A suite of 15 software-engineering skills designed to hold up under expert scrutiny. The goal is to ensure that engineering work — by humans or by AI assistants — meets a senior-engineer bar: evidence-backed, named in the canonical vocabulary, honest about what was checked and what wasn't, and resistant to the failure modes (sycophantic acceptance, stylistic nitpicking, AI hallucination) that produce code that *looks* correct but isn't.
+A suite of language-agnostic software-engineering skills designed to hold up under expert scrutiny. The goal is to ensure that engineering work — by humans or by AI assistants — meets a senior-engineer bar: evidence-backed, named in the canonical vocabulary, honest about what was checked and what wasn't, and resistant to the failure modes (sycophantic acceptance, stylistic nitpicking, AI hallucination) that produce code that *looks* correct but isn't.
 
 ## Where to start
 
 **`skills/engineering-discipline/`** is the orchestrator and the entry point. It owns the workflow, the triage, the standards, and the output format. When the work is broad enough to need cross-domain triage, start here. The orchestrator routes to specialty skills.
 
-The other 14 skills are specialties. They trigger **independently** when their domain is in play — you don't have to go through the orchestrator. Ask "should I add an index?" and `database-and-data-modeling` triggers directly. Ask "is this a good abstraction?" and `software-design-principles` triggers directly. The orchestrator coordinates when the work spans domains; the specialties stand alone for focused questions.
+The other specialty skills trigger **independently** when their domain is in play — you don't have to go through the orchestrator. Ask "should I add an index?" and `database-and-data-modeling` triggers directly. Ask "is this a good abstraction?" and `software-design-principles` triggers directly. The orchestrator coordinates when the work spans domains; the specialties stand alone for focused questions.
 
 ## The structure
 
 ```
 software-engineering-discipline/
 ├── skills/
-│   ├── engineering-discipline/          ← orchestrator / entry point
+│   ├── engineering-discipline/              ← orchestrator / entry point
 │   ├── software-design-principles/
-│   ├── code-smells-and-antipatterns/    ← diagnostic side: name what's wrong
-│   ├── refactoring-and-code-smells/     ← corrective side: refactoring techniques
+│   ├── code-smells-and-antipatterns/        ← diagnostic side: name what's wrong
+│   ├── refactoring/                         ← corrective side: named moves, legacy seams
 │   ├── testing-discipline/
 │   ├── error-handling-and-resilience/
 │   ├── api-and-interface-design/
@@ -26,9 +26,13 @@ software-engineering-discipline/
 │   ├── systems-architecture/
 │   ├── database-and-data-modeling/
 │   ├── debugging-and-incident-response/
+│   ├── observability/
+│   ├── deployment-and-release-engineering/
+│   ├── version-control-discipline/
+│   ├── build-and-dependencies/
+│   ├── caching-strategies/
 │   ├── documentation-and-technical-writing/
-│   ├── ai-coding-antipatterns/
-│   └── code-review-best-practices/      ← deprecated; safe to delete
+│   └── ai-coding-antipatterns/
 ├── README.md
 └── LICENSE
 ```
@@ -45,7 +49,7 @@ Each skill is a directory with:
 | "Review this PR / design / RFC" | `engineering-discipline` |
 | "Is this a good abstraction / module / structure?" | `software-design-principles` |
 | "What's wrong with this code? Name the smell." | `code-smells-and-antipatterns` |
-| "How do I refactor this safely?" | `refactoring-and-code-smells` |
+| "How do I refactor this safely?" | `refactoring` |
 | "What should I test? Are these tests any good?" | `testing-discipline` |
 | "How should I handle this error / retry / failure?" | `error-handling-and-resilience` |
 | "Is this API design sound? Will it evolve well?" | `api-and-interface-design` |
@@ -55,6 +59,11 @@ Each skill is a directory with:
 | "Should we use microservices? Bounded contexts?" | `systems-architecture` |
 | "Schema? Index? Query plan? Migration?" | `database-and-data-modeling` |
 | "Why is this broken? How do I find the bug?" | `debugging-and-incident-response` |
+| "Logs / metrics / traces / SLOs / can on-call diagnose this?" | `observability` |
+| "How do we ship this safely? Canary? Feature flag? Migration?" | `deployment-and-release-engineering` |
+| "Commit message? PR size? Branching? `git bisect`?" | `version-control-discipline` |
+| "Lockfile? Reproducible build? Supply chain? Dependency safe?" | `build-and-dependencies` |
+| "Should I cache this? TTL? Stampede? Invalidation?" | `caching-strategies` |
 | "Help me write this design doc / README / postmortem" | `documentation-and-technical-writing` |
 | "Reviewing AI-generated code" | `ai-coding-antipatterns` (alongside the orchestrator) |
 
@@ -100,4 +109,4 @@ Each `SKILL.md` includes a "What to flag in review" section that doubles as a ch
 
 ## Status
 
-15 skills, 65 files, ~6,000 lines of content. Both rounds of red-team review complete; targeted fixes applied in place. The orchestrator (`engineering-discipline`) was renamed and broadened from the original `code-review-best-practices` to reflect the cross-mode role; the old directory is retained as a deprecated redirect and can be deleted at any time.
+Active. The orchestrator (`engineering-discipline`) was renamed and broadened from the original `code-review-best-practices` skill to reflect the cross-mode role (review, design, debug, implement, document, refactor); the deprecated redirect has been removed. New specialty skills are added with the same two-round adversarial pattern that produced the originals.

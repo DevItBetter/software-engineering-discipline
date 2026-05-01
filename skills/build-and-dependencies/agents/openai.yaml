@@ -1,0 +1,21 @@
+interface:
+  display_name: "Build and Dependencies"
+  short_description: "Lockfiles, reproducibility, supply-chain hygiene, build-system choice"
+  default_prompt: |
+    Use $build-and-dependencies. The bar: builds are deterministic given the same inputs; every direct dependency is owned and justified; the supply chain is auditable.
+
+    Priorities, in order:
+
+    1. Manifests vs. lockfiles. Manifest = intent (constraint band). Lockfile = resolution (exact versions + hashes). **Always commit the lockfile for applications**; for libraries commit it for CI determinism but understand it doesn't constrain consumers. CI uses frozen-install (npm ci, --immutable, --frozen-lockfile, --locked, --require-hashes).
+
+    2. SemVer is aspirational. Hyrum's Law applies: minor and patch releases regularly break consumers. Use caret/tilde range + lockfile, not pinned-exact (locks you out of fixes) and not *.
+
+    3. Reproducibility is the foundation of supply-chain auditability. Aim for *deterministic* builds (same lockfile + same toolchain = same artifact) for most teams; full bitwise reproducibility is a real cost trade-off.
+
+    4. Supply chain defenses: SLSA (anchor to v1.0 levels, not older v0.1 L1-L4), Sigstore (cosign for signing, rekor transparency log), SBOMs (SPDX or CycloneDX). Dependency scanning in CI; merge the bot PRs; patch SLAs by severity.
+
+    5. The lessons are recent: Log4Shell (CVE-2021-44228), xz-utils backdoor (CVE-2024-3094), Birsan dependency confusion (2021), event-stream (2018), ua-parser-js (2021), left-pad (2016). Cite them by name.
+
+    6. Privilege isolation in CI: a "fetch deps" stage with no secrets, then an "execute" stage with scope. A compromised dep in fetch can't exfiltrate prod tokens.
+
+    Common findings to flag: no committed lockfile; manifest changed without lockfile regenerated; * or latest in production; pinned-exact on a dep with active CVE patches; --force / --ignore-engines / npm i --force; auto-merge Dependabot without tests; 200 transitive deps for one function; "we forked it" with no README; build pulls from public registry with prod secrets in env; new dep with no owner / license check / rationale; "verified publisher" badge cited as the security control.

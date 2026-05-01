@@ -1,5 +1,5 @@
 ---
-name: refactoring-and-code-smells
+name: refactoring
 description: "How to refactor safely and effectively — recognize when, choose the right named move, work in small reversible steps, attack legacy code with seams and characterization tests. Use this skill whenever the task is changing the structure of code without changing its behavior, including questions like \"how should I refactor this\", \"how do I break up this class/function\", \"how do I make this testable\", \"how do I get this under control\", and reviews where the change would benefit from being preceded by a refactor. The companion skill `code-smells-and-antipatterns` is the diagnostic side (finding what's wrong, with concrete examples); this skill is the corrective side (the moves, the process, the discipline). Built on Fowler (Refactoring 2nd ed.), Beck (Tidy First?), Feathers (Working Effectively with Legacy Code)."
 ---
 
@@ -170,4 +170,45 @@ When code has no seams, the first move is to introduce one. The smallest possibl
 When you can't safely refactor the legacy code itself, do new work alongside it and integrate at one point.
 
 - **Sprout Method** — new behavior in a new method on the existing class, tested independently. Old method calls it.
-- **Sprout Class** — new behavior in a
+- **Sprout Class** — new behavior in a new class, tested independently. The legacy class delegates to it. Use when the existing class is so tangled that adding a method to it requires understanding too much.
+- **Wrap Method** — preserve the old method's name and signature; rename the existing implementation; the new method calls the old and adds the new behavior. Callers see the same surface; the new behavior runs around or before/after the old.
+- **Wrap Class** (a.k.a. decorator) — wrap the legacy class in a new class with the same interface. The wrapper adds behavior; the legacy class is untouched. Useful when the new behavior needs to apply to many call sites without editing each.
+
+The point is identical to seams: minimize the change to untested code. Sprout and Wrap let new code be tested cleanly without first earning the right to refactor the old.
+
+### Characterization tests
+
+Before changing untested legacy code, write tests that pin down its current behavior — not the behavior you wish it had, the behavior it actually has, including the bugs.
+
+The procedure:
+
+1. Write a test that exercises the code with a concrete input.
+2. Assert what you *think* it should produce.
+3. Run the test. Whatever it actually produces is the answer; update the assertion to that.
+4. Repeat across the input space you care about.
+
+You now have a safety net. You can refactor; if behavior changes, the tests fail and you know. Once the refactor is in and the seams are good, *then* you can decide which of the pinned behaviors are bugs and fix them deliberately, one at a time, with the tests as guide.
+
+This is uncomfortable — you are codifying behavior you may know is wrong. Do it anyway. The alternative is changing the code blind.
+
+## When *not* to refactor
+
+Refactoring is not free. Skip or defer when:
+
+- **The code is about to be deleted.** Don't tidy a module slated for removal in the next sprint.
+- **You have no tests and can't add them.** Without a safety net, "refactor" becomes "rewrite-and-pray." Add characterization tests first or leave it.
+- **The change is purely cosmetic and you're about to merge a feature.** Mixing tidying with behavior change makes the diff hard to review and hard to bisect. (Beck's *Tidy First?* discipline: tidy in a separate commit, ideally a separate PR.)
+- **You don't understand the code yet.** Read it. Then refactor. Renaming things you don't understand turns one bug into many.
+- **Someone else is in flight on the same code.** Coordinate, or wait.
+
+## Reference library
+
+- `references/refactoring-catalog.md` — extended catalog of named refactorings with mechanics, when each applies, and the order to do them.
+- `references/legacy-code-strategies.md` — Feathers' seams, dependency-breaking moves, characterization-test patterns, and the change-point / inflection-point analysis for deciding where to invest.
+
+## Sibling skills
+
+- `code-smells-and-antipatterns` — the diagnostic side. Start there to name what's wrong; come here to fix it.
+- `software-design-principles` — the underlying frame. Most refactorings exist to attack a cohesion, coupling, or complexity problem named there.
+- `testing-discipline` — refactoring depends on tests. Characterization tests, mutation testing, and what-to-test guidance live there.
+- `engineering-discipline` — how to communicate a refactor in a PR, when to escalate from refactor to redesign conversation.

@@ -1,0 +1,21 @@
+interface:
+  display_name: "Version Control Discipline"
+  short_description: "Atomic commits, buildable history, useful PRs, recoverable mistakes"
+  default_prompt: |
+    Use $version-control-discipline. The bar: every commit on main builds, passes tests, represents one logical change, and has a message that explains *why*.
+
+    Priorities, in order:
+
+    1. Commit messages: 50/72 (Pope 2008) and the seven rules (Beams 2014). Imperative subject. Body explains why, not what. Use Conventional Commits only when downstream tooling reads them.
+
+    2. Atomic commits. Refactor and behavior change land in separate commits. Each commit on main is bisectable: builds and passes tests on its own.
+
+    3. Branching: trunk-based or GitHub Flow for continuous delivery. GitFlow only for versioned, multi-major-supported software (Driessen retired it for SaaS in 2020). Short-lived branches; merge daily; small batches.
+
+    4. Rebase vs. merge: rebase to clean up your private branch before merging; never rebase shared history (Corbet's distillation of the kernel-community rule: "Thou Shalt Not Rebase Trees With History Visible To Others" — not Linus verbatim). Force-push only with --force-with-lease, only on personal branches. Pair with push.useForceIfIncludes=true (Git 2.30+) to handle the `git fetch in between` edge case.
+
+    5. PRs: small (Google: ~100 lines reasonable, 1000+ usually too large). One self-contained change per PR. Description has what / why / how-tested / risk / rollback.
+
+    6. Recovery: `git reflog` is the safety net (90-day default). For leaked secrets, **rotate first**, then use `git filter-repo` (filter-branch is deprecated). History rewriting does not unleak the secret.
+
+    Common findings to flag: wip/fix/asdf commit messages on main; refactor + behavior change in one commit; 1000+ line PRs; long-lived feature branches; force-push to main; --no-verify habit; secret leaked without rotation; merge bubble where fast-forward was intent; PR description with no "why" or "rollback"; squash-merge of everything (loses bisect granularity).

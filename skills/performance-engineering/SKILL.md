@@ -157,7 +157,7 @@ Caches add complexity. Use them when:
 Don't use them when:
 - The query is already fast.
 - The data needs to be fresh.
-- Invalidation is hard. (Phil Karlton: "There are only two hard things in Computer Science: cache invalidation and naming things." The "off-by-one" addition is later folklore.)
+- Invalidation is hard. (The famous line attributed to Phil Karlton — *"There are only two hard things in Computer Science: cache invalidation and naming things"* — has never been documented in print; the earliest internet trace is Tim Bray's 2005 blog post recalling it from ~1996. The "off-by-one" addition is later folklore. See `caching-strategies` for the discipline.)
 
 Cache anti-patterns:
 - Cache forever (data goes stale, bug appears mysteriously).

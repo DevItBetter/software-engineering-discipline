@@ -1,0 +1,5 @@
+interface:
+  display_name: "Refactoring Techniques"
+  short_description: "Refactor safely; apply named moves; small reversible steps"
+  default_prompt: |
+    Use $refactoring. To name what's wrong with code, use the companion skill code-smells-and-antipatterns. To fix it: pick a named refactoring (Extract Function, Move Method, Replace Conditional with Polymorphism, etc.), do the smallest move that works, run tests after each step, never mix refactors with behavior changes (separate commits, ideally separate PRs). If the code is untested ("legacy" in Feathers' sense), introduce characterization tests first. For big refactors with prerequisite chains, use the Mikado Method. Don't rewrite unless the substance (not the style) is wrong.
