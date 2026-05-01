@@ -257,7 +257,7 @@ Each should be **specific, owned, and dated.** If "we should improve monitoring"
 
 ### The five whys, honestly
 
-The five-whys technique (Toyota / Taiichi Ohno) repeatedly asks "why" to dig past symptoms.
+The five-whys technique (originated by Sakichi Toyoda; popularized within the Toyota Production System by Taiichi Ohno) repeatedly asks "why" to dig past symptoms.
 
 It has known limitations:
 - **Stops at the investigator's knowledge.** Five whys can't find causes the investigator doesn't already know.

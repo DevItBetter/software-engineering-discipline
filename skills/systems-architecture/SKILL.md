@@ -11,7 +11,7 @@ This skill covers system-level concerns: service decomposition, data ownership, 
 
 ## The fallacies of distributed computing
 
-The eight fallacies (Deutsch and Gosling at Sun, 1994/1997) — assumptions every distributed system designer makes once and then learns better:
+The eight fallacies — assumptions every distributed system designer makes once and then learns better. The first four were articulated by Bill Joy and Tom Lyon at Sun in the early 1990s; Peter Deutsch added the next three in 1994; James Gosling added the eighth around 1997:
 
 1. **The network is reliable.** It isn't. Packets are dropped. Connections fail. TCP handshakes time out.
 2. **Latency is zero.** It isn't. Same-region: ~1ms. Cross-region: 10–100ms. Cross-continent: 100–300ms.
@@ -69,7 +69,7 @@ Many small deployable units. Talk to each other via RPC, REST, or messaging.
 
 ### Modular monolith
 
-One deployable unit, but with internal boundaries that *could* be services. Sam Newman: "if you don't have a good monolith, you can't have good microservices." Most "microservices migration" projects would be better served by first making the monolith modular.
+One deployable unit, but with internal boundaries that *could* be services. Sam Newman has consistently argued — in *Building Microservices* and *Monolith to Microservices* — that you should not move to microservices before achieving a well-modularized monolith, because the service boundaries you'd extract are exactly the module boundaries you haven't yet drawn. Most "microservices migration" projects would be better served by first making the monolith modular.
 
 **When right**: nearly always a good first step. Forces you to discover the right boundaries before you commit to the operational complexity of services.
 

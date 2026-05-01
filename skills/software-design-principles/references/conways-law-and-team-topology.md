@@ -26,7 +26,7 @@ When evaluating a proposed module boundary, ask:
 
 ## Inverse Conway maneuver
 
-A specific organizational move: **change the team structure to produce the desired architecture.** Coined by Mike Nygard, popularized in *Team Topologies* (Skelton & Pais).
+A specific organizational move: **change the team structure to produce the desired architecture.** Coined by Jonny LeRoy and Matt Simons (Cutter IT Journal, December 2010); popularized in *Team Topologies* (Skelton & Pais, 2019).
 
 Example: you want to move from a monolith to a set of services. The monolith is owned by one team. Conway predicts that under one team, the system will trend back toward monolithic shape. The fix isn't more architectural rules — it's to split the team along the desired service boundaries. Each new team takes ownership of a service and is on-call for it. The architecture follows.
 

@@ -1,6 +1,6 @@
 ---
 name: secure-coding-fundamentals
-description: "Identify and prevent security vulnerabilities in application code. Use this skill whenever the task involves a security review, threat modeling, authentication / authorization design, handling user input, working with secrets, designing or evaluating cryptography choices, reviewing trust boundaries, evaluating supply-chain risk (dependencies, packages), reviewing changes to LLM/AI systems for prompt-injection and excessive-agency risks, or reviewing any code that touches money, PII, credentials, or production access. Built on OWASP Top 10 (2021) and OWASP Top 10 for LLM Applications (2025), with concrete patterns and what to flag in review."
+description: "Identify and prevent security vulnerabilities in application code. Use this skill whenever the task involves a security review, threat modeling, authentication / authorization design, handling user input, working with secrets, designing or evaluating cryptography choices, reviewing trust boundaries, evaluating supply-chain risk (dependencies, packages), reviewing changes to LLM/AI systems for prompt-injection and excessive-agency risks, or reviewing any code that touches money, PII, credentials, or production access. Built on OWASP Top 10:2025 and OWASP Top 10 for LLM Applications (2025), with concrete patterns and what to flag in review."
 ---
 
 # Secure Coding Fundamentals
@@ -28,13 +28,13 @@ At every trust boundary:
 
 Most security bugs are a missing check at a boundary. The defense is not "be careful." It is structural: the boundary must be at a known place in the code, every interaction crossing it must go through a documented checkpoint, and the checkpoint must be impossible to forget (enforced by type, by middleware, or by review discipline).
 
-## OWASP Top 10 (2021) — the application security baseline
+## OWASP Top 10:2025 — the application security baseline
 
-Every reviewer should know these by heart. They are the categories of vulnerabilities that account for most real-world incidents.
+Every reviewer should know these by heart. They are the categories of vulnerabilities that account for most real-world incidents. The 2025 release reordered, renamed, and consolidated several categories from the 2021 list — notably it absorbed Server-Side Request Forgery into Broken Access Control, replaced "Vulnerable and Outdated Components" with the broader **Software Supply Chain Failures**, and added **Mishandling of Exceptional Conditions**. Verify the current edition at `https://owasp.org/Top10/`.
 
-### A01: Broken Access Control
+### A01:2025 Broken Access Control
 
-The user is authenticated, but the system fails to check whether they're allowed to do *this specific operation on this specific resource*.
+The user is authenticated, but the system fails to check whether they're allowed to do *this specific operation on this specific resource*. The 2025 edition consolidates Server-Side Request Forgery (SSRF) into this category — see the SSRF subsection below.
 
 Common shapes:
 - An endpoint that takes a resource ID and returns the resource without checking whether the calling user owns it. (`GET /orders/123` returns order 123 to anyone authenticated.)
@@ -50,60 +50,21 @@ Defense:
 - Define a permissions model centrally; enforce it via middleware or decorators that are impossible to forget.
 - Test: write tests that try to access another tenant's data with a valid auth token. They should 403/404.
 
-### A02: Cryptographic Failures
+#### Server-Side Request Forgery (SSRF) — consolidated into A01 in the 2025 edition
 
-Sensitive data exposed because crypto is missing, weak, or misused.
-
-Common shapes:
-- Passwords stored in plaintext or with weak hashing (MD5, SHA-1 unsalted).
-- Tokens or session IDs that are guessable or reused.
-- HTTP instead of HTTPS for sensitive operations.
-- Custom cryptography (homegrown algorithms, custom protocols).
-- Hardcoded keys in source.
-- Sensitive data in URLs (`?token=...` — ends up in logs).
-
-Defense:
-- Hash passwords with argon2id, bcrypt, or scrypt. Never SHA-1/MD5/SHA-256 directly.
-- Use the language's vetted crypto library (libsodium, golang.org/x/crypto, etc.). Never implement crypto from scratch.
-- TLS for every external connection. HSTS for web.
-- Sensitive data goes in headers or bodies, not URLs.
-- Keys come from a secret manager. Rotate periodically. Never in source, never in logs.
-
-### A03: Injection (SQL, OS command, LDAP, NoSQL, expression injection)
-
-User input concatenated into a query/command/expression that's then executed.
+The server fetches a URL controlled by the attacker, who uses it to reach internal services they shouldn't have access to. SSRF was a standalone category (A10) in the 2021 list and has been folded into Broken Access Control because the underlying flaw is the same: the server acts on behalf of the attacker without checking whether the attacker is authorized to reach the destination.
 
 Common shapes:
-- `f"SELECT * FROM users WHERE name = '{name}'"` — SQL injection.
-- `subprocess.run(f"convert {filename} out.png", shell=True)` — command injection.
-- `eval(user_input)`, `Function(user_input)` — code injection.
-- HTML rendering without escaping — XSS (cross-site scripting).
-- Template engines that auto-escape disabled.
+- An "import from URL" feature that fetches whatever URL the user provides.
+- A "convert to PDF" service that fetches the URL passed in.
+- An OAuth callback URL not strictly validated.
 
 Defense:
-- **Parameterized queries.** Always. Every database call. The query string contains placeholders; the values come separately.
-- **Subprocess with `args` list** (not `shell=True`). The shell is the injection vector.
-- **Never `eval` user input.** No exceptions.
-- **Escape output by context.** HTML escaping for HTML; URL encoding for URLs; SQL parameterization for SQL. The right escaping depends on where the value lands.
-- **Use frameworks that auto-escape.** Modern templating engines escape by default; never disable that.
-- **Content Security Policy** for web apps to mitigate XSS impact.
+- Allow-list the domains the server will fetch from.
+- Block private IP ranges (`127.0.0.1`, `10.0.0.0/8`, `169.254.169.254` — the last is the AWS metadata endpoint, a famous SSRF target).
+- Run outbound fetches through a proxy that enforces the policy.
 
-### A04: Insecure Design
-
-The vulnerability is in the design, not the code. The code does what the design says; the design is wrong.
-
-Examples:
-- A "forgot password" flow that lets attackers enumerate accounts.
-- A registration flow with no rate limiting that allows credential stuffing.
-- A trust model where any authenticated user can perform any privileged action.
-- A workflow that depends on hidden client-side validation only.
-
-Defense:
-- Threat model new features. Ask: who can do what? What if they're hostile? What if they have stolen credentials? What if they can intercept traffic?
-- Build security in at design time, not bolted on later.
-- Use the principle of least privilege at every layer.
-
-### A05: Security Misconfiguration
+### A02:2025 Security Misconfiguration
 
 The defaults that should have been changed weren't, or the production config has development-mode settings.
 
@@ -122,18 +83,81 @@ Defense:
 - Automated config scanning (cloud security posture tools, kube-bench, etc.).
 - Sensible defaults at the framework level.
 
-### A06: Vulnerable and Outdated Components
+### A03:2025 Software Supply Chain Failures
 
-You're running code with known CVEs because dependencies are old.
+New top-level category in the 2025 edition, broader than the 2021 "Vulnerable and Outdated Components." Covers the full chain: dependencies you import, build tools you run, signing infrastructure, package registries, CI/CD pipelines, and the integrity of the artifacts you ship.
+
+Common shapes:
+- Known-vulnerable dependencies left unpatched.
+- Typosquatted or namespace-confused packages (`requests` vs `requesst`, internal name shadowed by a public registry).
+- A build pipeline that pulls dependencies without verifying lockfile hashes or signatures.
+- Updates pulled from CDNs or registries without integrity checks (no Subresource Integrity, no signature verification).
+- Compromised maintainer accounts; malicious updates pushed to widely-used packages.
+- A build server that can be tampered with to inject artifacts post-compile.
 
 Defense:
-- Dependency scanning in CI (Dependabot, Snyk, Trivy, OSV-Scanner).
-- Patch management policy with SLAs by severity.
-- Regular updates, not "we'll get to it."
-- For critical dependencies, watch upstream advisories.
-- Lock files committed to source. Reproducible builds.
+- Dependency scanning in CI (Dependabot, Snyk, Trivy, OSV-Scanner). Patch SLAs by severity.
+- Lock files committed; verify hashes on install. Reproducible builds.
+- Sign artifacts (Sigstore, in-toto, SLSA provenance). Verify signatures before deploy.
+- Subresource Integrity (SRI) for CDN-loaded scripts.
+- Pin and audit transitive dependencies for critical paths.
+- Watch upstream advisories for direct dependencies you carry.
+- Treat the build pipeline as production infrastructure with the same access controls.
 
-### A07: Identification and Authentication Failures
+### A04:2025 Cryptographic Failures
+
+Sensitive data exposed because crypto is missing, weak, or misused.
+
+Common shapes:
+- Passwords stored in plaintext or with weak hashing (MD5, SHA-1 unsalted).
+- Tokens or session IDs that are guessable or reused.
+- HTTP instead of HTTPS for sensitive operations.
+- Custom cryptography (homegrown algorithms, custom protocols).
+- Hardcoded keys in source.
+- Sensitive data in URLs (`?token=...` — ends up in logs).
+
+Defense:
+- Hash passwords with argon2id, bcrypt, or scrypt. Never SHA-1/MD5/SHA-256 directly.
+- Use the language's vetted crypto library (libsodium, golang.org/x/crypto, etc.). Never implement crypto from scratch.
+- TLS for every external connection. HSTS for web.
+- Sensitive data goes in headers or bodies, not URLs.
+- Keys come from a secret manager. Rotate periodically. Never in source, never in logs.
+
+### A05:2025 Injection (SQL, OS command, LDAP, NoSQL, expression injection)
+
+User input concatenated into a query/command/expression that's then executed.
+
+Common shapes:
+- `f"SELECT * FROM users WHERE name = '{name}'"` — SQL injection.
+- `subprocess.run(f"convert {filename} out.png", shell=True)` — command injection.
+- `eval(user_input)`, `Function(user_input)` — code injection.
+- HTML rendering without escaping — XSS (cross-site scripting).
+- Template engines that auto-escape disabled.
+
+Defense:
+- **Parameterized queries.** Always. Every database call. The query string contains placeholders; the values come separately.
+- **Subprocess with `args` list** (not `shell=True`). The shell is the injection vector.
+- **Never `eval` user input.** No exceptions.
+- **Escape output by context.** HTML escaping for HTML; URL encoding for URLs; SQL parameterization for SQL. The right escaping depends on where the value lands.
+- **Use frameworks that auto-escape.** Modern templating engines escape by default; never disable that.
+- **Content Security Policy** for web apps to mitigate XSS impact.
+
+### A06:2025 Insecure Design
+
+The vulnerability is in the design, not the code. The code does what the design says; the design is wrong.
+
+Examples:
+- A "forgot password" flow that lets attackers enumerate accounts.
+- A registration flow with no rate limiting that allows credential stuffing.
+- A trust model where any authenticated user can perform any privileged action.
+- A workflow that depends on hidden client-side validation only.
+
+Defense:
+- Threat model new features. Ask: who can do what? What if they're hostile? What if they have stolen credentials? What if they can intercept traffic?
+- Build security in at design time, not bolted on later.
+- Use the principle of least privilege at every layer.
+
+### A07:2025 Authentication Failures
 
 Authentication is wrong, weak, or missing.
 
@@ -153,24 +177,22 @@ Defense:
 - Session rotation on privilege change.
 - Short token lifetimes; revocation mechanism.
 
-### A08: Software and Data Integrity Failures
+### A08:2025 Software or Data Integrity Failures
 
-Code or data altered in transit, or supply chain compromised.
+Code or data altered in transit, or trust placed in a deserializer or webhook without verification. Distinct from A03 Software Supply Chain Failures: A03 covers the chain of producing and distributing the artifact; A08 covers integrity at the consumption boundary.
 
 Common shapes:
-- CI/CD pipelines that fetch dependencies without verification (no lock file, no hash).
-- Updates pulled from untrusted CDNs without integrity checks.
-- Deserializing untrusted data (`pickle.loads()`, unsafe YAML, etc.).
+- Deserializing untrusted data (`pickle.loads()`, unsafe YAML, Java native serialization, .NET BinaryFormatter, PHP unserialize).
 - Webhooks accepted without signature verification.
+- Updates fetched without integrity checks at runtime.
+- Auto-updating clients that don't verify signatures.
 
 Defense:
-- Subresource Integrity (SRI) for CDN-loaded scripts.
-- Lock files with hashes; verify on install.
-- Sign artifacts; verify signatures before deploy.
-- Never deserialize untrusted data with formats that allow code execution. Use safe deserializers.
-- Verify webhook signatures (HMAC) before processing.
+- Never deserialize untrusted data with formats that allow code execution. Use safe deserializers (JSON, MessagePack with explicit schemas).
+- Verify webhook signatures (HMAC) before processing — every time, on every webhook.
+- Sign and verify auto-updates; pin certificates where appropriate.
 
-### A09: Security Logging and Monitoring Failures
+### A09:2025 Security Logging and Alerting Failures
 
 A breach happened; nobody noticed; nobody can investigate.
 
@@ -182,19 +204,24 @@ Defense:
 - Logs immutable and retained for an appropriate period.
 - Don't log secrets, full PII, or session tokens.
 
-### A10: Server-Side Request Forgery (SSRF)
+### A10:2025 Mishandling of Exceptional Conditions
 
-The server fetches a URL controlled by the attacker, who uses it to reach internal services they shouldn't have access to.
+New category in the 2025 edition. Errors, exceptions, and edge cases handled incorrectly become security failures: a swallowed exception that bypasses an authorization check, a fail-open default when a downstream service is unreachable, an error path that leaks stack traces or returns the wrong privilege level.
 
 Common shapes:
-- An "import from URL" feature that fetches whatever URL the user provides.
-- A "convert to PDF" service that fetches the URL passed in.
-- An OAuth callback URL not strictly validated.
+- A `try/except` that catches a broad exception and proceeds as if successful, silently bypassing a check that raised.
+- An "if the auth service is down, allow the request" fail-open policy.
+- A timeout on a permission check that defaults to allow rather than deny.
+- An exception handler that returns the raw exception message to the user, leaking SQL, file paths, internal IDs, or stack traces.
+- A retry loop that retries an operation that already partially succeeded, without idempotency, producing inconsistent state.
+- Different error responses for "user not found" vs "wrong password" — see Authentication Failures.
 
 Defense:
-- Allow-list the domains the server will fetch from.
-- Block private IP ranges (`127.0.0.1`, `10.0.0.0/8`, `169.254.169.254` — that last is the AWS metadata endpoint, a famous SSRF target).
-- Run outbound fetches through a proxy that enforces the policy.
+- **Fail closed by default.** When in doubt, deny. Authorization timeouts, unreachable auth services, ambiguous error states should all default to deny.
+- **Catch narrowly.** Catch the specific exceptions you can handle; let the rest propagate. Broad `except:` clauses are how authorization checks get silently bypassed.
+- **Sanitize error messages crossing trust boundaries.** Internal exception details belong in logs, not in user-facing responses.
+- **Distinguish recoverable from unrecoverable** in code. Recoverable errors get a retry path with idempotency; unrecoverable errors fail loudly.
+- See `error-handling-and-resilience` for the broader discipline; the security-relevant subset is what concerns this category.
 
 ## OWASP Top 10 for LLM Applications (2025)
 
