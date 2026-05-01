@@ -17,10 +17,6 @@ This produces a specific failure mode: the bug is not in what the code *does*, i
 
 The defense is verification, not intuition. Trust nothing you didn't check.
 
-## Reference library
-
-- `references/verification-recipes.md` — concrete, executable steps for catching each antipattern. When an antipattern is suspected, this file has the actual command/check.
-
 ## The catalog
 
 ### Hallucinated APIs
@@ -258,3 +254,7 @@ Specifically for AI-authored code:
 - Confident assertions about behavior without evidence.
 
 When you find one, name it. Authors (and other AIs) learn to do better when the antipattern has a name and a fix.
+
+## Reference library
+
+- `references/verification-recipes.md` — concrete, executable steps for catching each antipattern. When an antipattern is suspected, this file has the actual command/check.

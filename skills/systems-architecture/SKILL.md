@@ -279,7 +279,7 @@ Architecture mirrors organization. (See `software-design-principles` for the dep
 
 For an architectural change that doesn't match the org: either the org changes, or the architecture won't survive.
 
-## What to flag in an architecture review
+## What to flag in review
 
 - **No problem statement.** What problem are we solving? What's the success criterion?
 - **No alternatives considered.** What other approaches were rejected and why?

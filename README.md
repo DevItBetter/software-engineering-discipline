@@ -105,7 +105,7 @@ The orchestrator and specialties trigger when their domain is in play. The orche
 
 The suite was built with two rounds of adversarial red-team review per addition. The pattern: write, red-team, fix the substantive findings, ship. When extending the suite, follow the same pattern — bare assertions don't survive expert scrutiny, and the suite's authority depends on every skill holding up to it.
 
-Each `SKILL.md` includes a "What to flag in review" section that doubles as a checklist for self-review. If you're modifying a skill, run that checklist on your changes.
+Most `SKILL.md` files include a "What to flag in review" section that doubles as a checklist for self-review. If you're modifying a skill and that section exists, run it on your changes.
 
 ## Status
 

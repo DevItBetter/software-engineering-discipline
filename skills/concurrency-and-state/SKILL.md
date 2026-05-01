@@ -166,7 +166,7 @@ For systems that need strong consistency: use a database that provides it (singl
 
 For systems that can tolerate eventual consistency: design the application to handle staleness. Convergent data types (CRDTs) for collaborative editing. Last-write-wins with a clear conflict resolution policy. Manual reconciliation procedures when divergence is detected.
 
-## Specific patterns to flag in review
+## What to flag in review
 
 - **Read-modify-write without atomic primitive or lock.** Always a race.
 - **Lock held across an I/O call.** Tail-latency disaster waiting to happen.

@@ -411,7 +411,7 @@ Pragmatic stance:
 
 The honest version: ORMs save substantial time for simple cases and cost substantial time for complex ones. Plan to use raw SQL for the 10-20% of queries that aren't simple.
 
-## Specific patterns to flag in review
+## What to flag in review
 
 - **A new table with no primary key.** Almost always wrong.
 - **A new column without NOT NULL or a documented reason.**
