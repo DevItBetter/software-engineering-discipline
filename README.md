@@ -4,30 +4,33 @@ A suite of 15 software-engineering skills designed to hold up under expert scrut
 
 ## Where to start
 
-**`engineering-discipline/`** is the orchestrator and the entry point. It owns the workflow, the triage, the standards, and the output format. When the work is broad enough to need cross-domain triage, start here. The orchestrator routes to specialty skills.
+**`skills/engineering-discipline/`** is the orchestrator and the entry point. It owns the workflow, the triage, the standards, and the output format. When the work is broad enough to need cross-domain triage, start here. The orchestrator routes to specialty skills.
 
 The other 14 skills are specialties. They trigger **independently** when their domain is in play — you don't have to go through the orchestrator. Ask "should I add an index?" and `database-and-data-modeling` triggers directly. Ask "is this a good abstraction?" and `software-design-principles` triggers directly. The orchestrator coordinates when the work spans domains; the specialties stand alone for focused questions.
 
 ## The structure
 
 ```
-Rock solid engineering skills/
-├── engineering-discipline/          ← orchestrator / entry point
-├── software-design-principles/
-├── code-smells-and-antipatterns/    ← diagnostic side: name what's wrong
-├── refactoring-and-code-smells/     ← corrective side: refactoring techniques
-├── testing-discipline/
-├── error-handling-and-resilience/
-├── api-and-interface-design/
-├── secure-coding-fundamentals/
-├── concurrency-and-state/
-├── performance-engineering/
-├── systems-architecture/
-├── database-and-data-modeling/
-├── debugging-and-incident-response/
-├── documentation-and-technical-writing/
-├── ai-coding-antipatterns/
-└── code-review-best-practices/      ← deprecated; safe to delete
+software-engineering-discipline/
+├── skills/
+│   ├── engineering-discipline/          ← orchestrator / entry point
+│   ├── software-design-principles/
+│   ├── code-smells-and-antipatterns/    ← diagnostic side: name what's wrong
+│   ├── refactoring-and-code-smells/     ← corrective side: refactoring techniques
+│   ├── testing-discipline/
+│   ├── error-handling-and-resilience/
+│   ├── api-and-interface-design/
+│   ├── secure-coding-fundamentals/
+│   ├── concurrency-and-state/
+│   ├── performance-engineering/
+│   ├── systems-architecture/
+│   ├── database-and-data-modeling/
+│   ├── debugging-and-incident-response/
+│   ├── documentation-and-technical-writing/
+│   ├── ai-coding-antipatterns/
+│   └── code-review-best-practices/      ← deprecated; safe to delete
+├── README.md
+└── LICENSE
 ```
 
 Each skill is a directory with:
@@ -67,11 +70,23 @@ The work is built on three convictions:
 
 ## Sources
 
-The canon this suite is built on: Fowler (*Refactoring* 2nd ed.), Ousterhout (*A Philosophy of Software Design*), Hickey (*Simple Made Easy*), Parnas (*On the Criteria…*), Kleppmann (*DDIA*), Evans / Vernon (DDD), Lampson (*Hints*), Newman (*Building Microservices*), Beck (*TDD*, *Tidy First?*), Feathers (*Working Effectively with Legacy Code*), Metz (POODR), Allspaw (Etsy postmortems), Dekker (Safety II), Zeller (*Why Programs Fail*), Agans (*Debugging: 9 Indispensable Rules*), Procida (Diátaxis), Winand (*SQL Performance Explained*), Google Engineering Practices, Google SRE Workbook, OWASP Top 10 (and OWASP Top 10 for LLM Applications). Full citations in `engineering-discipline/references/sources.md`.
+The canon this suite is built on: Fowler (*Refactoring* 2nd ed.), Ousterhout (*A Philosophy of Software Design*), Hickey (*Simple Made Easy*), Parnas (*On the Criteria…*), Kleppmann (*DDIA*), Evans / Vernon (DDD), Lampson (*Hints*), Newman (*Building Microservices*), Beck (*TDD*, *Tidy First?*), Feathers (*Working Effectively with Legacy Code*), Metz (POODR), Allspaw (Etsy postmortems), Dekker (Safety II), Zeller (*Why Programs Fail*), Agans (*Debugging: 9 Indispensable Rules*), Procida (Diátaxis), Winand (*SQL Performance Explained*), Google Engineering Practices, Google SRE Workbook, OWASP Top 10 (and OWASP Top 10 for LLM Applications). Full citations in `skills/engineering-discipline/references/sources.md`.
 
 ## Using the suite
 
-**With Claude (or another agent that supports skills):** the skills are designed to be invoked by their description. Drop this folder into your skills directory; the orchestrator and specialties trigger when their domain is in play. The orchestrator's description is deliberately broad ("any non-trivial engineering work") so it triggers as the entry point; specialty descriptions are scoped to their domains.
+**With Claude (or another agent that supports skills):** the skills are designed to be invoked by their description. Install the suite with:
+
+```bash
+npx skills add DevItBetter/software-engineering-discipline --all
+```
+
+Or install individual skills:
+
+```bash
+npx skills add DevItBetter/software-engineering-discipline --skill engineering-discipline
+```
+
+The orchestrator and specialties trigger when their domain is in play. The orchestrator's description is deliberately broad ("any non-trivial engineering work") so it triggers as the entry point; specialty descriptions are scoped to their domains.
 
 **Without an agent:** the SKILL.md files are also designed to be readable as standalone references. A senior engineer onboarding to a team can read through them in roughly the order an engineer reaches for the topics across a career.
 

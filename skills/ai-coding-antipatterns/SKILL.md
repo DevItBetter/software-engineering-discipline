@@ -1,6 +1,6 @@
 ---
 name: ai-coding-antipatterns
-description: Catch the failure modes that LLM-generated code routinely produces — failures that look plausible, follow conventions, and pass shallow review, while being subtly or obviously wrong. Use this skill whenever reviewing code that was written by an AI (Claude, GPT, Copilot, Codex, Cursor, etc.), whenever you suspect the code was written by an AI, whenever you're writing code with AI assistance and want a sanity check, and proactively in any code review since AI-authored code is now common. The patterns are specific (hallucinated APIs, fabricated dependencies, sycophantic agreement, defensive over-handling, ignoring local conventions, fake tests, scope creep, deletion aversion) and the discipline is: never assume, always verify.
+description: "Catch the failure modes that LLM-generated code routinely produces — failures that look plausible, follow conventions, and pass shallow review, while being subtly or obviously wrong. Use this skill whenever reviewing code that was written by an AI (Claude, GPT, Copilot, Codex, Cursor, etc.), whenever you suspect the code was written by an AI, whenever you're writing code with AI assistance and want a sanity check, and proactively in any code review since AI-authored code is now common. The patterns are specific (hallucinated APIs, fabricated dependencies, sycophantic agreement, defensive over-handling, ignoring local conventions, fake tests, scope creep, deletion aversion) and the discipline is: never assume, always verify."
 ---
 
 # AI Coding Antipatterns

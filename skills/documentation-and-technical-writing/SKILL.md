@@ -1,6 +1,6 @@
 ---
 name: documentation-and-technical-writing
-description: Write documentation, design docs, ADRs, READMEs, commit messages, and other engineering communication that holds up under reading. Use this skill whenever the task involves writing for engineers (or being read by engineers): READMEs, design docs, technical specs, RFCs, ADRs, runbooks, API documentation, commit messages, PR descriptions, postmortems, technical blog posts, onboarding docs, or asking "how should I structure this writeup." Bad docs cost more than bad code; good docs scale knowledge across the team and across years. Built on the Diátaxis framework (Daniele Procida), Google's developer documentation style guide, the design-doc culture from Google and others, and Conventional Commits.
+description: "Write documentation, design docs, ADRs, READMEs, commit messages, and other engineering communication that holds up under reading. Use this skill whenever the task involves writing for engineers (or being read by engineers): READMEs, design docs, technical specs, RFCs, ADRs, runbooks, API documentation, commit messages, PR descriptions, postmortems, technical blog posts, onboarding docs, or asking \"how should I structure this writeup.\" Bad docs cost more than bad code; good docs scale knowledge across the team and across years. Built on the Diátaxis framework (Daniele Procida), Google's developer documentation style guide, the design-doc culture from Google and others, and Conventional Commits."
 ---
 
 # Documentation and Technical Writing

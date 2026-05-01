@@ -1,0 +1,7 @@
+{
+  "name": "software-engineering-discipline",
+  "version": "1.0.0",
+  "description": "15 software-engineering skills for AI agents — evidence-backed, canon-named, and resistant to the failure modes that produce code that looks correct but isn't.",
+  "private": true,
+  "license": "MIT"
+}
