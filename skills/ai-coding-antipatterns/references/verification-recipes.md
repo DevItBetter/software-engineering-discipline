@@ -56,7 +56,7 @@ For each AI-generated test:
 
 1. Read the production code under test.
 2. Read the test.
-3. Mentally remove the production change (or git stash it). 
+3. Mentally remove the production change (or git stash it).
 4. Run the test in your head with the unmodified production code.
 5. Does the test fail?
 

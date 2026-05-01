@@ -1,6 +1,6 @@
 ---
 name: api-and-interface-design
-description: Design APIs and interfaces that are hard to misuse, easy to evolve, and honest about their contracts. Use this skill whenever the task involves designing or reviewing an API (HTTP, RPC, GraphQL, library/SDK, internal interface), evaluating contract changes for breaking-change risk, choosing between sync and async, designing pagination / errors / versioning / idempotency, judging whether an API is "ergonomic", thinking about backward compatibility, deciding default values, naming endpoints/resources, designing an SDK, or asking "is this a good API." Also use when reviewing changes to existing public APIs — Hyrum's Law applies the moment a change ships.
+description: "Design APIs and interfaces that are hard to misuse, easy to evolve, and honest about their contracts. Use this skill whenever the task involves designing or reviewing an API (HTTP, RPC, GraphQL, library/SDK, internal interface), evaluating contract changes for breaking-change risk, choosing between sync and async, designing pagination / errors / versioning / idempotency, judging whether an API is \"ergonomic\", thinking about backward compatibility, deciding default values, naming endpoints/resources, designing an SDK, or asking \"is this a good API.\" Also use when reviewing changes to existing public APIs — Hyrum's Law applies the moment a change ships."
 ---
 
 # API and Interface Design

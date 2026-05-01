@@ -47,10 +47,10 @@ def test_process_order():
     payment = Mock()
     notifier = Mock()
     audit = Mock()
-    
+
     service = OrderService(repo, payment, notifier, audit)
     service.process(order)
-    
+
     repo.save.assert_called_once()
     payment.charge.assert_called_once()
     notifier.send.assert_called_once()

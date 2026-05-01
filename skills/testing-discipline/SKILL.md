@@ -1,6 +1,6 @@
 ---
 name: testing-discipline
-description: Senior-engineer guidance on what to test, how to test it, and the test design choices that decide whether a test suite is an asset or a liability. Use this skill whenever the task involves writing tests, evaluating an existing test suite, deciding what to test for a new feature, debating mocks vs fakes vs integration tests, choosing between unit / integration / contract / property / end-to-end tests, judging test coverage, fixing flaky tests, or asking "is this test actually useful." Also use it whenever an AI is generating tests — AI-generated tests have characteristic failure modes (testing the implementation, tautological assertions, beautiful-but-shallow boilerplate) that this skill catches.
+description: "Senior-engineer guidance on what to test, how to test it, and the test design choices that decide whether a test suite is an asset or a liability. Use this skill whenever the task involves writing tests, evaluating an existing test suite, deciding what to test for a new feature, debating mocks vs fakes vs integration tests, choosing between unit / integration / contract / property / end-to-end tests, judging test coverage, fixing flaky tests, or asking \"is this test actually useful.\" Also use it whenever an AI is generating tests — AI-generated tests have characteristic failure modes (testing the implementation, tautological assertions, beautiful-but-shallow boilerplate) that this skill catches."
 ---
 
 # Testing Discipline

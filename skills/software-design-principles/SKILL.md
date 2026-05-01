@@ -1,6 +1,6 @@
 ---
 name: software-design-principles
-description: Senior-engineer guidance on software design — modularity, cohesion, coupling, abstraction, complexity, SOLID-with-nuance, DRY/KISS/YAGNI, naming, and readability. Use this whenever the task involves designing a new module, evaluating whether an abstraction is pulling its weight, deciding how to decompose a system into pieces, judging the quality of an existing design, naming things, or asking "is this a good design" / "should I extract this" / "is this the right level of abstraction" / "how should I split this up." Also use it when reviewing code with design implications, when refactoring decisions are being made, and whenever a design feels off but the cause is hard to articulate. This skill teaches the vocabulary to name what is wrong.
+description: "Senior-engineer guidance on software design — modularity, cohesion, coupling, abstraction, complexity, SOLID-with-nuance, DRY/KISS/YAGNI, naming, and readability. Use this whenever the task involves designing a new module, evaluating whether an abstraction is pulling its weight, deciding how to decompose a system into pieces, judging the quality of an existing design, naming things, or asking \"is this a good design\" / \"should I extract this\" / \"is this the right level of abstraction\" / \"how should I split this up.\" Also use it when reviewing code with design implications, when refactoring decisions are being made, and whenever a design feels off but the cause is hard to articulate. This skill teaches the vocabulary to name what is wrong."
 ---
 
 # Software Design Principles
@@ -215,4 +215,3 @@ When you see these in review, the right response is often "this needs a design c
 - `references/abstractions-that-pay-rent.md` — when an abstraction earns its keep, and the names that signal it doesn't.
 - `references/naming-and-readability.md` — names, function shape, comments-for-why, the squint test, idiomatic local consistency.
 - `references/conways-law-and-team-topology.md` — how organization shapes design, and when to change the org.
-    
