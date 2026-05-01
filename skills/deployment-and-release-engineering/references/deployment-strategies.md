@@ -108,7 +108,7 @@ The decision is rarely "which strategy" alone — it's "which combination, gated
 
 ## Sources
 
-- Humble &amp; Farley. *Continuous Delivery* (Addison-Wesley, 2010), ch. 10 (Deploying and Releasing Applications).
+- Humble & Farley. *Continuous Delivery* (Addison-Wesley, 2010), ch. 10 (Deploying and Releasing Applications).
 - Martin Fowler. *BlueGreenDeployment* bliki. `https://martinfowler.com/bliki/BlueGreenDeployment.html`.
 - Danilo Sato. *Canary Release* on martinfowler.com (2014). `https://martinfowler.com/bliki/CanaryRelease.html`.
 - Martin Fowler. *DarkLaunching* bliki (2020). `https://martinfowler.com/bliki/DarkLaunching.html`.

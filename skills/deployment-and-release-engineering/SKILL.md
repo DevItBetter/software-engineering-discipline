@@ -1,6 +1,6 @@
 ---
 name: deployment-and-release-engineering
-description: "How to ship software safely and often — continuous delivery, deployment strategies (rolling, blue/green, canary, shadow, dark launch, progressive delivery), feature flags, rollback discipline, schema-migration patterns, and the cultural practices that separate elite delivery teams from low performers. Use this skill whenever the task involves designing or evaluating a release strategy, choosing a deployment pattern, planning a schema or data migration, designing a feature flag, judging an alerting/rollback policy for a rollout, evaluating CI/CD pipelines, or asking \"how do we ship this without breaking production.\" Use it when reviewing changes to deployment manifests, pipeline definitions, feature-flag wiring, or migration scripts. Anchored in Humble &amp; Farley's *Continuous Delivery*, Forsgren/Humble/Kim's *Accelerate* (DORA research), the Google SRE corpus, Pete Hodgson on feature toggles, Danilo Sato's parallel change, and Werner Vogels' \"you build it, you run it.\""
+description: "How to ship software safely and often — continuous delivery, deployment strategies (rolling, blue/green, canary, shadow, dark launch, progressive delivery), feature flags, rollback discipline, schema-migration patterns, and the cultural practices that separate elite delivery teams from low performers. Use this skill whenever the task involves designing or evaluating a release strategy, choosing a deployment pattern, planning a schema or data migration, designing a feature flag, judging an alerting/rollback policy for a rollout, evaluating CI/CD pipelines, or asking \"how do we ship this without breaking production.\" Use it when reviewing changes to deployment manifests, pipeline definitions, feature-flag wiring, or migration scripts. Anchored in Humble & Farley's *Continuous Delivery*, Forsgren/Humble/Kim's *Accelerate* (DORA research), the Google SRE corpus, Pete Hodgson on feature toggles, Danilo Sato's parallel change, and Werner Vogels' \"you build it, you run it.\""
 ---
 
 # Deployment and Release Engineering
@@ -11,7 +11,7 @@ The empirical research is unambiguous. Forsgren, Humble, and Kim (*Accelerate*, 
 
 ## Continuous delivery vs. continuous deployment — get this distinction right
 
-Most secondary writing collapses these. The honest framing, from Humble &amp; Farley's *Continuous Delivery* (Addison-Wesley, 2010) and Martin Fowler's bliki:
+Most secondary writing collapses these. The honest framing, from Humble & Farley's *Continuous Delivery* (Addison-Wesley, 2010) and Martin Fowler's bliki:
 
 - **Continuous Delivery** is the discipline of building software so that the artifact is *always deployable*. Whether to ship is a business decision; the technical capability is continuous.
 - **Continuous Deployment** is the further step where every commit that passes the pipeline automatically reaches production. Every CD-deployment shop is a CD-delivery shop; the inverse is not required.
@@ -35,7 +35,7 @@ The strategy is the gradient between "deploy and watch" and "fully automate the 
 
 **Rolling deployment.** Default in container orchestrators (Kubernetes Deployments respecting `maxSurge`/`maxUnavailable`). Replaces v1 instances with v2 incrementally. Cheap, but: **a rolling deploy is not a canary** — there's no separate metric gate, just instance rotation. If v2 is broken, the rollout will happily run to completion regardless of error rate.
 
-**Blue/green deployment.** Two production environments — "blue" live, "green" idle — with a router/load-balancer flip between them. Deploy v2 to green, smoke-test, switch the router, keep blue around for instant rollback. Documented in *Continuous Delivery* (Humble &amp; Farley, 2010, ch. 10); Fowler's bliki credits the name to ThoughtWorks circa 2005, jointly to Daniel Terhorst-North and Jez Humble. Strength: rollback is a router flip. Constraint: schema changes must be split via parallel change so both versions can run against the same database.
+**Blue/green deployment.** Two production environments — "blue" live, "green" idle — with a router/load-balancer flip between them. Deploy v2 to green, smoke-test, switch the router, keep blue around for instant rollback. Documented in *Continuous Delivery* (Humble & Farley, 2010, ch. 10); Fowler's bliki credits the name to ThoughtWorks circa 2005, jointly to Daniel Terhorst-North and Jez Humble. Strength: rollback is a router flip. Constraint: schema changes must be split via parallel change so both versions can run against the same database.
 
 **Canary deployment.** Route a small fraction of traffic to v2 (commonly 1% → 5% → 25% → 50% → 100%), watch SLIs, expand or roll back. The metric-watching is the difference between a canary and a rolling deploy. Documented as a software pattern by Danilo Sato on Fowler's bliki (2014); the practice is widely associated with Google and Facebook. Bake time at each stage long enough to detect a regression at the SLO threshold given the traffic volume; short enough that rollouts complete in business-relevant time.
 
@@ -71,7 +71,7 @@ Many flag systems exist (LaunchDarkly, Split, Unleash, Flagsmith, Statsig, Growt
 
 ## Rollback discipline
 
-Every deploy must be reversible — by forward-fix or rollback — within minutes. This is foundational: Humble &amp; Farley ch. 10, Google SRE Book ch. 8 ("Release Engineering"), and DORA's recovery-time metric.
+Every deploy must be reversible — by forward-fix or rollback — within minutes. This is foundational: Humble & Farley ch. 10, Google SRE Book ch. 8 ("Release Engineering"), and DORA's recovery-time metric.
 
 **The hard case is data.** Code is reversible by redeploy; data, once destroyed or transformed, usually is not. A `DROP COLUMN` cannot simply be rolled back. The canonical solution is **parallel change** (Danilo Sato, martinfowler.com, 2014), also called **expand-contract**:
 
@@ -87,7 +87,7 @@ Each step is independently deployable and individually reversible. Only the fina
 
 ## CI/CD pipeline discipline
 
-**Pipeline as code.** The pipeline definition (`.github/workflows/`, `.gitlab-ci.yml`, Jenkinsfile, etc.) lives in the same repo as the code, reviewed in the same PRs. Humble &amp; Farley ch. 5; reinforced by GitOps practice.
+**Pipeline as code.** The pipeline definition (`.github/workflows/`, `.gitlab-ci.yml`, Jenkinsfile, etc.) lives in the same repo as the code, reviewed in the same PRs. Humble & Farley ch. 5; reinforced by GitOps practice.
 
 **Stage ordering — fail fast.** Cheap tests first: build → unit test → static analysis → security and dependency scan → integration test → artifact build → deploy to stage → smoke / acceptance → deploy to prod. The unit-test stage should fail in seconds, not minutes. The whole pipeline should fail in minutes, not hours, for the common-case bug.
 
