@@ -106,7 +106,3 @@ The orchestrator and specialties trigger when their domain is in play. The orche
 The suite was built with two rounds of adversarial red-team review per addition. The pattern: write, red-team, fix the substantive findings, ship. When extending the suite, follow the same pattern — bare assertions don't survive expert scrutiny, and the suite's authority depends on every skill holding up to it.
 
 Most `SKILL.md` files include a "What to flag in review" section that doubles as a checklist for self-review. If you're modifying a skill and that section exists, run it on your changes.
-
-## Status
-
-Active. The orchestrator (`engineering-discipline`) was renamed and broadened from the original `code-review-best-practices` skill to reflect the cross-mode role (review, design, debug, implement, document, refactor); the deprecated redirect has been removed. New specialty skills are added with the same two-round adversarial pattern that produced the originals.
