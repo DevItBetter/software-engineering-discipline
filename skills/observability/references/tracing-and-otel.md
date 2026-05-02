@@ -30,7 +30,7 @@ A trace is only as useful as its weakest propagation hop. **W3C Trace Context Le
 Use Trace Context end-to-end. The most common debugging frustration is a trace that ends mid-stack because:
 - A library on a hot path doesn't propagate headers (older HTTP clients, custom RPC frameworks, in-process queues).
 - An async hop (thread pool, goroutine, message queue) doesn't carry context across the boundary.
-- A non-HTTP transport (database, cache, message bus) doesn't have a propagation convention. (Some do — `db.system` semantic conventions in OpenTelemetry, AMQP/Kafka headers — but none are universally implemented.)
+- A non-HTTP transport (database, cache, message bus) doesn't have a propagation convention. (Some do — OpenTelemetry database semantic conventions, AMQP/Kafka headers — but none are universally implemented.)
 
 Audit propagation explicitly. Tools that confirm context survives every hop are worth the time.
 
@@ -51,7 +51,7 @@ As of early 2026, by signal:
 
 - **Tracing**: spec stable; SDKs Stable in C++, .NET, Erlang, Go, Java, JavaScript, PHP, Python, Ruby, Swift; Rust Beta.
 - **Metrics**: spec stable; Stable in most major SDKs; some still maturing.
-- **Logs**: most recent signal to stabilize; spec stable, but SDK Stable status only in some languages (C++, .NET, PHP at the time of writing). Most languages are still in Beta or Development for logs.
+- **Logs**: most recent signal to stabilize; spec stable, but SDK stability varies by language. Check the status page before adopting OTel logs SDKs in production.
 - **Collector**: mixed — core components have varying stability; v1 GA anticipated but not yet declared.
 
 When picking up OpenTelemetry, check the status page for *your language* and *your signal* before assuming production-readiness.
@@ -62,7 +62,7 @@ Semantic conventions are the cross-vendor agreement on attribute names. Without 
 
 - **Resource**: `service.name` (the only required Resource attribute), `service.version`, `service.namespace`, `deployment.environment`, host attributes, container attributes, k8s attributes.
 - **HTTP**: `http.request.method`, `http.response.status_code`, `url.path`, `url.full`, `server.address`, etc. **HTTP semantic conventions reached stable in spec v1.23.0, 2023.**
-- **DB**: `db.system`, `db.namespace`, `db.operation.name`, `db.query.text`.
+- **DB**: `db.system.name`, `db.namespace`, `db.operation.name`, `db.query.text`.
 - **Messaging**: `messaging.system`, `messaging.destination.name`, `messaging.operation`.
 - **RPC**: `rpc.system`, `rpc.service`, `rpc.method`.
 - **GenAI / LLM**: `gen_ai.system`, `gen_ai.request.model`, `gen_ai.usage.input_tokens`, etc. — actively evolving.

@@ -72,7 +72,7 @@ The orchestrator's foundational citations are above. Each specialty skill anchor
 
 ### Deployment and release engineering
 - **Jez Humble & David Farley, *Continuous Delivery*** (Addison-Wesley, 2010). The CD-as-discipline canon.
-- **Forsgren, Humble, Kim, *Accelerate*** (IT Revolution, 2018). The four DORA metrics.
+- **Forsgren, Humble, Kim, *Accelerate*** (IT Revolution, 2018). The empirical basis for DORA software-delivery metrics and delivery-performance research.
 - **Pete Hodgson, *Feature Toggles (aka Feature Flags)*** (martinfowler.com, 2017). Release / experiment / ops / permissioning taxonomy.
 - **Danilo Sato, *Parallel Change*** (martinfowler.com, 2014). Expand / migrate / contract.
 - **James Governor, *Towards Progressive Delivery*** (RedMonk, 2018).

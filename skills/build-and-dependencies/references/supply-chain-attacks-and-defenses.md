@@ -19,11 +19,11 @@ A multi-year social engineering campaign by a contributor using the pseudonym "J
 - 29 October 2021: first contribution.
 - 21 January 2022: first authored commit.
 - Mid-2022: co-maintainership granted to Jia Tan after a sock-puppet pressure campaign on the `xz-devel` mailing list using accounts "Jigar Kumar," "Dennis Ens," and others, all asking why the original maintainer was so slow.
-- 24 February 2024: `xz` 5.6.0 released, containing the backdoor staged in test fixtures.
-- 9 March 2024: 5.6.1 released with the fully active backdoor.
+- 24 February 2024: `xz` 5.6.0 released with malicious release-tarball content hidden in test fixtures.
+- 9 March 2024: 5.6.1 released with the backdoor still present and exploitability/detection details changed.
 - 29 March 2024: discovered by Andres Freund (Microsoft / PostgreSQL contributor) while investigating a 500ms vs. 100ms SSH login regression on Debian sid.
 
-The payload was hidden in test fixtures and triggered only during specific Debian/RPM build contexts. The lessons:
+The 5.6.0 and 5.6.1 release tarballs were affected; the payload triggered only during specific Debian/RPM build contexts. The lessons:
 
 1. **Sole-maintainer projects are a supply-chain risk.** The original `xz` maintainer was burned out; the social-engineering campaign exploited that. Critical infrastructure depending on overworked individuals is a structural problem.
 2. **Test fixtures are code that runs.** Hiding the payload in `.test` files passed casual review.
@@ -37,7 +37,7 @@ The payload was hidden in test fixtures and triggered only during specific Debia
 Birsan breached 35 companies (Apple, Microsoft, PayPal, Shopify, Netflix, Yelp, Tesla, Uber, etc.), earning over $130k in bug bounties. Defense:
 
 - Scope or namespace internal packages (`@mycompany/foo` rather than `foo`).
-- Configure resolvers to refuse public-registry fallback for private names. npm: `package-lock-only` mode and registry overrides; pip: `--index-url` plus explicit `--extra-index-url` policy.
+- Configure resolvers to refuse public-registry fallback for private names. npm: scoped internal package names plus `.npmrc` scope-to-registry mappings and private-registry enforcement; pip: `--index-url` plus explicit `--extra-index-url` policy.
 - Maintain a private registry proxy that mediates all package fetches.
 
 ### event-stream (November 2018)
@@ -64,7 +64,7 @@ Introduced by Google in June 2021, now an OpenSSF project at `slsa.dev`. SLSA v1
 
 - **L1**: automated build process; provenance generated.
 - **L2**: hosted build platform; provenance signed.
-- **L3**: build platform hardened; provenance non-forgeable; isolated builds; reproducible source-to-artifact mapping.
+- **L3**: build platform hardened; provenance non-forgeable; builds isolated from one another and from provenance-signing material.
 
 Older SLSA v0.1 had four levels (L1–L4); the v1.0 restructure split SLSA into separate orthogonal tracks (Build, with Source and Dependencies tracks planned), so the v0.1 L4 requirements did not map 1:1 onto a future Source track. When citing SLSA levels, anchor to v1.0 — articles citing "L1–L4" predate the restructure.
 
@@ -97,7 +97,7 @@ Either is fine; pick by what your downstream consumers expect. Tools that genera
 
 The point of an SBOM is that "what is in this artifact?" is a question with a precise answer. Without one, a vulnerability disclosure (Log4Shell, xz-utils) becomes a manual hunt across every artifact you've ever shipped.
 
-US Executive Order 14028 (May 2021) made SBOM federal procurement standard practice. The federal compliance landscape was restructured by OMB in February 2026; cite EO 14028 for the *concept* (SBOM as standard) rather than as current US procurement law.
+US Executive Order 14028 (May 2021) catalyzed federal SBOM guidance and procurement expectations. The federal compliance landscape continues to change; cite EO 14028 for the *concept* and check current agency, OMB, and CISA requirements before claiming a binding procurement mandate.
 
 ## Operational defenses
 

@@ -106,12 +106,12 @@ Standard SQL defines four (but most databases interpret these somewhat different
 
 - **Read uncommitted**: can see other transactions' uncommitted writes. Almost never what you want.
 - **Read committed**: only sees committed data. *But*: two reads in the same transaction can return different values (the data changed). Default in PostgreSQL.
-- **Repeatable read**: two reads in the same transaction return the same value. *But*: phantom reads possible (a range query can return new rows).
+- **Repeatable read**: two reads in the same transaction return the same value. In the SQL standard, phantom reads can still be possible; PostgreSQL's `REPEATABLE READ` prevents phantoms via snapshot isolation, and InnoDB's behavior depends on whether the read is a consistent snapshot read or an indexed locking read.
 - **Serializable**: as if transactions ran one at a time. Strongest; most expensive; can cause spurious aborts.
 
 The trap: assuming "the database handles it" without knowing the isolation level. Many bugs are write-skew (two transactions read the same data, each makes a decision based on it, both commit, the data is now inconsistent because each transaction's decision assumed the other wouldn't happen).
 
-For high-concurrency mutating logic, use SERIALIZABLE or use SELECT ... FOR UPDATE to make the intent explicit. For read-mostly queries, use READ COMMITTED and accept that you may see slightly different snapshots.
+For high-concurrency mutating logic, prefer constraints, atomic writes, SERIALIZABLE, or targeted locks that actually cover the invariant. Use `SELECT ... FOR UPDATE` for rows that exist and must be protected; do not assume it protects missing rows or arbitrary ranges in every database. For read-mostly queries, use READ COMMITTED and accept that you may see slightly different snapshots.
 
 ## Idempotency under retry
 

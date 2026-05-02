@@ -2,20 +2,21 @@
 
 Reference for the empirical research underpinning modern release-engineering practice. Built on Forsgren, Humble, and Kim's *Accelerate* (IT Revolution, 2018) and the annual DORA *State of DevOps Report* (2014–present, now run by Google after the 2018 acquisition).
 
-## The four metrics
+## The delivery metrics
 
-The DORA program's research validated four software-delivery measures that predict team performance better than any other set:
+The DORA program's research validates a small set of software-delivery measures that predict delivery performance better than broad activity metrics:
 
 1. **Deployment Frequency** — how often code reaches production.
 2. **Lead Time for Changes** — time from code commit to code running in production.
-3. **Change Failure Rate** — fraction of deploys that cause a degradation requiring rollback or hotfix.
-4. **Failed Deployment Recovery Time (FDRT)** — time to restore service after a failed deploy. Earlier reports called this Mean Time to Restore (MTTR); DORA renamed it FDRT in 2023 for precision — MTTR is overloaded with general incident-recovery meanings.
+3. **Failed Deployment Recovery Time (FDRT)** — time to recover from a deployment that fails and requires immediate intervention. Earlier reports called this Mean Time to Restore (MTTR); DORA renamed it FDRT for precision because MTTR is overloaded with general incident-recovery meanings.
+4. **Change Failure Rate** — ratio of deployments that require immediate intervention after deploy, such as rollback, hotfix, or incident response.
+5. **Deployment Rework Rate** — ratio of deployments that are unplanned remediation work caused by production incidents.
 
-The four cluster cleanly into two pairs:
-- **Throughput**: Deployment Frequency, Lead Time for Changes — how fast you ship.
-- **Stability**: Change Failure Rate, FDRT — how reliably you ship.
+The metrics cluster into two tensions:
+- **Throughput**: Deployment Frequency, Lead Time for Changes, FDRT — how efficiently changes move through the delivery system and how quickly failed deployments are recovered.
+- **Instability**: Change Failure Rate, Deployment Rework Rate — how often deployments create immediate production trouble or remediation work.
 
-The headline finding from *Accelerate*: **the two pairs are correlated, not traded off**. Teams that ship faster also recover faster and break less often. This is counterintuitive to engineers who grew up with "go slow to be safe" — but the empirical pattern is consistent across years of data.
+The headline finding from *Accelerate* still holds: **speed and stability are correlated, not traded off**. Teams that ship faster also recover faster and break less often when the system is built around small batches, automated verification, observability, and ownership. This is counterintuitive to engineers who grew up with "go slow to be safe" — but the empirical pattern is consistent across years of data.
 
 ## How to measure them
 
@@ -23,12 +24,13 @@ Practical instrumentation:
 
 - **Deployment Frequency**: count successful deploys per service per time window. CI/CD systems naturally emit this; surface it on a team dashboard. The number is per service, not per organization.
 - **Lead Time for Changes**: timestamp of commit (`git commit` date in main) to timestamp of that commit running in production. The hard part is correlating commits to deploys; SHA-tagged artifact builds give you this for free.
-- **Change Failure Rate**: count deploys that triggered rollback, hotfix, or a SEV-marked incident, divided by total deploys. Defining "failure" is a team discipline; pick a definition and stick to it.
 - **FDRT**: time from a failed deploy's start of impact to recovery. The "start of impact" needs the same SLO that drives your alerting; recovery is when SLO health returns.
+- **Change Failure Rate**: count deploys that triggered rollback, hotfix, or a SEV-marked incident, divided by total deploys. Defining "failure" is a team discipline; pick a definition and stick to it.
+- **Deployment Rework Rate**: count unplanned deployments made to remediate production incidents, divided by total deployments. This catches the hidden cost of instability even when the initial change was not immediately rolled back.
 
 A common mistake: instrument these as point-in-time stats rather than time series. The interesting signal is the trend — is the team getting faster and more reliable, or drifting?
 
-## Why the four metrics work
+## Why the metrics work
 
 The mechanism behind "fast = stable" is **batch size**:
 
@@ -39,17 +41,9 @@ The mechanism behind "fast = stable" is **batch size**:
 
 Large batches do the opposite: many possible causes when one fails, harder to roll back without dragging unrelated changes, often blocked by integration debt that accumulated during the long branch.
 
-## DORA's tier benchmarks (historical)
+## What separates strong delivery teams from weak ones
 
-For years, DORA's reports binned teams into four tiers (Elite / High / Medium / Low) by performance against the four metrics. The Elite/Low contrast was striking — Elite teams deployed multiple times per day; Low teams deployed less than monthly.
-
-**Status in 2025:** the 2025 *DORA Report: State of AI-Assisted Software Development* retired the four-tier benchmark in favor of seven team archetypes and an AI Capabilities Model. The bands (e.g., "Elite teams deploy on demand, multiple times per day") live on in industry vocabulary and team self-assessment, but DORA itself has moved past them.
-
-Use them as illustrative shorthand, not as a current DORA position. When citing a specific benchmark, cite the report year.
-
-## What separates elite delivery teams from low performers
-
-DORA's research consistently identifies the same bundle of practices in elite delivery teams:
+DORA's research consistently identifies the same bundle of practices in strong delivery teams:
 
 - **Trunk-based development** (`version-control-discipline`). Short-lived branches; integrate to main multiple times per day.
 - **Automated testing on every commit.** Unit, integration, and acceptance tests. Fast feedback.
@@ -60,7 +54,7 @@ DORA's research consistently identifies the same bundle of practices in elite de
 - **Empowerment and learning.** Engineers can choose tools, learn from failures, attend external conferences.
 - **Blameless postmortem culture** (`debugging-and-incident-response`). Failures produce learning, not punishment.
 
-Notably absent from the elite-performer profile: change-approval boards, release managers as gatekeepers, formal change-control processes. DORA's research consistently shows these correlate with **lower** delivery performance without a measurable improvement in stability — the safety theater is worse than no theater.
+Notably absent from the strong-performer profile: change-approval boards, release managers as gatekeepers, formal change-control processes. DORA's research consistently shows these correlate with **lower** delivery performance without a measurable improvement in stability — the safety theater is worse than no theater.
 
 ## The "two pizza" / team size finding
 
@@ -78,7 +72,7 @@ The wrong uses:
 
 - **Per-engineer scoring.** The metrics are team-level; pulling them apart by individual is meaningless and corrosive.
 - **Cross-team competition.** Different services have different deploy profiles. A monorepo team and a serverless team will produce different shapes.
-- **Single-metric optimization.** Optimizing deploy frequency alone, without watching change failure rate, encourages reckless deploys. The metrics work as a quartet.
+- **Single-metric optimization.** Optimizing deploy frequency alone, without watching change failure rate and deployment rework rate, encourages reckless deploys. The metrics work as a balanced set.
 
 ## Sources
 

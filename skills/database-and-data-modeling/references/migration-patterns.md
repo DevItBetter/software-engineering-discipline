@@ -28,10 +28,9 @@ Old code ignores it. New code reads/writes it.
 
 ### Column with a default value
 
-PostgreSQL ≥ 11: trivial — the default is stored as metadata, no rewrite of existing rows.
-Older databases / MySQL: rewrites the table. For large tables, this can be a multi-hour outage.
+PostgreSQL ≥ 11 avoids rewriting existing rows for non-volatile constant defaults; volatile expressions still need care. MySQL behavior depends on version, storage engine, column position, and DDL algorithm; many MySQL 8.0 changes can be instant or in-place, while others still copy or block.
 
-For older databases / MySQL on a busy table, use the multi-step:
+When the database cannot make the change online on a busy table, use the multi-step:
 
 1. Add the column nullable, no default.
 2. Backfill existing rows in batches.
@@ -110,7 +109,7 @@ For type widening that's binary-compatible (int → bigint, varchar(10) → varc
 
 ## Adding an index
 
-A naive `CREATE INDEX` on a busy table acquires an exclusive lock, blocking writes for the duration. For a 1B-row table, that's hours.
+Index creation is database- and algorithm-specific. On Postgres, plain `CREATE INDEX` blocks writes for the duration; for a 1B-row table, that's hours.
 
 **PostgreSQL:** use `CONCURRENTLY`.
 ```sql
@@ -123,7 +122,7 @@ Caveats:
 - If it fails partway, you get an `INVALID` index — drop it and retry.
 - It still uses I/O; on heavy systems, do it during a quiet period.
 
-**MySQL:** use online DDL (`ALGORITHM=INPLACE, LOCK=NONE`) where supported, or pt-online-schema-change for older versions.
+**MySQL:** first check native online DDL support (`ALGORITHM=INPLACE` or `INSTANT`, `LOCK=NONE` where supported). Use pt-online-schema-change or gh-ost when native DDL would copy the table or block too much.
 
 ## Dropping an index
 

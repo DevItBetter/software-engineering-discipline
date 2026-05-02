@@ -46,7 +46,7 @@ The target should come from what users actually need, calibrated against what th
 error_budget = 1 − SLO
 ```
 
-For a 99.9% SLO over a 28-day window: 28 × 24 × 60 × (1 − 0.999) ≈ 40 minutes of budget. Every minute the SLI is below threshold consumes budget at the burn rate.
+For a 99.9% time-based availability SLO over a 28-day window: 28 × 24 × 60 × (1 − 0.999) ≈ 40 minutes of budget. For event-based SLIs, bad events consume error budget; for time-based availability, outage minutes are the convenient equivalent.
 
 ### Policy
 
@@ -56,7 +56,7 @@ The mechanism is a release/freeze gate. While budget remains, ship faster — th
 
 A burn rate is how fast you are consuming the error budget relative to the SLO window. A burn rate of 1 means you exhaust the budget exactly at the end of the SLO window. A burn rate of 14.4 means at the current rate you'll exhaust the budget in about 1/14.4 of the SLO window.
 
-The Workbook's canonical multi-window, multi-burn-rate recipe (Table 5-8 of Chapter 5), **derived for a 99.9% SLO over a 30-day window**:
+The Workbook's canonical multi-window, multi-burn-rate recipe (Table 5-8 of Chapter 5) uses a **30-day SLO window** and specific budget-consumption thresholds:
 
 | Severity | Long window | Short window | Burn rate | Budget consumed |
 |---|---|---|---|---|
@@ -66,13 +66,13 @@ The Workbook's canonical multi-window, multi-burn-rate recipe (Table 5-8 of Chap
 
 Heuristic: short window = 1/12 of long window; both must exceed the threshold to fire.
 
-These specific values are not magic. The 2% / 5% / 10% budget-consumption thresholds and the 14.4 / 6 / 1 burn rates are calibrated for the canonical 99.9% / 30-day case. **Re-derive for your SLO target and window** — copying the table to a 99% / 7-day SLO will produce alerts that fire constantly or never. The general formula:
+These specific values are not magic. The 2% / 5% / 10% budget-consumption thresholds and the 14.4 / 6 / 1 burn rates are calibrated for the chosen windows and budget-consumption policy. **Re-derive burn rates when your SLO window or budget-consumption policy changes**. If only the SLO target changes, the burn-rate values can stay the same, but the absolute bad-event threshold changes because the error budget changes. The general formula:
 
 ```
 budget_consumed_threshold = burn_rate × (long_window / SLO_window)
 ```
 
-Pick budget thresholds first (how much consumed before paging is reasonable), then derive burn rates for chosen windows.
+Pick budget thresholds first (how much consumed before paging is reasonable), then derive burn rates for chosen windows. Convert the burn rate to an alert threshold by multiplying it by the service's error budget fraction.
 
 ### Why two windows
 

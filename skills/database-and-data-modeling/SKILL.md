@@ -212,7 +212,7 @@ Most ORMs and frameworks have a "transaction per request" or "transaction per op
 Standard SQL defines four levels; databases interpret them somewhat differently. The defaults vary:
 
 - **PostgreSQL**: default `READ COMMITTED`. Each statement sees only data committed before that statement started; statements within a transaction can see different snapshots.
-- **MySQL (InnoDB)**: default `REPEATABLE READ` (with idiosyncrasies — InnoDB's repeatable read is closer to snapshot isolation).
+- **MySQL (InnoDB)**: default `REPEATABLE READ`. Consistent reads use a transaction snapshot; locking reads and writes are current reads with next-key/gap-lock behavior, so it is not the same thing as PostgreSQL snapshot isolation.
 - **SQL Server**: default `READ COMMITTED` with locking.
 
 **Important Postgres gotcha:** PostgreSQL's `REPEATABLE READ` is *stronger* than the SQL standard — it provides full snapshot isolation, preventing phantom reads within a transaction (the standard only requires it for already-read rows). Postgres's `SERIALIZABLE` is even stronger: it adds serialization-failure detection, retrying transactions that would produce a non-serializable schedule. So in Postgres specifically:
@@ -242,7 +242,7 @@ COMMIT;
 
 **Write skew.** Two transactions read the same data, each makes a decision based on what they read, both commit. The result is inconsistent because each transaction's decision assumed the other wouldn't happen. ("Allow this delete only if there's at least one other admin" — both transactions check and see two admins, both delete, now there are zero admins.)
 
-**Fix:** `SERIALIZABLE` isolation, or explicit row locking with `SELECT ... FOR UPDATE`.
+**Fix:** express the invariant as a unique, foreign-key, check, or exclusion constraint when possible. For invariants that cannot be expressed as constraints, use `SERIALIZABLE`, advisory/table locks, or carefully designed locking reads. In PostgreSQL, `SELECT ... FOR UPDATE` locks returned rows only; it does not lock a missing row or arbitrary range gap, so it is not a general phantom-read fix. In MySQL/InnoDB, gap/next-key protection depends on indexed locking reads and isolation details.
 
 ### Don't hold transactions open across slow operations
 
@@ -314,8 +314,8 @@ Each step is a separate deploy. Yes, this is slow. The alternative is downtime o
 
 ### Specific high-risk migrations
 
-- **Adding a non-nullable column with a default to a heavily-written table.** Some databases rewrite the entire table — multi-hour outage. PostgreSQL ≥ 11 handles this in metadata only (constant-time), but check your version.
-- **Adding an index to a busy table.** A naive `CREATE INDEX` locks the table. Use `CREATE INDEX CONCURRENTLY` (Postgres) or pt-online-schema-change (MySQL).
+- **Adding a non-nullable column with a default to a heavily-written table.** Some databases rewrite the entire table — multi-hour outage. PostgreSQL ≥ 11 avoids rewrites for non-volatile constant defaults, but volatile expressions and older versions need care. MySQL behavior depends on version, storage engine, column position, and DDL algorithm.
+- **Adding an index to a busy table.** In Postgres, plain `CREATE INDEX` blocks writes; use `CREATE INDEX CONCURRENTLY`. In MySQL/InnoDB, first check native online DDL support (`ALGORITHM=INPLACE` or `INSTANT`, `LOCK=NONE` where supported); use pt-online-schema-change or gh-ost when native DDL would copy or block too much.
 - **Dropping a column** that "isn't used anymore" — must be backed by query logs showing zero reads. `grep` is not evidence.
 - **Migrating data across millions of rows.** Use batched updates with checkpoints; never one transaction over the whole table.
 - **Changing a unique constraint** — the constraint is enforced for new and existing rows; the migration can fail mid-way if existing data violates.

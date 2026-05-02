@@ -72,7 +72,7 @@ What goes wrong: SLOs set without consulting users (the percentile that matters 
 
 The *SRE Workbook* chapter on alerting on SLOs replaces threshold alerts ("CPU > 80%") with multi-window, multi-burn-rate alerts derived from the SLO itself. **Burn rate** = how fast you are consuming the error budget relative to the SLO window. Burn rate of 1 means you exhaust the budget exactly at the end of the SLO window. Burn rate of 14.4 means at the current rate you'll exhaust the budget in about 1/14.4 of the SLO window.
 
-The canonical recipe (SRE Workbook, Table 5-8) — derived for a **99.9% SLO over a 30-day window**:
+The canonical recipe (SRE Workbook, Table 5-8) uses a **30-day SLO window** and specific budget-consumption thresholds:
 
 | Severity | Long window | Short window | Burn rate | Budget consumed |
 |---|---|---|---|---|
@@ -80,7 +80,7 @@ The canonical recipe (SRE Workbook, Table 5-8) — derived for a **99.9% SLO ove
 | Page | 6 hours | 30 min | 6 | 5% |
 | Ticket | 3 days | 6 hours | 1 | 10% |
 
-Heuristic: short window = 1/12 of long window; both must exceed threshold to fire. Cuts noise; clears quickly when the incident ends. **The 14.4 / 6 / 1 burn rates and the 2% / 5% / 10% consumption levels are not magic constants** — they are derived for the 99.9% / 30-day case. For a different SLO target or window, re-derive from your error budget. See `references/slo-and-burn-rate-alerting.md` for the math.
+Heuristic: short window = 1/12 of long window; both must exceed threshold to fire. Cuts noise; clears quickly when the incident ends. **The 14.4 / 6 / 1 burn rates and the 2% / 5% / 10% consumption levels are not magic constants**. Re-derive burn rates when the SLO window or budget-consumption policy changes. When only the SLO target changes, the burn-rate values can stay the same, but the absolute bad-event threshold changes because the error budget is larger or smaller. See `references/slo-and-burn-rate-alerting.md` for the math.
 
 ## RED, USE, Golden Signals
 
@@ -153,7 +153,7 @@ The maturity level shifts; before pinning architecture decisions to it, **verify
 - **Metrics**: spec stable; Stable in most major SDKs.
 - **Logs**: most recent signal to stabilize; spec stable, SDK stability still landing in many languages — be cautious about adopting OTel logs SDKs in greenfield production systems without checking the language-specific status.
 
-**Semantic conventions** are the cross-vendor agreement on attribute names: `service.name` (the only required Resource attribute), `http.request.method`, `http.response.status_code`, `db.system`, `messaging.system`, etc. Without them, correlating data across vendors is string-mangling. HTTP semantic conventions reached stable in spec v1.23.0 (2023). Hub: `https://opentelemetry.io/docs/specs/semconv/`.
+**Semantic conventions** are the cross-vendor agreement on attribute names: `service.name` (the only required Resource attribute), `http.request.method`, `http.response.status_code`, `db.system.name`, `messaging.system`, etc. Without them, correlating data across vendors is string-mangling. HTTP semantic conventions reached stable in spec v1.23.0 (2023). Hub: `https://opentelemetry.io/docs/specs/semconv/`.
 
 ### Common tracing failure modes
 

@@ -4,7 +4,7 @@ Reference for the HTTP cache semantics defined by RFC 9111 (June 2022) and the o
 
 ## RFC 9111 in one sentence
 
-`Cache-Control` is the response header that tells every cache (browser, CDN, reverse proxy) how to handle the response. RFC 9111 obsoletes RFC 7234 and is the current spec; URLs and directives below are anchored to it.
+`Cache-Control` is both a request and response header. Response directives control whether and how a cache stores and reuses a response; request directives constrain what cached responses the client is willing to accept. RFC 9111 obsoletes RFC 7234 and is the current HTTP caching spec.
 
 ## `Cache-Control` directives that matter
 
@@ -15,7 +15,7 @@ Reference for the HTTP cache semantics defined by RFC 9111 (June 2022) and the o
 - **`max-age=N`** — fresh for N seconds.
 - **`s-maxage=N`** — `max-age` for shared caches only; overrides `max-age` and `Expires` for them. Useful when the browser should hold for a short time but the CDN should hold for longer.
 - **`must-revalidate`** — once stale, cannot be served without revalidation. Disables stale-fallback.
-- **`stale-while-revalidate=N`** — RFC 5861, now in RFC 9111. Serve stale up to N seconds after expiry while refreshing in background. The simplest stampede mitigation at the cache layer.
+- **`stale-while-revalidate=N`** — RFC 5861 extension recognized by RFC 9111's stale-response model. Serve stale up to N seconds after expiry while refreshing in background. The simplest stampede mitigation at the cache layer.
 - **`stale-if-error=N`** — RFC 5861. Serve stale up to N seconds if origin returns 5xx or is unreachable. Availability boost when the source is down.
 - **`immutable`** — RFC 8246, September 2017. Tells the client not to revalidate during freshness lifetime even on user-initiated reload. Designed for content-hashed asset URLs.
 - **`no-transform`** — proxies must not modify the content (relevant for image-resizing CDNs).
@@ -36,7 +36,7 @@ When a cached entry expires, the cache sends a conditional request to origin:
 - **`Vary: Accept-Encoding`** — almost always needed when serving compressed and uncompressed variants.
 - **`Vary: Accept-Language`** — when serving content negotiated by language.
 - **`Vary: Cookie`** — disables shared caching for any response that depends on session cookies. Usually correct for personalized pages; the bug is omitting it.
-- **`Vary: Authorization`** — required for any response personalized by the `Authorization` header. Without it, a shared cache can serve user A's response to user B. **The single highest-severity HTTP caching bug.**
+- **`Vary: Authorization`** — required when you intentionally allow shared caching of a response whose content depends on the `Authorization` header. RFC 9111 blocks shared caching of Authorization-bearing requests by default unless `public`, `s-maxage`, or `must-revalidate` explicitly allows it; once you allow it, you must partition the cache key by user or authorization context.
 
 `Vary` interactions with cache key matter: each unique combination of `Vary`-named header values is a separate cache entry. `Vary: Cookie` on a long-tail-of-cookies response explodes the cache keyspace; usually pair with `Cache-Control: private, no-store` if there's no shared-cache benefit anyway.
 
@@ -84,7 +84,7 @@ A few CDN-era patterns worth knowing:
 ## Common HTTP-caching antipatterns
 
 - `Cache-Control: no-cache` written when `private, max-age=0` was meant, or when `no-store` was meant. The three mean different things.
-- Personalized response without `Vary: Authorization` or `Vary: Cookie` (auth-bypass via shared cache).
+- Personalized response explicitly made shared-cacheable without `Vary`, per-user keying, or another partitioning mechanism (auth-bypass via shared cache).
 - `max-age` without `s-maxage` on a response that the browser should hold briefly but the CDN longer (or vice versa).
 - Long-TTL'd `5xx` errors pinning an outage in place.
 - `immutable` on a URL that does in fact change (e.g., the HTML page itself).

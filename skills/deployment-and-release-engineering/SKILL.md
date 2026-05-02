@@ -1,6 +1,6 @@
 ---
 name: deployment-and-release-engineering
-description: "How to ship software safely and often — continuous delivery, deployment strategies (rolling, blue/green, canary, shadow, dark launch, progressive delivery), feature flags, rollback discipline, schema-migration patterns, and the cultural practices that separate elite delivery teams from low performers. Use this skill whenever the task involves designing or evaluating a release strategy, choosing a deployment pattern, planning a schema or data migration, designing a feature flag, judging an alerting/rollback policy for a rollout, evaluating CI/CD pipelines, or asking \"how do we ship this without breaking production.\" Use it when reviewing changes to deployment manifests, pipeline definitions, feature-flag wiring, or migration scripts. Anchored in Humble & Farley's *Continuous Delivery*, Forsgren/Humble/Kim's *Accelerate* (DORA research), the Google SRE corpus, Pete Hodgson on feature toggles, Danilo Sato's parallel change, and Werner Vogels' \"you build it, you run it.\""
+description: "How to ship software safely and often — continuous delivery, deployment strategies (rolling, blue/green, canary, shadow, dark launch, progressive delivery), feature flags, rollback discipline, schema-migration patterns, and the cultural practices that separate strong delivery teams from weak ones. Use this skill whenever the task involves designing or evaluating a release strategy, choosing a deployment pattern, planning a schema or data migration, designing a feature flag, judging an alerting/rollback policy for a rollout, evaluating CI/CD pipelines, or asking \"how do we ship this without breaking production.\" Use it when reviewing changes to deployment manifests, pipeline definitions, feature-flag wiring, or migration scripts. Anchored in Humble & Farley's *Continuous Delivery*, Forsgren/Humble/Kim's *Accelerate* (DORA research), the Google SRE corpus, Pete Hodgson on feature toggles, Danilo Sato's parallel change, and Werner Vogels' \"you build it, you run it.\""
 ---
 
 # Deployment and Release Engineering
@@ -18,16 +18,17 @@ Most secondary writing collapses these. The honest framing, from Humble & Farley
 
 The trap: teams under pressure to "do CD" feel obligated to wire commits to production. They aren't — they're obligated to make sure they *could*. The discipline of CD-the-delivery is the load-bearing one; CD-the-deployment is a policy choice on top.
 
-## The four DORA metrics
+## DORA software-delivery metrics
 
-From *Accelerate* and the DORA program, the four software-delivery metrics that actually predict team performance:
+From *Accelerate* and the DORA program, the software-delivery metrics that predict delivery performance and team outcomes:
 
 1. **Deployment Frequency** — how often code reaches production.
 2. **Lead Time for Changes** — commit to production.
-3. **Change Failure Rate** — fraction of deploys that cause a degradation requiring rollback or hotfix.
-4. **Failed Deployment Recovery Time (FDRT)** — how fast a failed deploy is recovered. Earlier reports called this Mean Time to Restore (MTTR); DORA renamed it FDRT in 2023 for precision (MTTR is overloaded with general incident-recovery meanings).
+3. **Failed Deployment Recovery Time (FDRT)** — how fast a failed deploy is recovered. Earlier reports called this Mean Time to Restore (MTTR); DORA renamed it FDRT for precision because MTTR is overloaded with general incident-recovery meanings.
+4. **Change Failure Rate** — fraction of deploys that require immediate intervention, such as rollback or hotfix.
+5. **Deployment Rework Rate** — fraction of deployments that were unplanned remediation work caused by production incidents.
 
-The 2025 DORA Report (*State of AI-Assisted Software Development*, Google Cloud + DORA) retired the four-tier elite/high/medium/low benchmark taxonomy in favor of seven team archetypes and an AI Capabilities Model. The four metrics themselves remain the headline measures; the older "elite/low" benchmarks live on in industry vocabulary but DORA has moved past them. Treat the *bands* as historical, the *metrics* as current.
+Treat the metrics as a balanced set. Deployment Frequency, Lead Time for Changes, and FDRT describe throughput; Change Failure Rate and Deployment Rework Rate describe instability. Optimizing one metric in isolation creates bad incentives.
 
 ## Deployment strategies
 
@@ -91,9 +92,9 @@ Each step is independently deployable and individually reversible. Only the fina
 
 **Stage ordering — fail fast.** Cheap tests first: build → unit test → static analysis → security and dependency scan → integration test → artifact build → deploy to stage → smoke / acceptance → deploy to prod. The unit-test stage should fail in seconds, not minutes. The whole pipeline should fail in minutes, not hours, for the common-case bug.
 
-**Hermetic builds.** A build is hermetic when the same inputs always produce the same artifact, bit-for-bit, regardless of host system. Bazel's foundational property; Buck2, Pants v2, and Nix all aim for it. Reproducibility is the foundation of supply-chain auditability — without bitwise reproducibility, you cannot verify a deployed binary matches a signed source revision. See `build-and-dependencies` for depth.
+**Hermetic and reproducible builds.** A hermetic build depends only on declared inputs, with no leakage from the host environment. A reproducible build produces bit-identical artifacts from the same source, environment, and instructions. They reinforce each other but are distinct properties. Bazel, Buck2, Pants v2, and Nix all push in this direction. See `build-and-dependencies` for depth.
 
-**Trunk-based development.** Paul Hammant's `trunkbaseddevelopment.com` is the canonical reference. Developers integrate to a single branch (`main`/`trunk`) at high frequency; branches, when used, are short-lived (hours to a couple of days); incomplete features hide behind release flags. DORA research repeatedly correlates trunk-based development with elite delivery performance — through the small-batch mechanism. Long-lived feature branches are an antipattern. See `version-control-discipline`.
+**Trunk-based development.** Paul Hammant's `trunkbaseddevelopment.com` is the canonical reference. Developers integrate to a single branch (`main`/`trunk`) at high frequency; branches, when used, are short-lived (hours to a couple of days); incomplete features hide behind release flags. DORA research repeatedly correlates trunk-based development with strong delivery performance through the small-batch mechanism. Long-lived feature branches are an antipattern. See `version-control-discipline`.
 
 **GitOps.** Coined by Alexis Richardson (Weaveworks, 2017). Declarative system state lives in Git as the single source of truth; reconciliation agents (Flux, Argo CD) continuously enforce desired state on the cluster; all changes happen via commits / pull requests. Most useful for Kubernetes-style declarative platforms; weaker fit outside that context. Honest dissent exists (Steve Smith's *GitOps is a placebo*) — worth knowing the term has limits.
 
@@ -114,7 +115,7 @@ Treat schema migrations as release engineering, not as database administration. 
 **Online migration tools** (the discipline matters more than the tool):
 - **gh-ost** (GitHub, MySQL): triggerless online schema migration via binlog streaming; pausable, throttlable.
 - **pt-online-schema-change** (Percona, MySQL): the older trigger-based equivalent.
-- **pg_repack** (PostgreSQL): online table rebuilds without long-held locks.
+- **pg_repack** (PostgreSQL): online table/index rebuilds for bloat removal and reclustering with brief locks; not a general-purpose schema-change framework.
 - **Liquibase**: changesets in XML/YAML/JSON/SQL with declared rollback steps and preconditions.
 - **Flyway**: SQL-first, sequential versioned migrations. Community Edition is forward-only; Teams/Enterprise editions have supported "undo migrations" since v5.
 
@@ -130,7 +131,7 @@ Werner Vogels (Amazon CTO), interviewed by Jim Gray for ACM Queue (June 2006):
 
 The principle is **developer accountability for operations**, not abolition of platform / SRE teams. The often-deployed misuse — "we don't need a platform team because devs run their own services" — is not what Vogels said. The honest framing: developers own the on-call for what they ship; platform engineers own the substrate that makes the on-call survivable. Both, not either.
 
-DORA's findings reinforce this. Centralized release-manager / change-approval-board gates correlate with low-performer status: in the *Accelerate* data they reduce deploy frequency without a corresponding measurable improvement in change failure rate (chapter 7). The combination that wins is small batches, automated tests, comprehensive monitoring, and team ownership of operations.
+DORA's findings reinforce this. Centralized release-manager / change-approval-board gates correlate with weaker delivery performance: in the *Accelerate* data they reduce deploy frequency without a corresponding measurable improvement in change failure rate (chapter 7). The combination that wins is small batches, automated tests, comprehensive monitoring, and team ownership of operations.
 
 ## Adjacent practices
 
@@ -141,7 +142,7 @@ Two disciplines that surround release engineering and deserve mention:
 
 ## Common antipatterns
 
-- **Big-bang deploys / release trains.** Many teams' changes batched into one window. Higher change failure rate and longer recovery time per DORA.
+- **Big-bang deploys / release trains.** Many teams' changes batched into one window. Higher change failure rate, higher deployment rework, and longer recovery time per DORA.
 - **Long-lived feature branches.** Divergence from trunk grows merge conflicts and integration risk; opposite of trunk-based development.
 - **Friday afternoon / pre-weekend deploys** when on-call coverage is thinnest. Folk wisdom rooted in real risk.
 - **Unowned, unremoved feature flags** (flag debt).
@@ -150,7 +151,7 @@ Two disciplines that surround release engineering and deserve mention:
 - **Staging that doesn't mirror production.** Gives false confidence; original 2005 ThoughtWorks blue/green motivation was exactly this problem.
 - **Rollback only tested during incidents.** See above.
 - **Deploys that require database downtime.** Fixable with parallel change; not acceptable for user-facing services.
-- **"Deploy = push the button at the end of the sprint."** Classic low-performer signature.
+- **"Deploy = push the button at the end of the sprint."** Classic weak-delivery signature.
 - **Canary that doesn't auto-roll-back.** A canary without a rollback policy is a slow rolling deploy.
 - **Feature flag whose default is dangerous.** Defaults should fail safe; release toggles default to off; ops kill switches default to "do the safe thing."
 
@@ -171,7 +172,7 @@ Two disciplines that surround release engineering and deserve mention:
 
 - `references/deployment-strategies.md` — depth on rolling, blue/green, canary, shadow, dark launch, A/B vs. release, progressive delivery; bake-time math; signal-set selection.
 - `references/parallel-change-and-migrations.md` — expand-contract in depth, online vs. offline tools, dual-write patterns, contract-step planning.
-- `references/dora-and-team-performance.md` — the four metrics, what they measure, how to instrument them, and the cultural findings from *Accelerate* and the *State of DevOps* reports.
+- `references/dora-and-team-performance.md` — the DORA metrics, what they measure, how to instrument them, and the cultural findings from *Accelerate* and the *State of DevOps* reports.
 
 ## Sibling skills
 

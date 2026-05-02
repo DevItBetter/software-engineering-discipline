@@ -8,7 +8,7 @@ This is a working reference, not a complete treatment. For high-stakes deploymen
 
 In traditional software, the boundary between data and code is enforced by the language: a string is a string, not an instruction. In LLM systems, *every text input is potentially an instruction* because the model has no fundamental distinction between "the user's message" and "instructions about how to interpret the message."
 
-The implication: any text that reaches the model — from the user, from a retrieved document, from a file, from a tool result, from a connected service — is potential injected instruction. Defense-in-depth is the only reliable approach; assume the model will do whatever the most-recent text in its context tells it to do.
+The implication: any text that reaches the model — from the user, from a retrieved document, from a file, from a tool result, from a connected service — is potential injected instruction. Modern LLM APIs have instruction hierarchies, but untrusted text can still override, confuse, or conflict with intended behavior. Defense-in-depth is the only reliable approach; design so a successful prompt injection has limited blast radius.
 
 ## Prompt injection — direct
 

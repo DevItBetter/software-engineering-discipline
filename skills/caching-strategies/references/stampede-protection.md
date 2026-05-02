@@ -88,7 +88,7 @@ Lock-based is appropriate when you need cross-instance protection and the recomp
 
 ## Stale-while-revalidate
 
-RFC 5861 (May 2010), now in RFC 9111. Serve stale content to the client while the cache refreshes in the background.
+RFC 5861 (May 2010), recognized by RFC 9111's stale-response model. Serve stale content to the client while the cache refreshes in the background.
 
 ```
 Cache-Control: max-age=60, stale-while-revalidate=300
@@ -110,7 +110,7 @@ For HTTP responses this is the simplest and most effective stampede mitigation; 
 
 Distinct from SWR. When N concurrent misses arrive at the edge for the same key (a cold cache or a just-expired entry), Fastly and Cloudflare can **collapse** them into a single forward to origin, then fan the response back out to all N waiters. The mechanism operates on **in-flight misses**; SWR operates on **expired-but-stored entries**. Use both when available — they cover complementary windows.
 
-Configuration is typically a vendor switch (Fastly's `req.hash_always_miss` and clustering, Cloudflare's "Always Online" and tiered caching). The capability is real but not universal — verify your CDN supports it before relying on it for stampede protection.
+Configuration is vendor-specific: look for collapsed forwarding, request collapsing, shielding, or tiered-cache behavior in your CDN's documentation. The capability is real but not universal — verify your CDN supports it before relying on it for stampede protection.
 
 ## Pre-warming
 

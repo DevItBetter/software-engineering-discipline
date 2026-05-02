@@ -8,7 +8,7 @@ The Reproducible Builds project (`reproducible-builds.org/docs/definition/`) giv
 
 > "A build is reproducible if given the same source code, build environment and build instructions, any party can recreate bit-by-bit identical copies of all specified artifacts."
 
-**Hermetic** is a related but distinct property: a hermetic build is one whose output depends *only* on declared inputs, with no leakage from the host environment. A hermetic build is a precondition for a reproducible build, but not sufficient — you also need to eliminate sources of intra-build non-determinism.
+**Hermetic** is a related but distinct property: a hermetic build is one whose output depends *only* on declared inputs, with no leakage from the host environment. Hermeticity makes reproducibility easier, but it is not sufficient — you also need to eliminate sources of intra-build non-determinism.
 
 Most teams need *deterministic* builds — same lockfile + same toolchain + same source = same artifact. Full bitwise reproducibility is a stronger property with a real cost.
 
@@ -17,7 +17,7 @@ Most teams need *deterministic* builds — same lockfile + same toolchain + same
 Four reasons, in increasing severity:
 
 1. **Cache effectiveness.** Non-deterministic outputs invalidate build caches. A CI step that produces different bytes on every run is a cache that never hits. At scale this is the dominant performance issue.
-2. **Auditability.** If you can't reproduce, you cannot prove the deployed artifact corresponds to the published source. This is a precondition for SLSA L3+ and for any meaningful supply-chain story.
+2. **Auditability.** If you can't reproduce, you cannot independently prove the deployed artifact corresponds to the published source. SLSA Build L3 focuses on hardened, isolated build platforms and non-forgeable provenance; reproducible builds complement that provenance by making independent verification practical.
 3. **Trusting Trust.** Ken Thompson's 1984 ACM Turing Award lecture, *Reflections on Trusting Trust* (CACM 27.8, August 1984, pp. 761–763), demonstrated that a malicious compiler can insert backdoors into binaries with no source-level evidence. The defense — David A. Wheeler's *Diverse Double-Compiling* (2005) — requires reproducible builds across multiple compilers as a precondition.
 4. **CVE response.** "Is the deployed artifact patched?" is an answerable question only if you can reproduce a known patched build and compare.
 
@@ -77,7 +77,7 @@ JavaScript monorepo tools. Caching is the primary focus; hermeticity is partial.
 
 For most teams the right answer is:
 
-1. Pin the toolchain (`rust-toolchain.toml`, `.tool-versions`, container base image with a specific tag).
+1. Pin the toolchain (`rust-toolchain.toml`, `.tool-versions`, container base image by digest such as `ubuntu@sha256:...`).
 2. Commit the lockfile.
 3. Set `SOURCE_DATE_EPOCH` or equivalent to eliminate timestamps.
 4. Use frozen-install commands in CI.
@@ -89,7 +89,7 @@ The teams that should adopt Bazel/Buck2/Nix:
 
 - Polyglot monorepos at scale (Google, Meta, Twitter scale).
 - High-assurance regulated environments (finance, defense, healthcare with bitwise auditability requirements).
-- Teams pursuing SLSA L3+ provenance.
+- Teams pursuing high-assurance provenance plus independent rebuild verification.
 
 ## What to flag in review
 

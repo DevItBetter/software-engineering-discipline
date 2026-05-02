@@ -182,7 +182,7 @@ When an upstream is failing, retries make it worse. A circuit breaker:
 - After a cooldown, "half-opens" — lets a few calls through to test recovery.
 - If they succeed, "closes" again. If they fail, the circuit re-opens.
 
-The wrong way: implement your own from scratch. Use the well-tested library for your platform (Polly, Hystrix, resilience4j, etc.) or your service mesh.
+The wrong way: implement your own from scratch. Use the well-tested library for your platform (Polly, resilience4j, platform-native libraries, etc.) or your service mesh.
 
 ## Timeouts
 
@@ -201,7 +201,7 @@ Every error path needs observability: log, metric, trace.
 
 - **Log with context.** The log message must include the inputs (or relevant identifiers) that caused the error. "Failed to fetch user" is useless; "Failed to fetch user (user_id=abc-123, source=cache, error=ConnectionRefused)" tells on-call where to look.
 - **Metric for error rate.** Per error type, per endpoint. Spikes alert on-call.
-- **Trace span with status=error.** Tracing reveals which downstream caused the error.
+- **Trace spans and events according to the relevant semantic convention.** Tracing reveals which downstream caused the error; for HTTP, 5xx generally maps to error on server spans, while 4xx usually stays unset on server spans unless application context says otherwise.
 - **Don't log secrets, PII, or tokens.** Sanitize before logging. Especially in error contexts, where the impulse is "log everything."
 
 A common smell: a try/except that catches and logs but provides no context, no metric, no trace. The error happens, the log is useless, on-call has nothing.

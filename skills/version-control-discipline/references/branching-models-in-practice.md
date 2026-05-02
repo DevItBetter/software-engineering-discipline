@@ -11,7 +11,7 @@ Maintained at `https://trunkbaseddevelopment.com` by Paul Hammant. Definition: a
 - Feature flags and "branch by abstraction" hide incomplete work behind on/off switches.
 - Commit to trunk multiple times per day. The team integrates on the same branch the same day.
 
-**DORA correlation.** DORA's research consistently shows trunk-based development among the practices of elite-performing teams. Concretely, the threshold DORA describes:
+**DORA correlation.** DORA's research consistently shows trunk-based development among the practices of strong delivery teams. Concretely, the threshold DORA describes:
 - Three or fewer active branches.
 - Merge to trunk at least daily.
 - No code freezes or long integration phases.
@@ -20,7 +20,7 @@ The mechanism is batch size. Small changes are easier to review, easier to debug
 
 **When trunk-based is right.** Continuous-delivery shops; SaaS web apps and services; teams with strong CI and observability; teams that can put incomplete work behind release flags. Most modern web/SaaS work.
 
-**When trunk-based is wrong.** Software with multiple supported major versions in production simultaneously (libraries, OS distributions, on-prem installers). The model assumes one production version; if you have v1 and v2 both maintained, the model breaks down.
+**When trunk-based needs release branches.** Software with multiple supported major versions in production simultaneously (libraries, OS distributions, on-prem installers) still needs a disciplined mainline, but also needs maintained release branches for supported lines. Keep development integration on trunk; use release branches for fixes, cherry-picks, and stabilization of shipped versions. If the release branches become long-lived development branches, the model has broken down.
 
 ## GitHub Flow
 
@@ -64,10 +64,10 @@ The 2020 note is doing real work. GitFlow remains a defensible choice for the us
 |---|---|
 | SaaS web app or service, continuous delivery | Trunk-based or GitHub Flow |
 | Multi-environment service with explicit staging | GitLab Flow |
-| Library with multiple maintained major versions | GitFlow or GitLab Flow's release branches |
+| Library with multiple maintained major versions | Trunk-based with release branches, GitLab Flow's release branches, or GitFlow |
 | OS distribution, embedded firmware, enterprise on-prem product | GitFlow |
 
-The decision is about your *delivery* shape, not about preference. A team forcing GitFlow onto a continuous-delivery codebase pays merge-conflict tax for nothing; a team forcing trunk-based onto a library with three maintained majors finds itself fighting the model.
+The decision is about your *delivery* shape, not about preference. A team forcing GitFlow onto a continuous-delivery codebase pays merge-conflict tax for nothing; a team with three maintained majors needs release-branch discipline no matter which model name it uses.
 
 ## What to flag in review
 

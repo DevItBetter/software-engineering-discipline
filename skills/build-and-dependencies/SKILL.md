@@ -61,14 +61,14 @@ The Reproducible Builds project (`reproducible-builds.org`) defines reproducibil
 
 > "A build is reproducible if given the same source code, build environment and build instructions, any party can recreate bit-by-bit identical copies of all specified artifacts."
 
-Reproducibility is the foundation of every serious supply-chain story:
+Reproducibility is a foundation for serious supply-chain auditability:
 
-1. **Auditability.** If you can't reproduce, you can't verify the published artifact corresponds to the published source. SLSA L3+ requires it.
+1. **Auditability.** If you can't reproduce, you can't independently verify that the published artifact corresponds to the published source. SLSA Build L3 does not require bitwise reproducibility, but reproducible builds make SLSA provenance far more useful to consumers.
 2. **Trusting Trust.** Ken Thompson's 1984 ACM Turing Award lecture, *Reflections on Trusting Trust* (CACM 27.8, August 1984), demonstrated that a malicious compiler can insert backdoors into binaries with no source-level evidence. The defense — David A. Wheeler's *Diverse Double-Compiling* (2005) — requires reproducible builds as a precondition.
 3. **Cache effectiveness.** Non-deterministic outputs poison build caches and balloon CI cost.
 4. **Security baselines.** Bit-identical means CVE patches can be verified against an exact prior state.
 
-**Hermetic** is a related-but-stronger property: a hermetic build is one whose result depends *only* on declared inputs, with no leakage from the host environment (system locale, installed compilers, ambient env vars, network).
+**Hermetic** is related but distinct: a hermetic build is one whose result depends *only* on declared inputs, with no leakage from the host environment (system locale, installed compilers, ambient env vars, network). Hermeticity makes reproducibility easier, but it does not by itself guarantee bit-identical outputs.
 
 **Tools, with honest assessment.**
 
@@ -111,7 +111,7 @@ The honest bottom line: most teams should aim for *deterministic* builds (same l
   - **CycloneDX** (OWASP; ECMA-424).
   Either is fine; pick by what your downstream consumers expect. The point is that you can answer "what is in this artifact?" precisely.
 
-US Executive Order 14028 (May 2021) mandated SBOMs for federal software vendors and was the policy lever that made SBOM standard practice across the industry. The federal procurement landscape around it has shifted since then; cite the EO for the *concept* (SBOM as standard practice) rather than as current US procurement law without checking the current regulations.
+US Executive Order 14028 (May 2021) catalyzed federal SBOM guidance and procurement expectations, helping make SBOMs standard practice across the industry. The federal procurement landscape around SBOMs continues to shift; check current agency, OMB, and CISA requirements before claiming a binding procurement mandate.
 
 ### Practical defenses
 

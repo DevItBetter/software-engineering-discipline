@@ -16,7 +16,7 @@ The eight fallacies — assumptions every distributed system designer makes once
 1. **The network is reliable.** It isn't. Packets are dropped. Connections fail. TCP handshakes time out.
 2. **Latency is zero.** It isn't. Same-region: ~1ms. Cross-region: 10–100ms. Cross-continent: 100–300ms.
 3. **Bandwidth is infinite.** It isn't. There's a ceiling and you'll hit it.
-4. **The network is secure.** It isn't. Anything you can read, an attacker on the path can read.
+4. **The network is secure.** It isn't. Without transport security and authentication, attackers on the path may read or modify traffic. Use TLS/mTLS, authentication, authorization, and zero-trust controls as deliberate design choices.
 5. **Topology doesn't change.** It does. Hosts come and go; routes change; the load balancer in front of you is different from the one yesterday.
 6. **There is one administrator.** There isn't. Multiple teams, multiple clouds, multiple companies, all changing things you depend on.
 7. **Transport cost is zero.** It isn't. Bytes on the wire have a CPU cost (serialization), a memory cost (buffers), a money cost (egress fees), and a latency cost.
@@ -59,9 +59,9 @@ One deployable unit. Everything in one process, talks to itself via function cal
 
 Many small deployable units. Talk to each other via RPC, REST, or messaging.
 
-**Strengths**: independent deployment (one team's bug doesn't take everyone down), independent scaling (scale the hot service), independent technology choice, clear team boundaries.
+**Strengths**: independent deployment, independent scaling (scale the hot service), independent technology choice, clear team boundaries. Fault isolation is possible, but only if dependencies, timeouts, bulkheads, circuit breakers, and fallback behavior are designed explicitly.
 
-**Weaknesses**: distributed systems all the time. Every cross-service call can fail, time out, retry. Tracing problems across services is hard. Data consistency across services requires sagas (no distributed transactions). Operability is much harder.
+**Weaknesses**: distributed systems all the time. Every cross-service call can fail, time out, retry. Tracing problems across services is hard. Cross-service consistency usually uses sagas, outbox/idempotency, or asynchronous reconciliation; distributed transactions are possible where the infrastructure supports them, but they are a deliberate coupling, latency, and operability trade-off. Operability is much harder.
 
 **When right**: organizations large enough that team coordination is the bottleneck, services with genuinely different scaling needs, components that need independent release cycles.
 

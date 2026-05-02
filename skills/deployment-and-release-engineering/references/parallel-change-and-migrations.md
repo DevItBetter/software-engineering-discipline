@@ -58,7 +58,7 @@ The pattern is independent of the tool, but for large production tables you need
 
 - **gh-ost** (GitHub, MySQL): triggerless. Reads the binary log and applies changes asynchronously. Pausable; throttle on replica lag. The current default for serious MySQL online schema work.
 - **pt-online-schema-change** (Percona, MySQL): trigger-based. Older; still widely used. Triggers add write amplification you must budget for.
-- **pg_repack** (PostgreSQL): online table rebuilds without long-held exclusive locks. The standard for repacking and online structural changes.
+- **pg_repack** (PostgreSQL): online table/index rebuilds for bloat removal and reclustering with brief locks; not a general-purpose schema-change framework. For schema changes, prefer native PostgreSQL patterns such as `CONCURRENTLY`, `NOT VALID`, and expand-contract migrations.
 - **Vitess and CockroachDB**-style distributed systems handle online schema change at the storage layer; the same parallel-change discipline still applies above.
 
 For the migration framework that owns the *sequence* of migrations:

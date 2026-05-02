@@ -125,7 +125,7 @@ A widely-deployed pattern: an in-process L1 (Caffeine, Ristretto) in front of a 
 
 **Validators.** `ETag` (opaque, strong by default) with conditional `If-None-Match`; `Last-Modified` with `If-Modified-Since`. Origin returns `304 Not Modified` on match — saves bandwidth, not a round-trip.
 
-**The `Vary` header** names request headers that must match for a cached response to be reused. `Vary: Accept-Encoding` is almost always needed. The interaction with `Authorization` is subtler than commonly stated: per RFC 9111 §3.5, a shared cache must not store a response to an `Authorization`-bearing request *unless* the response carries `public`, `s-maxage`, or `must-revalidate`. So the request header alone disables shared caching by default; **`Vary: Authorization` is what makes it correct to use `public` on personalized responses by partitioning the cache key by user**. The antipattern is omitting `Vary` on a response that depends on auth.
+**The `Vary` header** names request headers that must match for a cached response to be reused. `Vary: Accept-Encoding` is almost always needed. The interaction with `Authorization` is subtler than commonly stated: per RFC 9111 §3.5, a shared cache must not store a response to an `Authorization`-bearing request *unless* the response carries `public`, `s-maxage`, or `must-revalidate`. So the request header alone disables shared caching by default. If you intentionally make an `Authorization`-dependent response shared-cacheable, partition it with `Vary: Authorization` or an equivalent per-user cache key; otherwise prefer `private` or `no-store`.
 
 **Immutable assets pattern.** Serve `app.a1b2c3.js` with `Cache-Control: public, max-age=31536000, immutable`. New deploys produce new hashes, new URLs, new cache entries. Invalidation = deploy. The single most reliable HTTP caching strategy for static assets.
 
@@ -153,7 +153,7 @@ If a cache has no metrics, it is operating on faith. See `observability` for the
 - **Caching reflexively.** Sometimes adding a cache adds latency (extra hop) without measurably helping hit ratio. Profile first.
 - **No max size, no TTL.** OOM, slow leak, or stale-forever data.
 - **Unprotected stampede.** First production traffic spike on a cold cache takes the source down.
-- **Caching authorization decisions across users.** Without `Vary: Authorization` or per-user keys, user A's authenticated response is served to user B. Catastrophic and recurring.
+- **Caching authorization decisions across users.** If an authenticated or personalized response is explicitly made shared-cacheable without `Vary`, per-user keys, or another partitioning mechanism, user A's response can be served to user B. Catastrophic and recurring.
 - **Caching `POST` / write responses.** `POST` is non-cacheable by default; caching it confuses idempotency assumptions.
 - **Caching 5xx errors with long TTLs.** Pins an outage in place even after the source recovers. Cache 5xx for *seconds* if at all, never minutes.
 - **"Just add Redis."** Doesn't fix a consistency bug; adds a dual-write problem on top of it.
@@ -171,7 +171,7 @@ If a cache has no metrics, it is operating on faith. See `observability` for the
 - A cache-aside write that invalidates the cache *before* writing to the source.
 - An in-process cache (Caffeine, `lru_cache`, Guava) in a multi-instance service treated as if it were shared.
 - A negative cache TTL longer than the typical time-to-create for the negated entity.
-- A cached response that depends on `Authorization` or session cookie without `Vary` or per-user keying.
+- A personalized response explicitly made shared-cacheable without `Vary`, per-user keying, or another partitioning mechanism.
 - A new endpoint with `Cache-Control: no-cache` where `private, max-age=0` was meant — these mean different things.
 - A 5xx response cached for minutes.
 - A "fix" for a slow query that adds Redis without addressing the query plan.
