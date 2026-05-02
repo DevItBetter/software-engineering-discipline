@@ -61,7 +61,7 @@ These are the ones that catch real production failures and that lazy or AI-gener
 - **The standard library.** `assert dict["key"] == value` after `dict["key"] = value` tests the dict, not your code.
 - **Private methods directly.** Test through the public interface. If you can't get good coverage that way, the public interface is wrong (or the private method is doing too much and should be public, or extracted).
 - **Generated code, framework boilerplate.** Test what *you* wrote.
-- **The mock you just configured.** Tests that assert "the mock was called with X" are testing your mock setup, not your code's behavior. Especially common in AI-generated tests.
+- **The mock you just configured.** Tests that only assert "the mock was called with X" often test your mock setup, not your code's behavior. Boundary interactions can be observable behavior (email not sent, payment gateway called once, audit event emitted); assert them when the interaction is the contract.
 - **Implementation details that should be free to change.** If the current implementation uses a hash map and the test asserts on hash-iteration-order, the test is wrong.
 
 ## The testing pyramid (and its critics)

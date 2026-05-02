@@ -6,11 +6,11 @@ Smells and antipatterns from the broader literature beyond Fowler's classic cata
 
 ### Big Ball of Mud
 
-Brian Foot and Joseph Yoder's term: a system with no discernible architecture, where every module knows about every other, change ripples freely, and the only way to understand any piece is to understand the whole.
+Brian Foote and Joseph Yoder's term: a system with no discernible architecture, where every module knows about every other, change ripples freely, and the only way to understand any piece is to understand the whole.
 
 **Symptom:** files import from anywhere; no clear layering; "where do I put this?" is answered by "wherever you can."
 
-**Fix:** there is no quick fix. Strangler Fig out the new components with explicit boundaries; over time, the new architecture displaces the mud. (See `refactoring-techniques`.)
+**Fix:** there is no quick fix. Strangler Fig out the new components with explicit boundaries; over time, the new architecture displaces the mud. (See `refactoring`.)
 
 ### Distributed Monolith
 

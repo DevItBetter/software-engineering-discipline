@@ -106,7 +106,7 @@ Soft delete = `deleted_at` timestamp instead of `DELETE`. Pros: reversible, audi
 Defensible defaults:
 - **Soft delete by default** for user-facing entities (customers, orders, posts) — accidents happen and recovery matters.
 - **Hard delete** for high-volume ephemeral data (sessions, audit logs older than retention period, expired tokens).
-- **Use the database's row-level security or partial indexes** so the `WHERE deleted_at IS NULL` is automatic, not something every query has to remember.
+- **Use row-level security or a data-access layer** so the `WHERE deleted_at IS NULL` filter is hard to bypass. Partial indexes help performance and uniqueness for live rows, but they do not automatically filter query results.
 
 If you go soft-delete, plan the **purge** path: a scheduled job that hard-deletes rows past their retention. Otherwise tables grow forever.
 
@@ -341,7 +341,7 @@ The mistake to avoid: starting with model 1, growing to ~10,000 tenants, then tr
 
 For model 1 specifically:
 
-- **Use Postgres Row-Level Security** if available. The database enforces filtering; impossible to forget. Set the `tenant_id` session variable per request; let RLS do the rest.
+- **Use Postgres Row-Level Security** if available. The database enforces filtering for ordinary application roles. Set the `tenant_id` session variable per request, use a non-owner role without `BYPASSRLS`, and consider `FORCE ROW LEVEL SECURITY` for table owners.
 - **Or filter at the query layer** consistently, ideally via a repository / data-access layer that's hard to bypass.
 - **Test cross-tenant access aggressively.** Write tests that try to access another tenant's data with a valid auth token; they should return zero rows or 403.
 

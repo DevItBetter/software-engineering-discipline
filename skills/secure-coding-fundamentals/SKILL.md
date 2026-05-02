@@ -26,7 +26,7 @@ At every trust boundary:
 - **Authorize** the action. The right user is allowed to do this specific thing on this specific resource.
 - **Log** the cross-boundary event with enough context for forensics.
 
-Most security bugs are a missing check at a boundary. The defense is not "be careful." It is structural: the boundary must be at a known place in the code, every interaction crossing it must go through a documented checkpoint, and the checkpoint must be impossible to forget (enforced by type, by middleware, or by review discipline).
+Most security bugs are a missing check at a boundary. The defense is not "be careful." It is structural: the boundary must be at a known place in the code, every interaction crossing it must go through a documented checkpoint, and the checkpoint must be hard to bypass (enforced by type, by middleware, or by review discipline).
 
 ## OWASP Top 10:2025 — the application security baseline
 
@@ -47,7 +47,7 @@ Defense:
 - Every endpoint with a resource argument: check ownership/access *explicitly* at the start of the handler. **This is the load-bearing defense.** UUIDs and the rest below are defense-in-depth, not substitutes.
 - Filter by tenant/owner at the database query level (e.g., row-level security). Don't filter in application code only — easy to miss; one missed query is one breach.
 - Use UUIDs (not sequential integers) for IDs that appear in URLs. UUIDs make enumeration impractical, so a missed authz check is less catastrophic — but a missed authz check on UUIDs is still a breach for anyone who has a valid id.
-- Define a permissions model centrally; enforce it via middleware or decorators that are impossible to forget.
+- Define a permissions model centrally; enforce it via middleware or decorators that are hard to bypass.
 - Test: write tests that try to access another tenant's data with a valid auth token. They should 403/404.
 
 #### Server-Side Request Forgery (SSRF) — consolidated into A01 in the 2025 edition
@@ -238,7 +238,7 @@ If the system involves an LLM (chatbot, agent, RAG, tool-using assistant), these
 9. **Misinformation** — LLM produces confident wrong answers. Mitigations: grounding, citations, human review for stakes.
 10. **Unbounded Consumption** — runaway costs from prompt loops, recursive tool calls. Mitigations: rate limits, cost ceilings, loop detection.
 
-For agentic systems specifically: **excessive agency is the most dangerous category**. An agent with tools to send email, call APIs, write files, and execute code requires extensive guardrails. The default permission model should be "read-only and ask before acting"; "act first" requires explicit justification and tight scoping.
+For agentic systems specifically: **excessive agency is often the highest-blast-radius category**. An agent with tools to send email, call APIs, write files, and execute code requires extensive guardrails. The default permission model should be "read-only and ask before acting"; "act first" requires explicit justification and tight scoping.
 
 What "ask before acting" looks like operationally:
 - Tools partition into **safe** (read-only, idempotent, low-blast-radius) and **gated** (writes, sends, transfers, irreversible).
@@ -265,8 +265,8 @@ Document the result in the design doc. A feature that ships with no threat model
 - **Never in logs.** Sanitize before logging.
 - **Never in error messages** returned to users.
 - **Never in URLs** (they end up in logs).
-- **Never in environment variables** dumped on crash (use a secret manager that loads them in process memory only).
-- **Use a secret manager** (Vault, AWS Secrets Manager, GCP Secret Manager, 1Password Secrets Automation, etc.).
+- **Avoid long-lived secrets in environment variables** when crash dumps, debug endpoints, process listings, or support bundles may expose them. Environment injection can be acceptable for platform-managed short-lived secrets, but prefer a secret manager that fetches at runtime and supports audit/rotation.
+- **Use a secret manager** (Vault, AWS Secrets Manager, GCP Secret Manager, 1Password Secrets Automation, etc.) for production secrets.
 - **Rotate periodically.** Especially after personnel changes.
 - **Audit access.** Who can read the secret, and when did they last?
 

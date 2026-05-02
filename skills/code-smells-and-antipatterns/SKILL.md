@@ -136,7 +136,7 @@ def transfer(from_account: str, to_account: str, amount: float, currency: str): 
 # This compiles fine but ships a bug:
 transfer("acc-123", "acc-456", 100, "EUR")  # OK
 transfer("acc-456", "acc-123", 100, "USD")  # also OK, but USD account doesn't accept USD
-transfer(100, "acc-456", "EUR", "acc-123")  # type-checks (all strings), wrong order
+transfer("acc-123", "acc-456", 100, "EUR")  # type-checks, but account/currency rules live elsewhere
 
 # Better
 class AccountId(str): pass

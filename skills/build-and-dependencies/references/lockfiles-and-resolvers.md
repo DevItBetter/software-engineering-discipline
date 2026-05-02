@@ -22,7 +22,7 @@ The discipline:
 | npm | `npm ci` |
 | yarn (Berry / v2+) | `yarn install --immutable` |
 | pnpm | `pnpm install --frozen-lockfile` |
-| Poetry | `poetry install --no-update` |
+| Poetry | `poetry check --lock && poetry install` |
 | uv | `uv sync --frozen` |
 | PDM | `pdm install --frozen-lockfile` |
 | Pipenv | `pipenv install --deploy` |

@@ -75,9 +75,9 @@ the start of every request, sourced from the authenticated user's tenant.
 
 ## Consequences
 Easier:
-- Tenant filtering enforced by the database; impossible to forget.
+- Tenant filtering enforced by the database for ordinary application roles; hard to bypass accidentally.
 - Reviewers no longer need to verify `WHERE tenant_id = ?` on every query.
-- Bugs in this category eliminated as a class.
+- Bugs from missing application-level tenant filters are largely eliminated as a class.
 
 Harder:
 - Database-level enforcement requires the session variable to be set

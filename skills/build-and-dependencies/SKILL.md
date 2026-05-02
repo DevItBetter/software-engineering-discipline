@@ -22,19 +22,19 @@ A **manifest** declares *intent*: "I depend on `lodash ^4.17`" — a constraint,
 
 **The cardinal rule: commit the lockfile.**
 
-This is universal advice for **applications** — anything you deploy. For **libraries** published to a registry, the picture is contested. The lockfile doesn't constrain consumers (they re-resolve on install), but committing it gives CI a deterministic baseline and lets you reproduce the exact graph an end-user would resolve at a given commit. The honest summary: always commit for applications; for libraries, commit for CI determinism but never assume it constrains downstream consumers.
+This is universal advice for **applications** — anything you deploy. For **libraries** published to a registry, the picture is contested. The lockfile doesn't constrain consumers (they re-resolve on install), but committing it gives CI a deterministic baseline for your tests and contributor workflows. The honest summary: always commit for applications; for libraries, commit for CI determinism but never assume it constrains or predicts downstream consumers' full graphs.
 
 By ecosystem (early 2026):
 
 | Language | Manifest | Lockfile | Frozen-install command |
 |---|---|---|---|
 | npm / yarn / pnpm | `package.json` | `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml` | `npm ci` / `yarn install --immutable` / `pnpm install --frozen-lockfile` |
-| Python (modern) | `pyproject.toml` | `poetry.lock` / `uv.lock` / `pdm.lock` / `Pipfile.lock` | `poetry install --no-update` / `uv sync --frozen` / `pdm install --frozen-lockfile` |
+| Python (modern) | `pyproject.toml` | `poetry.lock` / `uv.lock` / `pdm.lock` / `Pipfile.lock` | `poetry check --lock && poetry install` / `uv sync --frozen` / `pdm install --frozen-lockfile` |
 | Python (legacy) | `requirements.txt` | `requirements.txt --hash` (manual) | `pip install --require-hashes -r requirements.txt` |
 | Ruby | `Gemfile` | `Gemfile.lock` | `bundle install --frozen` |
 | Go | `go.mod` | `go.sum` (content hashes) | `go mod download` (verifies via sum.golang.org) |
 | Rust | `Cargo.toml` | `Cargo.lock` | `cargo build --locked` |
-| JVM (Gradle) | `build.gradle[.kts]` | `dependencies.lockfile` (opt-in) | `./gradlew --write-locks` then locked builds |
+| JVM (Gradle) | `build.gradle[.kts]` | `dependencies.lockfile` (opt-in) | enable dependency locking; CI runs builds without `--write-locks` |
 | .NET | `*.csproj` | `packages.lock.json` (opt-in via `RestorePackagesWithLockFile`) | `dotnet restore --locked-mode` |
 
 A note on Python: `requirements.txt` is **not a lockfile by default**. It becomes one only when generated with hashes (`pip-compile --generate-hashes`) and installed with `--require-hashes`. The modern Python toolchain (uv, Poetry, PDM, Pipenv) all produce real lockfiles; prefer them for new projects.

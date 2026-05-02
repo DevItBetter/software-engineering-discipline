@@ -233,7 +233,7 @@ while True:
 
 Changing a column from `VARCHAR` (free-text) to `ENUM`:
 
-- **Don't.** Postgres enums require ALTER TABLE for new values (multi-step in production).
+- **Don't.** Postgres enums require `ALTER TYPE ... ADD VALUE` for new values, which is operationally heavier than changing table data and awkward to roll back.
 - **Use a CHECK constraint or a foreign key to a reference table.** Adding new values is just an INSERT.
 
 ```sql
