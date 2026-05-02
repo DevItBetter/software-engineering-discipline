@@ -1,6 +1,6 @@
 # Rock Solid Engineering Skills
 
-A suite of language-agnostic software-engineering skills designed to hold up under expert scrutiny. The goal is to ensure that engineering work — by humans or by AI assistants — meets a senior-engineer bar: evidence-backed, named in the canonical vocabulary, honest about what was checked and what wasn't, and resistant to the failure modes (sycophantic acceptance, stylistic nitpicking, AI hallucination) that produce code that *looks* correct but isn't.
+Teach AI assistants to engineer software, not just generate code. This suite of language-agnostic software-engineering skills is designed to hold up under expert scrutiny, so work by humans or AI assistants meets a senior-engineer bar: evidence-backed, named in the canonical vocabulary, honest about what was checked and what wasn't, and resistant to the failure modes (sycophantic acceptance, stylistic nitpicking, AI hallucination) that produce code that *looks* correct but isn't.
 
 ## Where to start
 
