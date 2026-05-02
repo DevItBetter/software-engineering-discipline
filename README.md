@@ -13,10 +13,10 @@ The other specialty skills trigger **independently** when their domain is in pla
 ```
 software-engineering-discipline/
 ├── skills/
-│   ├── engineering-discipline/              ← orchestrator / entry point
+│   ├── engineering-discipline/              ← orchestrator skill
 │   ├── software-design-principles/
-│   ├── code-smells-and-antipatterns/        ← diagnostic side: name what's wrong
-│   ├── refactoring/                         ← corrective side: named moves, legacy seams
+│   ├── code-smells-and-antipatterns/
+│   ├── refactoring/
 │   ├── testing-discipline/
 │   ├── error-handling-and-resilience/
 │   ├── api-and-interface-design/
