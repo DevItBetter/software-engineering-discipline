@@ -1,6 +1,7 @@
 ---
 name: build-and-dependencies
 description: "Build systems, dependency management, lockfiles, reproducibility, and supply-chain hygiene. Use this skill whenever the task involves adding or upgrading a dependency, choosing a package manager or build system, evaluating a manifest/lockfile policy, judging supply-chain risk, designing CI dependency-scan or SBOM generation, deciding monorepo vs. multi-repo build strategy, or asking \"is this dependency safe / pinned / reproducible.\" Use it when reviewing changes to manifests, lockfiles, build configuration, or CI pipelines that fetch dependencies. Built on the lessons of Log4Shell (CVE-2021-44228), the xz-utils backdoor (CVE-2024-3094), Alex Birsan's dependency confusion, the npm left-pad incident, Ken Thompson's *Reflections on Trusting Trust*, the Reproducible Builds project, SLSA, Sigstore, and SBOM standards (SPDX, CycloneDX)."
+
 ---
 
 # Build and Dependencies
@@ -32,7 +33,7 @@ By ecosystem (early 2026):
 | Python (modern) | `pyproject.toml` | `poetry.lock` / `uv.lock` / `pdm.lock` / `Pipfile.lock` | `poetry check --lock && poetry install` / `uv sync --frozen` / `pdm install --frozen-lockfile` |
 | Python (legacy) | `requirements.txt` | `requirements.txt --hash` (manual) | `pip install --require-hashes -r requirements.txt` |
 | Ruby | `Gemfile` | `Gemfile.lock` | `bundle install --frozen` |
-| Go | `go.mod` | `go.sum` (content hashes) | `go mod download` (verifies via sum.golang.org) |
+| Go | `go.mod` | `go.sum` (content hashes) | `go test -mod=readonly ./...` or clean-tree check after `go mod download` |
 | Rust | `Cargo.toml` | `Cargo.lock` | `cargo build --locked` |
 | JVM (Gradle) | `build.gradle[.kts]` | `dependencies.lockfile` (opt-in) | enable dependency locking; CI runs builds without `--write-locks` |
 | .NET | `*.csproj` | `packages.lock.json` (opt-in via `RestorePackagesWithLockFile`) | `dotnet restore --locked-mode` |
@@ -130,7 +131,7 @@ Container images are a special case of dependency management — every image is 
 - **Multi-stage builds.** Compile in one stage with full toolchain; copy only the artifact into a slim runtime stage. The final image has no compiler, no package manager, no shell where unnecessary.
 - **Drop privileges.** `USER` directive to a non-root user; drop Linux capabilities; read-only root filesystem where the app permits it.
 - **`.dockerignore` matters.** A missing `.dockerignore` ships your `.git`, your `node_modules`, your `.env` files, and your build cache into the image. Audit what `COPY .` actually copies.
-- **Sign images.** `cosign` against the image registry; verify signatures at deploy time. Container Network Interface attestation if your platform supports it.
+- **Sign images.** `cosign` against the image registry; verify signatures at deploy time. Attach and verify provenance/SBOM attestations (SLSA/in-toto style) if your platform supports it.
 - **SBOM per image.** Syft or Trivy produces an SBOM at build time; attach to the image as an attestation.
 - **Scan at build, scan periodically post-build.** A new CVE for a base-image package can land months after your image was built. Regular scans of in-production images catch this.
 

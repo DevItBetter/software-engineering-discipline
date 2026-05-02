@@ -1,6 +1,7 @@
 ---
 name: software-design-principles
 description: "Senior-engineer guidance on software design — modularity, cohesion, coupling, abstraction, complexity, SOLID-with-nuance, DRY/KISS/YAGNI, naming, and readability. Use this whenever the task involves designing a new module, evaluating whether an abstraction is pulling its weight, deciding how to decompose a system into pieces, judging the quality of an existing design, naming things, or asking \"is this a good design\" / \"should I extract this\" / \"is this the right level of abstraction\" / \"how should I split this up.\" Also use it when reviewing code with design implications, when refactoring decisions are being made, and whenever a design feels off but the cause is hard to articulate. This skill teaches the vocabulary to name what is wrong."
+
 ---
 
 # Software Design Principles

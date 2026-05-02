@@ -1,6 +1,7 @@
 ---
 name: secure-coding-fundamentals
 description: "Identify and prevent security vulnerabilities in application code. Use this skill whenever the task involves a security review, threat modeling, authentication / authorization design, handling user input, working with secrets, designing or evaluating cryptography choices, reviewing trust boundaries, evaluating supply-chain risk (dependencies, packages), reviewing changes to LLM/AI systems for prompt-injection and excessive-agency risks, or reviewing any code that touches money, PII, credentials, or production access. Built on OWASP Top 10:2025 and OWASP Top 10 for LLM Applications (2025), with concrete patterns and what to flag in review."
+
 ---
 
 # Secure Coding Fundamentals

@@ -1,6 +1,7 @@
 ---
 name: deployment-and-release-engineering
 description: "How to ship software safely and often — continuous delivery, deployment strategies (rolling, blue/green, canary, shadow, dark launch, progressive delivery), feature flags, rollback discipline, schema-migration patterns, and the cultural practices that separate strong delivery teams from weak ones. Use this skill whenever the task involves designing or evaluating a release strategy, choosing a deployment pattern, planning a schema or data migration, designing a feature flag, judging an alerting/rollback policy for a rollout, evaluating CI/CD pipelines, or asking \"how do we ship this without breaking production.\" Use it when reviewing changes to deployment manifests, pipeline definitions, feature-flag wiring, or migration scripts. Anchored in Humble & Farley's *Continuous Delivery*, Forsgren/Humble/Kim's *Accelerate* (DORA research), the Google SRE corpus, Pete Hodgson on feature toggles, Danilo Sato's parallel change, and Werner Vogels' \"you build it, you run it.\""
+
 ---
 
 # Deployment and Release Engineering

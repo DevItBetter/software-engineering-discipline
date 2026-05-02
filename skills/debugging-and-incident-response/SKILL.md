@@ -1,6 +1,7 @@
 ---
 name: debugging-and-incident-response
 description: "Find bugs systematically, run incidents calmly, write postmortems that actually produce learning. Use this skill whenever the task involves diagnosing a bug (especially a hard one — intermittent, distributed, \"it worked yesterday\"), responding to a production incident, deciding how to investigate a slow or wrong system, writing a postmortem, designing on-call practice, or asking \"where do I even start.\" Debugging is a skill distinct from coding; most engineers learn it by accident over years. Built on Andreas Zeller (Why Programs Fail), David Agans (Debugging: 9 Indispensable Rules), Brian Kernighan, the Google SRE workbook, John Allspaw / Etsy on blameless postmortems, and Sidney Dekker on Safety II."
+
 ---
 
 # Debugging and Incident Response

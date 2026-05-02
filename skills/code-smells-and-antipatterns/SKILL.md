@@ -1,6 +1,7 @@
 ---
 name: code-smells-and-antipatterns
 description: "Identify what's wrong with code by name. The diagnostic library — every code smell and antipattern has a name, a concrete code example, the cost it imposes, and the fix. Use this skill whenever the task involves looking at code and asking \"what's off here?\", \"why does this feel wrong?\", \"what should I be flagging?\", or evaluating whether a piece of code is healthy. Use it in code reviews, refactoring planning, design discussions, and technical-debt audits. Built on Fowler (Refactoring 2nd ed.), Refactoring.Guru's catalog, and the wider antipattern literature. The companion skill `refactoring` is the corrective side; this skill is the diagnostic side."
+
 ---
 
 # Code Smells and Antipatterns

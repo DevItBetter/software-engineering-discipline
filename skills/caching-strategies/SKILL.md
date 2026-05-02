@@ -1,6 +1,7 @@
 ---
 name: caching-strategies
 description: "How to use caches without their cost — placement, read and write strategies, invalidation, stampede protection, eviction policies, consistency models, and the antipatterns that turn a cache from a latency optimization into a hidden source of truth. Use this skill whenever the task involves adding or sizing a cache, choosing TTLs, designing invalidation, debugging a stale-read or stampede problem, choosing between Redis and Memcached, evaluating HTTP cache headers, or asking \"is this cache earning its keep.\" Use it when reviewing code that introduces caching, when designing a system that needs to scale reads, and when judging whether a slow query should be cached or fixed. Built on RFC 9111 (HTTP Caching), the AWS Builders' Library, the Vattani et al. probabilistic stampede paper (VLDB 2015), DHH on key-based expiration, the Karger consistent-hashing paper (STOC 1997), and the modern eviction literature (TinyLFU, S3-FIFO)."
+
 ---
 
 # Caching Strategies

@@ -1,6 +1,7 @@
 ---
 name: engineering-discipline
 description: "The orchestrator and entry point for the engineering skills suite. Use this skill whenever the task involves doing engineering work to a high bar — reviewing code or a design, designing a new system or component, debugging a hard problem or running an incident, implementing a substantive change, writing documentation, or sanity-checking an approach. Use it when the user phrases things casually (\"rip into this\", \"be brutal\", \"is this approach right\", \"what am I missing\", \"what would you change\", \"look at this\") or formally (\"review this PR\", \"audit this design\"). Use it proactively for any non-trivial engineering work, before declaring something done. The skill triages the work, dispatches to the right specialty skill(s), enforces verification, and produces an evidence-backed result. The goal is to ensure no AI shortcut, sycophantic agreement, or stylistic distraction gets in the way of work that holds up to senior-engineer scrutiny."
+
 ---
 
 # Engineering Discipline

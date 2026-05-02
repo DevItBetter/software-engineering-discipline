@@ -29,9 +29,9 @@ The discipline:
 | pip + hashes | `pip install --require-hashes -r requirements.txt` |
 | Bundler | `bundle install --frozen` (or `--deployment`) |
 | Cargo | `cargo build --locked` |
-| Go | `go mod download` (verifies against `go.sum`) |
+| Go | `go test -mod=readonly ./...` or clean-tree check after `go mod download` |
 | Maven | dependency-locking plugin or enforce-plugin |
-| Gradle | enable lockfiles in `build.gradle.kts`, then `./gradlew --offline` against locked versions |
+| Gradle | enable dependency locking, commit lockfiles, and run CI resolution/builds without `--write-locks` |
 | .NET | `dotnet restore --locked-mode` |
 
 These commands are the contract: if the lockfile is missing, stale, or disagrees with the manifest, the install fails. Use them in CI without exception.

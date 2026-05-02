@@ -1,6 +1,7 @@
 ---
 name: refactoring
 description: "How to refactor safely and effectively — recognize when, choose the right named move, work in small reversible steps, attack legacy code with seams and characterization tests. Use this skill whenever the task is changing the structure of code without changing its behavior, including questions like \"how should I refactor this\", \"how do I break up this class/function\", \"how do I make this testable\", \"how do I get this under control\", and reviews where the change would benefit from being preceded by a refactor. The companion skill `code-smells-and-antipatterns` is the diagnostic side (finding what's wrong, with concrete examples); this skill is the corrective side (the moves, the process, the discipline). Built on Fowler (Refactoring 2nd ed.), Beck (Tidy First?), Feathers (Working Effectively with Legacy Code)."
+
 ---
 
 # Refactoring (Techniques and Discipline)

@@ -1,6 +1,7 @@
 ---
 name: observability
 description: "How to make a running system understandable from the outside — logs, metrics, traces, events, SLOs, alerting, and the discipline that separates real observability from a wall of green dashboards. Use this skill whenever the task involves instrumenting code, designing telemetry, choosing what to log/measure/trace, evaluating whether a system is operable, defining SLIs/SLOs, judging an alerting strategy, debugging a production issue from telemetry alone, or asking \"can on-call diagnose this at 3am.\" Use it when reviewing code that adds logs, metrics, or spans; when reviewing a design that doesn't address operability; and when deciding between telemetry standards. Anchored in the Google SRE corpus, Sridharan, Majors and the Honeycomb school, Dapper, W3C Trace Context, OpenTelemetry, USE, and RED."
+
 ---
 
 # Observability

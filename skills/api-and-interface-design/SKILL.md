@@ -1,6 +1,7 @@
 ---
 name: api-and-interface-design
 description: "Design APIs and interfaces that are hard to misuse, easy to evolve, and honest about their contracts. Use this skill whenever the task involves designing or reviewing an API (HTTP, RPC, GraphQL, library/SDK, internal interface), evaluating contract changes for breaking-change risk, choosing between sync and async, designing pagination / errors / versioning / idempotency, judging whether an API is \"ergonomic\", thinking about backward compatibility, deciding default values, naming endpoints/resources, designing an SDK, or asking \"is this a good API.\" Also use when reviewing changes to existing public APIs — Hyrum's Law applies the moment a change ships."
+
 ---
 
 # API and Interface Design
@@ -145,7 +146,8 @@ Document the model so callers can write retries safely.
 
 Pick a versioning strategy and commit:
 
-- **No versioning, additive only** (Stripe-style with date-based version pinning). Works if you have strict additive discipline.
+- **No visible versioning, additive only.** Works only if you have strict additive discipline and can avoid breaking changes.
+- **Date-based version pinning** (Stripe-style). Callers opt into a dated contract; you can evolve defaults without silently breaking pinned clients.
 - **Major version in URL** (`/v1/`, `/v2/`). Clear; locks you into supporting v1 indefinitely if you have customers there.
 - **Header-based version negotiation.** Flexible; harder to debug.
 - **Graphql/protobuf field deprecation.** Mark fields deprecated; remove them in the next major.

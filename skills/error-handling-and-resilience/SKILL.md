@@ -1,6 +1,7 @@
 ---
 name: error-handling-and-resilience
 description: "How to handle errors, design for failure, and build systems that degrade gracefully. Use this skill whenever the task involves designing error handling, deciding what to catch vs. let propagate, designing retry / timeout / circuit-breaker behavior, choosing exceptions vs. return values, judging whether code is appropriately defensive (or over-defensive), reviewing for resilience, designing for at-least-once or exactly-once semantics, choosing between fail-fast and let-it-crash, or thinking about what happens when a dependency is slow / unavailable / broken. Also use it whenever AI-generated code is wrapped in defensive try/except blocks — most of those are wrong."
+
 ---
 
 # Error Handling and Resilience

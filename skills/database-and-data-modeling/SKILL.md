@@ -1,6 +1,7 @@
 ---
 name: database-and-data-modeling
 description: "Design schemas, indexes, queries, and data lifecycle that hold up under load and over years. Use this skill whenever the task involves database work — designing or reviewing a schema, choosing between SQL/NoSQL/timeseries/graph, evaluating a query plan, designing indexes, deciding normalization vs denormalization, planning a migration, sizing a connection pool, debating ORM behavior, designing for multi-tenancy, handling schema evolution, or asking \"is this the right database for this.\" Most production incidents are a database problem in disguise; the discipline pays off many times over. Built on Kleppmann (DDIA), Markus Winand (Use the Index Luke), Joe Celko, the PostgreSQL/MySQL official documentation, and the practitioner literature."
+
 ---
 
 # Database and Data Modeling

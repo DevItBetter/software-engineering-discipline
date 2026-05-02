@@ -1,6 +1,7 @@
 ---
 name: version-control-discipline
 description: "Use version control as a craft — atomic commits, buildable history, useful PRs, bisect-friendly main, recoverable mistakes. Use this skill whenever the task involves writing commits or PRs, choosing a branching model, deciding rebase vs. merge, recovering from a force-push or accidentally-committed secret, debugging a regression with `git bisect`, structuring a long change as a series of small reviewable steps, or judging whether a repo's history is readable. Use it especially when reviewing commit messages, PR descriptions, branching strategies, or merge policies. Anchored in Tim Pope and Chris Beams on commit messages, Paul Hammant on trunk-based development, Vincent Driessen on GitFlow (and his 2020 note retiring it for SaaS), Linus Torvalds on never rebasing public commits, and the Google Engineering Practices CL guide."
+
 ---
 
 # Version Control Discipline

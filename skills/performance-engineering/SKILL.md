@@ -1,6 +1,7 @@
 ---
 name: performance-engineering
 description: "Diagnose and fix real performance problems without falling into either \"premature optimization\" or \"performance is somebody else's problem\". Use this skill whenever the task involves measuring or improving performance, evaluating whether a change has performance implications, designing for latency or throughput, judging time/space complexity, finding hot paths, debugging a slow query / slow function / memory leak / scalability issue, choosing between approaches based on cost, or asking \"is this fast enough.\" Especially use it when reviewing code that's about to run on a hot path, when an existing system is too slow, or when somebody pulls the Knuth quote out of context to justify shipping known-bad code."
+
 ---
 
 # Performance Engineering

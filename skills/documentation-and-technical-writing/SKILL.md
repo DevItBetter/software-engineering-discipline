@@ -1,6 +1,7 @@
 ---
 name: documentation-and-technical-writing
 description: "Write documentation, design docs, ADRs, READMEs, commit messages, and other engineering communication that holds up under reading. Use this skill whenever the task involves writing for engineers (or being read by engineers): READMEs, design docs, technical specs, RFCs, ADRs, runbooks, API documentation, commit messages, PR descriptions, postmortems, technical blog posts, onboarding docs, or asking \"how should I structure this writeup.\" Bad docs cost more than bad code; good docs scale knowledge across the team and across years. Built on the Diátaxis framework (Daniele Procida), Google's developer documentation style guide, the design-doc culture from Google and others, and Conventional Commits."
+
 ---
 
 # Documentation and Technical Writing
@@ -59,10 +60,10 @@ make run
 
 ## Documentation
 
-- [Tutorial: building your first foo](docs/tutorial.md)
-- [How-to: deploying to production](docs/deploy.md)
-- [API reference](docs/api/)
-- [Architecture](docs/architecture.md)
+- Tutorial: building your first foo — `docs/tutorial.md`
+- How-to: deploying to production — `docs/deploy.md`
+- API reference — `docs/api/`
+- Architecture — `docs/architecture.md`
 
 ## Development
 
@@ -352,7 +353,7 @@ Common API doc failures:
 
 A runbook is a how-to guide for a specific operational task. The reader is on-call at 3am; optimize for that.
 
-For runbook structure and quality, see `debugging-and-incident-response/references/incident-roles-and-runbooks.md`.
+For runbook structure and quality, see `skills/debugging-and-incident-response/references/incident-roles-and-runbooks.md`.
 
 The writing-specific notes:
 

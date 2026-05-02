@@ -1,6 +1,7 @@
 ---
 name: concurrency-and-state
 description: "Find and fix concurrency bugs, design correct shared-state code, and reason honestly about race conditions, atomicity, ordering, and consistency. Use this skill whenever the task involves writing or reviewing concurrent code (threads, async, processes, goroutines), shared mutable state, locks/mutexes, atomic operations, transactions, retries with side effects, distributed state, queues / message passing, eventual consistency, idempotency, or anything that runs in more than one place at once. Concurrency bugs are the most expensive bugs in production — they're hard to reproduce, hard to test, and corrupt data invisibly. Use this skill aggressively whenever any code path has more than one actor."
+
 ---
 
 # Concurrency and State
