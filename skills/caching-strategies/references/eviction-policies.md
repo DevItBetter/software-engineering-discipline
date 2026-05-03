@@ -39,7 +39,7 @@ Einziger, Friedman, Manes. *TinyLFU: A Highly Efficient Cache Admission Policy*.
 - **Ristretto** (Go) — Dgraph Labs' implementation; popular in Go services.
 - Increasingly common in CDN and edge caches.
 
-For new caches at any scale, W-TinyLFU is the modern default. Caffeine's wiki notes it provides "near optimal hit rate" and is "competitive with ARC and LIRS while not retaining evicted (ghost) keys."
+For performance-sensitive caches with meaningful eviction pressure, W-TinyLFU is a strong modern default. Caffeine's wiki notes it provides "near optimal hit rate" and is "competitive with ARC and LIRS while not retaining evicted (ghost) keys."
 
 ## ARC — Adaptive Replacement Cache
 
@@ -90,8 +90,8 @@ Diagnosing the regime: track hit ratio and eviction rate. Hit ratio approaching 
 
 ## Choosing — defensible defaults
 
-- **New code, no specific knowledge:** LRU. Predictable, well-understood, every library has it.
-- **Production scale, performance-sensitive:** W-TinyLFU (Caffeine in JVM, Ristretto in Go).
+- **New code, no specific knowledge:** use the cache library's standard policy. LRU or approximate LRU is predictable and well understood.
+- **Production scale, performance-sensitive:** benchmark W-TinyLFU (Caffeine in JVM, Ristretto in Go) against LRU with production-like traces.
 - **Storage / page cache:** ARC if patent status confirmed for your jurisdiction; otherwise S3-FIFO or W-TinyLFU.
 - **High-throughput multi-threaded:** S3-FIFO's lock-free FIFO operations.
 - **Workload that fits the cache:** LRU is fine; the policy doesn't matter much.

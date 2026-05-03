@@ -64,9 +64,9 @@ Practical implication: pin direct dependencies' versions of contested libraries 
 
 ### Cargo backtracking
 
-Cargo's resolver backtracks across the constraint set, preferring the highest version that satisfies all constraints. Permits multiple major-version copies of a crate to coexist (because Rust's name-mangling makes them distinct types). Strong determinism: same `Cargo.toml` plus same `Cargo.lock` always produces the same graph.
+Cargo's resolver backtracks across the constraint set, generally preferring the highest version that satisfies all constraints. Permits multiple major-version copies of a crate to coexist (because Rust's name-mangling makes them distinct types). Strong determinism: same `Cargo.toml` plus same `Cargo.lock` always produces the same graph.
 
-Strength: rarely surprising. Weakness: backtracking is exponential in the worst case, but Cargo's resolver has improved (PubGrub-style algorithms, since around 2020); exponential cases are now rare in practice.
+Strength: rarely surprising. Weakness: backtracking is exponential in the worst case, though resolver heuristics make pathological cases rare in practice.
 
 ### pip (modern, post-2020 resolvelib)
 
@@ -74,7 +74,7 @@ pip's resolver since the resolvelib rewrite uses backtracking with conflict lear
 
 ### Go MVS — Minimum Version Selection
 
-Russ Cox's deliberately-different design. Pick the *lowest* version that satisfies all constraints (rather than the highest). Unusually deterministic: as long as no maintainer pulls a version, the resolution is stable across time. Trades aggressiveness (you don't get new features automatically) for predictability (your dependency graph doesn't change underneath you).
+Russ Cox's deliberately-different design. MVS uses minimum requirements: the build list keeps the highest required version for each module. It avoids general SAT/range solving and changes versions only when requirements change or the user asks to upgrade/downgrade. Trades aggressiveness (you don't get new features automatically) for predictability (your dependency graph doesn't change underneath you).
 
 Worth understanding even if you don't use Go: MVS is a credible alternative to the "always take the latest compatible" default that npm, Cargo, and pip share.
 
@@ -94,11 +94,11 @@ The implication is that SemVer is a *contract the upstream maintainer hopes to h
 - The lockfile pins the exact resolution at a given commit so today's CI matches today's prod.
 - Updating the lockfile is a deliberate act with a PR and tests, not an accident at install time.
 
-## When pinned-exact is wrong
+## When pinned-exact is wrong, and when it is required
 
-A pinned-exact constraint (`"lodash": "4.17.21"` rather than `"^4.17.21"`) seems safer. It's not — it locks you out of patch releases including security fixes. The dependency receives `4.17.22` with a CVE patch; you're stuck on `4.17.21` until someone manually updates. The lockfile already records the exact resolution; the manifest's constraint should express the *band you accept future updates within*.
+A pinned-exact package constraint (`"lodash": "4.17.21"` rather than `"^4.17.21"`) seems safer in an application manifest with a committed lockfile. Usually it is not: it locks you out of patch releases including security fixes until someone manually updates. The lockfile already records the exact resolution; the manifest's constraint should express the *band you accept future updates within*.
 
-The exception: pinned-exact is appropriate when you have an active incompatibility (a known bug in `4.17.22` that affects you) and you've documented it. Pin with a comment saying why and when to revisit.
+Exceptions: pinned-exact is appropriate when you have an active incompatibility (a known bug in `4.17.22` that affects you) and you've documented it. Pin with a comment saying why and when to revisit. Immutable hash or digest pinning is required for build/release tooling, CI actions, Docker base images, direct downloads, and ecosystems without a lockfile; pair it with update automation so security fixes still arrive.
 
 ## When `*` or `latest` is wrong
 

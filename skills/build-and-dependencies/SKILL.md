@@ -12,7 +12,7 @@ The lessons are recent and concrete:
 
 - **Log4Shell** (CVE-2021-44228, public 9 December 2021) — a remote-code-execution vulnerability in Apache Log4j 2's JNDI lookup feature, which had existed since 2013, that affected most of the JVM-based internet. Most affected teams did not know they used Log4j; it was a transitive dependency of a transitive dependency.
 - **xz-utils backdoor** (CVE-2024-3094, discovered 29 March 2024) — a multi-year social-engineering campaign by a contributor using the pseudonym "Jia Tan" inserted a backdoor into `xz`/`liblzma` 5.6.0 and 5.6.1, hidden in test fixtures and triggered only during specific Debian/RPM build contexts. Discovered by Andres Freund (Microsoft / PostgreSQL) while investigating a 500ms vs. 100ms SSH login regression on Debian sid. The attacker built trust over years before the payload landed.
-- **Dependency confusion** (Alex Birsan, *Dependency Confusion*, 9 February 2021) — internal package names that don't exist on the public registry can be claimed by an attacker; if the build tool prefers the public registry, the attacker's code runs with the build's privileges. Birsan breached 35 companies including Apple, Microsoft, PayPal, Shopify, Netflix, Yelp, Tesla, and Uber.
+- **Dependency confusion** (Alex Birsan, *Dependency Confusion*, 9 February 2021) — internal package names that don't exist on the public registry can be claimed by an attacker; if the build tool prefers the public registry, the attacker's code runs with the build's privileges. Birsan demonstrated the issue against 35 organizations through responsible disclosure, including Apple, Microsoft, PayPal, Shopify, Netflix, Yelp, Tesla, and Uber.
 - **left-pad** (March 2016) — Azer Koçulu unpublished 273 npm packages including `left-pad`, an 11-line string-padding utility, after a dispute with npm Inc. The unpublishing broke installs at Babel, Webpack, Meta, PayPal, Netflix, Spotify, and Kik. The lesson: a single 11-line dependency was a single point of failure for half the JS ecosystem.
 
 The discipline that follows is the response to these.
@@ -52,9 +52,9 @@ A note on Python: `requirements.txt` is **not a lockfile by default**. It become
 - **Maven** — "nearest definition first": the closest declaration in the dependency tree wins; ties between equally-near declarations are resolved by order of declaration in the POM. Fast but surprising — the tie-break by declaration order is usually the source of conflict-resolution surprise in real projects.
 - **Cargo** — backtracking, prefers highest compatible. Permits multiple major-version copies because Rust's name-mangling allows it. Strong determinism.
 - **pip** (modern, post-2020 resolvelib) — backtracking, can hit exponential worst cases ("resolution-too-deep").
-- **Go modules** — Minimum Version Selection (MVS): pick the *lowest* version that satisfies all constraints. Unusually deterministic; trades aggressiveness for predictability.
+- **Go modules** — Minimum Version Selection (MVS): the build list keeps the highest required version for each module, without general SAT/range solving. Unusually deterministic; trades aggressiveness for predictability.
 
-**The constraint trade-off.** Over-tight constraints (pinned exact) prevent you from getting fixes; security patches stall. Over-loose constraints (`*`, `latest`) let the resolver pick anything, including something that broke compatibility at a "minor" or "patch" version. The healthy middle is caret/tilde range plus a committed lockfile — manifest expresses intent, lockfile pins resolution, lockfile is updated deliberately.
+**The constraint trade-off.** Over-tight package constraints can prevent you from getting fixes; security patches stall. Over-loose constraints (`*`, `latest`) let the resolver pick anything, including something that broke compatibility at a "minor" or "patch" version. For application package manifests with a committed lockfile, the healthy middle is usually a caret/tilde range plus deliberate lockfile updates. For build/release tooling, CI actions, containers, direct downloads, and ecosystems without lockfiles, pin immutable hashes or digests and use automation to update.
 
 ## Reproducible and hermetic builds
 
@@ -97,20 +97,20 @@ The honest bottom line: most teams should aim for *deterministic* builds (same l
 
 ### Defenses
 
-- **SLSA** (Supply-chain Levels for Software Artifacts; `slsa.dev`). Introduced by Google in June 2021, now an OpenSSF project. SLSA v1.0 (April 2023) defines a Build track with three levels (older v0.1 had four; the v1.0 restructure split L4 into separate future tracks):
+- **SLSA** (Supply-chain Levels for Software Artifacts; `slsa.dev`). Introduced by Google in June 2021, now an OpenSSF project. Use the current SLSA spec when citing levels; as of early 2026, v1.2 defines a Build Track and a Source Track. The Build Track has three levels:
   - **L1**: automated build with provenance generated.
   - **L2**: hosted build platform with signed provenance.
   - **L3**: hardened build platform; provenance non-forgeable; isolated builds.
-  When citing SLSA levels, anchor to v1.0 — older articles citing "L1–L4" predate the restructure.
+  Older articles citing "L1–L4" usually refer to the pre-1.0 structure and should not be mixed with current Build Track levels.
 - **Sigstore** (`sigstore.dev`). OpenSSF graduated project (graduated 2024). Sign and verify artifacts:
   - `cosign` for signing containers and binaries.
   - `fulcio` issues short-lived certs bound to OIDC identities.
   - `rekor` is the append-only transparency log.
   - `gitsign` signs git commits with sigstore identities.
-- **SBOM** (Software Bill of Materials). Two competing formats:
-  - **SPDX** (Linux Foundation; standardized as ISO/IEC 5962:2021).
-  - **CycloneDX** (OWASP; ECMA-424).
-  Either is fine; pick by what your downstream consumers expect. The point is that you can answer "what is in this artifact?" precisely.
+- **SBOM** (Software Bill of Materials). Common active standards:
+  - **SPDX 3.0** (Linux Foundation; SPDX 2.2.1 standardized as ISO/IEC 5962:2021), strong for licensing and broad supply-chain models.
+  - **CycloneDX 1.7** (OWASP; ECMA-424), strong for security/VEX and operational BOM use cases.
+  Pick by what your downstream consumers and tooling expect. The point is that you can answer "what is in this artifact?" precisely.
 
 US Executive Order 14028 (May 2021) catalyzed federal SBOM guidance and procurement expectations, helping make SBOMs standard practice across the industry. The federal procurement landscape around SBOMs continues to shift; check current agency, OMB, and CISA requirements before claiming a binding procurement mandate.
 
@@ -154,7 +154,7 @@ A build that runs `apt-get install build-essential` without a pinned base-image 
 ## Vendoring vs. registry vs. submodule
 
 - **Vendoring** — copy dependencies into your repo (Go's `vendor/`, Cargo vendor, `npm pack`-bundled deps). Pros: build is offline-capable; supply-chain attack surface frozen at vendor-update time; historical builds remain buildable. Cons: large repo, manual cherry-picking of upstream fixes, license-audit overhead.
-- **Registry-based** — the default. Lockfile is the trust anchor. Cheap and fast; depends on registry availability and integrity at install time.
+- **Registry-based** — the default. Lockfiles are a repeatability and integrity input, not a trust anchor: they can faithfully preserve a malicious or compromised version. Pair them with trusted registry configuration, hash verification, dependency review, vulnerability scanning, provenance/signature verification where available, and update discipline.
 - **Git submodules** — a constrained form of vendoring. Notoriously fiddly: forgotten `git submodule update --init --recursive`, detached-HEAD confusion, contributors who don't realize they exist. Rarely the right answer in 2026; prefer subtree, monorepo, or proper vendoring.
 
 The honest pattern for most teams: registry + lockfile + dependency scanning + automated bot-driven updates that someone actually merges. Vendoring is justified for high-assurance, regulated, or air-gapped environments, and for small forks of unmaintained dependencies.
@@ -209,7 +209,8 @@ Most teams underweight this. The left-pad incident is the canonical reminder tha
 - **Lockfile drift detection.** `npm ci`, `pnpm install --frozen-lockfile`, `yarn install --immutable`, `cargo --locked`, `pip install --require-hashes` — CI fails if a manifest changed without regenerating the lockfile.
 - **Reproducibility checks.** Periodic rebuild-and-compare in CI (using `diffoscope` from the Reproducible Builds project) catches non-determinism early.
 - **SBOM generation** as a build step. Sign artifacts with cosign. Attach SLSA provenance via slsa-github-generator or equivalent.
-- **Privilege isolation.** Split build into a "fetch deps" stage with no secrets and an "execute" stage with the secrets it needs. A compromised dep in the fetch stage cannot exfiltrate `GITHUB_TOKEN` or `AWS_ROLE` from the runner because they aren't in scope.
+- **Privilege isolation.** Do not expose production secrets to dependency resolution, install scripts, PR builds, or untrusted code execution. Disable lifecycle scripts where feasible, build in isolated workers, use short-lived OIDC credentials only in deploy/promote jobs after artifact creation and policy checks, and promote immutable artifacts instead of rebuilding with secrets.
+- **Dangerous workflow review.** Flag `pull_request_target` or `workflow_run` workflows that check out untrusted PR code, untrusted GitHub context interpolated into shell, missing least-privilege `permissions`, or write tokens available before tests/builds of untrusted code.
 
 ## Common antipatterns
 

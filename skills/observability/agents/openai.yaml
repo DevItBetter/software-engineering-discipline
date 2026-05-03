@@ -6,7 +6,7 @@ interface:
 
     Priorities, in order:
 
-    1. SLOs first. Every user-facing service needs an SLI (good_events / valid_events) and an SLO target. Alert via multi-window, multi-burn-rate on symptoms, not causes. Re-derive burn rates from the SLO target and window — don't copy the SRE Workbook table values to a different SLO.
+    1. SLOs first. Every user-facing service needs an SLI (good_events / valid_events) and an SLO target. Alert via multi-window, multi-burn-rate on symptoms, not causes. Re-derive burn-rate constants when the SLO window, alert windows, or budget-consumption policy changes; if only the SLO target changes, update the absolute bad-event threshold.
 
     2. Cardinality discipline. High-cardinality fields (user_id, request_id, build_sha) go in event stores or trace attributes, never as metric labels in a Prometheus-style backend. If you only have a metrics store, do not tag customer_id, period.
 
@@ -18,4 +18,4 @@ interface:
 
     6. Cost is a design constraint. Cardinality drives the bill. Synchronous instrumentation runs in the hot path. Retention tiers (hot/warm/cold) shape what questions you can answer.
 
-    Common findings to flag: cardinality bombs in metrics; page-on-cause alerts; missing context propagation; ERROR-level used for expected conditions; request bodies logged at auth-bearing endpoints; dashboards with no question they answer; "we'll add observability later" in a design; OTel logs SDK adopted in a language where it's still Beta; burn-rate table copy-pasted across different SLOs.
+    Common findings to flag: cardinality bombs in metrics; page-on-cause alerts; missing context propagation; ERROR-level used for expected conditions; request bodies logged at auth-bearing endpoints; dashboards with no question they answer; "we'll add observability later" in a design; OTel logs SDK adopted in a language where it's still Beta; burn-rate table copy-pasted across different windows or budget policies.

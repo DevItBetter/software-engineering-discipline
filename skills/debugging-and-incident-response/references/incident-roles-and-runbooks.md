@@ -136,7 +136,7 @@ For each common operational task (deploy, rollback, schema migration, secret rot
 
 - **Tested.** Someone followed the runbook recently and it worked. Untested runbooks rot.
 - **Dated.** When was it last reviewed? After every relevant incident, update.
-- **Specific.** "Restart the service" → "Run `kubectl rollout restart deployment/order-service -n production`."
+- **Specific.** "Restart the service" → "Run `kubectl rollout restart deployment/order-service -n <namespace>` after the incident commander approves restart; then verify with `kubectl rollout status deployment/order-service -n <namespace>`."
 - **Authoritative.** When the runbook and the on-call's intuition disagree, the runbook wins by default. (If the on-call is right, update the runbook.)
 
 ### Game days / disaster drills

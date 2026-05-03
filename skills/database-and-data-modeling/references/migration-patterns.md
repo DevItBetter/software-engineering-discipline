@@ -105,7 +105,7 @@ Like a rename, multi-step. The trick is the new column has the new type.
 6. Drop `amount`.
 7. Optionally rename `new_amount` → `amount` via the rename dance.
 
-For type widening that's binary-compatible (int → bigint, varchar(10) → varchar(50)), some databases do this in metadata only. Check.
+Some type changes are metadata-only, such as PostgreSQL `text` ↔ `varchar` in compatible cases or increasing some `varchar` limits in some engines. `int` → `bigint` is usually a table rewrite/copy in PostgreSQL/MySQL and should use the shadow-column migration for large tables. Check the engine/version before assuming.
 
 ## Adding an index
 
@@ -132,6 +132,8 @@ Generally safe but verify nothing's using it first:
 SELECT * FROM pg_stat_user_indexes WHERE indexrelname = 'idx_orders_xyz';
 -- idx_scan should be 0 (or near 0) over a meaningful period.
 ```
+
+Treat low `idx_scan` as a signal, not proof. Check whether the index backs a constraint, inspect plans for critical queries, include replicas and analytics jobs, account for stats resets, and observe over a representative business cycle before dropping.
 
 Drop concurrently to avoid locking:
 ```sql
@@ -218,9 +220,10 @@ while True:
     )
     if not batch:
         break
-    db.execute(
-        "UPDATE users SET new_column = compute(...) WHERE id IN (?)",
-        [r.id for r in batch]
+    rows = [(compute_new_column(r), r.id) for r in batch]
+    db.executemany(
+        "UPDATE users SET new_column = ? WHERE id = ?",
+        rows,
     )
     last_id = batch[-1].id
     write_checkpoint(last_id)
@@ -233,8 +236,8 @@ while True:
 
 Changing a column from `VARCHAR` (free-text) to `ENUM`:
 
-- **Don't.** Postgres enums require `ALTER TYPE ... ADD VALUE` for new values, which is operationally heavier than changing table data and awkward to roll back.
-- **Use a CHECK constraint or a foreign key to a reference table.** Adding new values is just an INSERT.
+- **Avoid enums for frequently changing or tenant/customer-defined values.** Postgres enums require `ALTER TYPE ... ADD VALUE` for new values, which is operationally heavier than changing table data and awkward to roll back.
+- **For small stable domains, enums can be acceptable.** Otherwise use a CHECK constraint or a foreign key to a reference table; adding new values is just an INSERT or constraint update.
 
 ```sql
 -- Instead of:

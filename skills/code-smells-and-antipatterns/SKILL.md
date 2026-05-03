@@ -21,7 +21,15 @@ When reviewing code:
 3. **Map to the fix.** Each smell has standard refactorings. Cite them.
 4. **Don't pile on.** A 30-line PR with five smells is one finding ("design needs rework — see `engineering-discipline` on escalating to a redesign conversation"), not five.
 
-## The classic catalog (Fowler buckets)
+Verification gate before flagging a smell:
+- Cite the exact code region and the concrete cost.
+- Show at least one current or likely change this structure makes harder.
+- Check nearby code for local conventions before calling something an antipattern.
+- Do not flag a smell if the only evidence is size, taste, or unfamiliar style.
+
+If you cannot name the cost and the smallest corrective refactoring, do not report the smell.
+
+## Classic smell names, grouped by Refactoring.Guru buckets
 
 ### Bloaters — code that has grown too large
 
@@ -136,7 +144,7 @@ def transfer(from_account: str, to_account: str, amount: float, currency: str): 
 
 # This compiles fine but ships a bug:
 transfer("acc-123", "acc-456", 100, "EUR")  # OK
-transfer("acc-456", "acc-123", 100, "USD")  # also OK, but USD account doesn't accept USD
+transfer("acc-456", "acc-123", 100, "USD")  # also OK, but this account pair/currency combination is invalid
 transfer("acc-123", "acc-456", 100, "EUR")  # type-checks, but account/currency rules live elsewhere
 
 # Better
@@ -150,7 +158,8 @@ class Money:
 def transfer(from_: AccountId, to: AccountId, amount: Money): ...
 
 transfer(AccountId("acc-123"), AccountId("acc-456"), Money(Decimal("100"), Currency.EUR))
-# Wrong order won't typecheck; can't add Money(EUR) to Money(USD); can't have negative Money
+# Currency and amount rules are enforced by Money. Account-order safety requires
+# distinct source/destination types or named arguments.
 ```
 
 **Cost:** invalid states are representable; the rules live in scattered validation code; type-checking can't help.
@@ -161,7 +170,7 @@ transfer(AccountId("acc-123"), AccountId("acc-456"), Money(Decimal("100"), Curre
 
 The same group of values keeps traveling together as parameters. They want to be a class.
 
-```javascript
+```typescript
 // Bad — these always appear together
 function rect(x, y, width, height) {}
 function moveRect(x, y, width, height, dx, dy) {}
@@ -305,7 +314,7 @@ The condition `customerTier === "gold" && total > 100` lives in two places. If t
 
 A class that doesn't do enough to justify existing.
 
-```javascript
+```typescript
 // Bad
 class UserName {
   constructor(public firstName: string, public lastName: string) {}

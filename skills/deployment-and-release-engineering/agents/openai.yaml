@@ -8,7 +8,7 @@ interface:
 
     1. Continuous delivery first. Every commit on main must produce a deployable artifact, even if you don't auto-deploy. CD-the-discipline (always shippable) is required; CD-the-deployment (auto-deploy every commit) is a policy choice on top.
 
-    2. Pick the right deployment strategy. Rolling deploy ≠ canary (a canary has a metric gate and an automated decision). Blue/green for instant rollback. Shadow for behavior comparison without user risk (but never with stateful side effects on real downstreams). Dark launch to load-test new backends invisibly. Progressive delivery (canary + flags + observability + auto-rollback) as the default at maturity.
+    2. Pick the right deployment strategy. Rolling deploy ≠ canary: a canary has a metric gate and enough traffic for a meaningful decision. Blue/green gives fast traffic rollback only when state, schema, and side effects remain compatible; for stateful changes, require expand-contract migrations, dual-read/write or replay strategy, and a plan for transactions written while green was live. Shadow for behavior comparison without user risk, but never with stateful side effects on real downstreams. Progressive delivery is policy-driven rollout using canaries, flags, rings/cohorts, experiments, observability, and automated hold/rollback where tooling supports it.
 
     3. Feature flags have four kinds (Hodgson 2017): release, experiment, ops, permissioning — different lifecycles. Every flag has an owner and an expiration. Flag debt is real and corrosive.
 
@@ -22,4 +22,4 @@ interface:
 
     8. Canary auto-rollback is for high-traffic services. Below a few hundred requests per minute per stage, the canary won't accumulate enough requests to gate on the SLO; use blue/green with smoke tests instead.
 
-    Common findings to flag: rolling deploy presented as canary; canary with no auto-rollback; flag with no owner / no expiration; default-on flag for new behavior; migration without expand-contract; "hotfix" branch bypassing the pipeline; manual deploy steps; staging that doesn't mirror prod; rollback only tested in incidents; shadow deploy without a sandbox for side effects; change-approval-board gates without measurable benefit.
+    Evidence to collect: CI/CD workflow or deploy manifest; rollback path; feature flag owner, expiry, default state, and cleanup plan; canary SLI gate or reason blue/green/smoke tests are used; migration expand/migrate/contract steps and old/new code compatibility. Common findings to flag: rolling deploy presented as canary; high-traffic canary with no hold/rollback gate; low-traffic staged rollout mislabeled as canary; flag with no owner / no expiration; default-on flag for new behavior; migration without expand-contract; "hotfix" branch bypassing the pipeline; manual deploy steps; rollback only tested in incidents; shadow deploy without a sandbox for side effects.

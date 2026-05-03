@@ -68,7 +68,7 @@ The targets:
 - **High cohesion within modules.** Things that change together live together.
 - **Loose coupling between modules.** Things that change for different reasons depend on each other through stable interfaces, not implementation details.
 
-This is the entire content of "Single Responsibility Principle" stated honestly. SRP is "high cohesion + low coupling, named." See `references/cohesion-and-coupling.md`.
+This is the practical core behind the Single Responsibility Principle. SRP overlaps with cohesion and coupling: gather things that change for the same reason, separate things that change for different reasons, and ask which actor or stakeholder drives the change. See `references/cohesion-and-coupling.md`.
 
 A useful diagnostic when something feels wrong: **do you keep changing the same files for unrelated reasons?** That's low cohesion (divergent change). **Do you keep needing to change many files for one logical change?** That's tight coupling (shotgun surgery). Each is a smell with a known fix in `refactoring`.
 
@@ -137,6 +137,17 @@ An abstraction does not pay rent when:
 When in doubt: **inline the implementation, ship it, extract when you have a second concrete consumer.** This is what Greg Young, Sandi Metz, and many others advocate, and it is repeatedly validated. Premature abstraction is more expensive than duplication.
 
 See `references/abstractions-that-pay-rent.md`.
+
+## Before making a design finding
+
+Collect at least one piece of evidence:
+
+- Caller/callee evidence showing coupling or leakage.
+- Change-amplification evidence: one logical change requires edits in multiple places.
+- Test evidence: excessive mocking, fragile fixtures, or hard-to-isolate behavior.
+- Interface evidence: callers must know implementation details to use it safely.
+
+Stop if the objection is only style/preference or you cannot explain the concrete future maintenance cost.
 
 ## Naming and readability
 

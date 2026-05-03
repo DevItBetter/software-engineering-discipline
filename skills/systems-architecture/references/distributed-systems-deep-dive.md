@@ -4,7 +4,7 @@ Working reference of the distributed systems concepts that come up most often in
 
 ## CAP and PACELC
 
-**CAP** (Brewer, 2000): in the presence of a network **P**artition, you must choose between **C**onsistency and **A**vailability. You cannot have both.
+**CAP** (Brewer, 2000; Gilbert and Lynch formalization): under a network **P**artition, for operations whose correctness depends on communication across the partition, a system cannot guarantee both linearizability and CAP-availability. Name which operations reject, degrade, or serve potentially stale data.
 
 The catch in the popular framing: CAP is about *behavior under partition*. Most systems aren't partitioned most of the time, so CAP underspecifies the trade-off they're actually making.
 
@@ -21,7 +21,7 @@ For your design, name the choice explicitly. "We chose PA/EL because cart update
 
 A spectrum from strongest to weakest:
 
-- **Linearizability** (single-key): every operation appears to happen instantaneously at some point between its start and end; reads see the most recent write. The strongest single-object guarantee.
+- **Linearizability**: each operation on an object or exposed system abstraction appears to take effect atomically between invocation and response; reads see the most recent write under that abstraction. Many databases provide this only per key/object unless transactions add stronger guarantees.
 - **Serializability** (multi-key transactions): the result is as if transactions executed one at a time in some serial order. The strongest multi-object guarantee.
 - **Strict serializability** = serializability + linearizability. Spanner provides this. Hard.
 - **Snapshot isolation**: each transaction sees a consistent snapshot of the database at the time it started. Common; cheap; some anomalies (write skew) possible.
@@ -51,7 +51,7 @@ Don't implement consensus from scratch. Use a system that provides it (etcd, Zoo
 
 How do you have multiple copies of data?
 
-- **Single-leader (primary-replica)**: writes go to the leader; reads from any replica. Simple. Asynchronous replicas are eventually consistent; synchronous replicas are strongly consistent but slower.
+- **Single-leader (primary-replica)**: writes go to the leader; reads may come from the leader or replicas. Simple. Asynchronous replicas are eventually consistent. Synchronous replication can make committed writes durable on multiple replicas before acknowledgment, but read consistency depends on where reads are served and the database's quorum/lease/consensus semantics.
 - **Multi-leader**: writes can go to any leader; leaders replicate to each other. Higher write availability; conflicts must be resolved.
 - **Leaderless** (Dynamo-style): writes go to multiple nodes; reads go to multiple nodes; quorum determines what's considered "committed". Tunable consistency.
 
@@ -82,9 +82,9 @@ A transaction has the ACID properties (when fully provided):
 
 A single-node SQL database with serializable isolation gives you all four.
 
-A distributed transaction (across multiple resource managers) gives you fewer:
-- **Two-phase commit (2PC)** can give you atomicity and durability across resources, but blocks under coordinator failure and is widely avoided.
-- **Sagas** give you eventual atomicity (compensating transactions), no isolation in the middle.
+A distributed transaction (across multiple resource managers) changes the trade-offs:
+- **Two-phase commit (2PC)** can provide atomic commit across resources, but blocks under coordinator failure; isolation depends on the participants and protocol.
+- **Sagas** provide coordinated forward recovery / compensation, not atomicity. Intermediate states are visible and compensation can fail.
 - **Reservations / two-phase reservations**: reserve in step 1; commit in step 2; release if commit fails. Used for booking systems.
 - **Outbox pattern + idempotent consumers**: practical "effectively-once" message delivery without distributed transactions.
 
@@ -92,16 +92,16 @@ For most architectures: keep transactions inside a service (where one database c
 
 ## Time, clocks, and ordering
 
-Distributed systems can't agree on time. A few key ideas:
+Distributed systems do not have perfectly synchronized clocks. A few key ideas:
 
-- **Wall clocks drift.** Two machines disagree by milliseconds (NTP) to seconds (untracked). Never compare wall-clock timestamps across machines.
+- **Wall clocks drift.** Two machines disagree by milliseconds (NTP) to seconds (untracked). Wall-clock comparisons across machines are safe only when correctness tolerates clock skew or explicitly accounts for bounded uncertainty.
 - **Monotonic clocks** are stable on one machine but uncorrelated across machines.
 - **Logical clocks** (Lamport timestamps) capture causality but not real time. If event A causally precedes event B, A's Lamport timestamp < B's.
 - **Vector clocks** capture concurrent vs causally-ordered events more precisely than Lamport timestamps.
 - **Hybrid logical clocks** combine wall clock and logical, getting some ordering and some real-time meaning.
-- **TrueTime** (Spanner): bounded-uncertainty wall clock from atomic clocks and GPS. Lets Spanner provide global linearizability with bounded latency.
+- **TrueTime** (Spanner): bounded-uncertainty wall clock from atomic clocks and GPS. Spanner uses it with commit wait to provide externally consistent, strict-serializable transactions under its operating assumptions.
 
-For most application code: don't use timestamps for ordering decisions. Use a logical sequence (a monotonic counter, a UUID v7, a database-assigned sequence) when you need ordering.
+For most application code: don't use wall-clock timestamps for correctness-relevant ordering decisions. Use database sequence numbers, stream offsets, consensus-assigned indexes, fencing tokens, or logical/vector/hybrid logical clocks. UUIDv7 is useful for roughly time-sortable IDs and storage locality, not causality or concurrency control.
 
 ## Failure modes
 

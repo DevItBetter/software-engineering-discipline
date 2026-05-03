@@ -72,10 +72,9 @@ This is mechanical and ugly and exactly what you should do. Trying to refactor l
 
 (Constructor opens a database connection, makes an HTTP call, starts a thread.)
 
-1. Extract the side-effecting work into a separate `init()` or factory method.
-2. Now the constructor only stores parameters; the object can be constructed in tests without the side effects.
-3. Production callers add the `init()` call after construction.
-4. Better: introduce a factory function (`User.create(...)`) that does construction and initialization atomically.
+1. Prefer moving the side-effecting work into a factory function (`User.create(...)`) or injecting the already-created dependency.
+2. Keep the constructor cheap: it stores parameters and establishes invariants, so the object can be constructed in tests without I/O.
+3. If you must introduce a public `init()` as a temporary seam, treat it as technical debt: add tests for the two-phase lifecycle, keep production callers behind one factory, and remove the temporal coupling as soon as the seam has served its purpose.
 
 ### A class with a singleton dependency
 

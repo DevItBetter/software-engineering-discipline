@@ -38,7 +38,7 @@ Packages added to `requirements.txt` / `package.json` / `Cargo.toml` that don't 
 
 A specific risk: **typo-squatted malicious packages.** Attackers register packages with names close to real ones (`reqests` instead of `requests`, `pythonn-requests`, etc.). When the model hallucinates a dependency name and the name happens to be a typo-squat, you've added malicious code to your project.
 
-**Verification**: every new dependency, look it up in the registry. Verify download counts, last update, maintainer, source link. Pin to specific versions with hashes.
+**Verification**: every new dependency, look it up in the registry. Verify download counts, last update, maintainer, source link, license, and whether the package is the intended project. Use the ecosystem's integrity mechanism: npm/pnpm/yarn lockfile integrity, `go.sum`, `Cargo.lock` for binaries/apps, or pip/uv/Poetry lockfiles with hashes where supported.
 
 ### Fabricated test cases
 
@@ -102,7 +102,7 @@ The cost: every reader has to context-switch. The codebase becomes a patchwork.
 
 The model writes a function that already exists in the codebase (often three folders away). Now there are two implementations, and any future bug fix must be applied in both.
 
-**Verification**: before accepting a new utility function, search the codebase for similar names. The model can't grep; you can.
+**Verification**: before accepting a new utility function, require evidence that the codebase was searched: search results, existing utility references, or file paths showing no equivalent exists.
 
 ### Comments that narrate code
 

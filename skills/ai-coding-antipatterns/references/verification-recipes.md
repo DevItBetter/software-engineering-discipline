@@ -10,8 +10,8 @@ For each function/method called from a library that you didn't add:
 # In Python — find the actual signature
 python -c "import library; help(library.module.function)"
 
-# Or grep the library source
-grep -rn "def function_name" path/to/library
+# Or search the library source
+rg "def function_name" path/to/library --glob '!vendor/**' --glob '!dist/**'
 
 # Or check the official docs
 # (Don't trust the AI to tell you what the signature is.)
@@ -29,15 +29,17 @@ If even one call is wrong, treat every call as suspect.
 
 ```bash
 # Python
-pip show package_name
-# Should show: Name, Version, Summary, Home-page, Author, License
+python -m pip index versions package_name
+# Also check the PyPI project page or JSON metadata for source, license, release history, and maintainers.
 
 # JavaScript
-npm view package_name
-# Should show: name, version, description, maintainers, repository, downloads
+npm view package_name name version description maintainers repository license time dist.integrity
 
 # Rust
-cargo search package_name
+cargo info package_name
+
+# Go
+go list -m -versions module/path
 ```
 
 Check:
@@ -70,12 +72,12 @@ Before accepting a new utility function:
 
 ```bash
 # Search the codebase for similar names
-grep -rn "function_name_or_similar" .
+rg "function_name_or_similar" --glob '!node_modules/**' --glob '!vendor/**' --glob '!dist/**'
 
 # Search for similar functionality
-grep -rn "format.*phone" .   # if you're adding a phone formatter
-grep -rn "validate.*email" . # if you're adding an email validator
-grep -rn "deep.*merge" .     # if you're adding deep merge
+rg "format.*phone" --glob '!node_modules/**' --glob '!vendor/**' --glob '!dist/**'   # if you're adding a phone formatter
+rg "validate.*email" --glob '!node_modules/**' --glob '!vendor/**' --glob '!dist/**' # if you're adding an email validator
+rg "deep.*merge" --glob '!node_modules/**' --glob '!vendor/**' --glob '!dist/**'     # if you're adding deep merge
 
 # Search the project's documented utilities folder if there is one
 ls path/to/utils/
@@ -87,9 +89,9 @@ If a similar utility exists, the new code should use it, not reinvent it.
 
 ```bash
 # Find all broad excepts in the diff
-git diff | grep -A 3 "except Exception"
-git diff | grep -A 3 "except:"
-git diff | grep -A 3 "catch \(.*\)"  # JS/Java
+git diff | rg -A 3 "except Exception"
+git diff | rg -A 3 "except:"
+git diff | rg -A 3 "catch \(.*\)"  # JS/Java
 ```
 
 For each one:
@@ -103,8 +105,7 @@ Replace catch-alls with specific catches and real recovery, or remove the try en
 
 ```bash
 # Find new comments in the diff
-git diff | grep "^+\s*#"
-git diff | grep "^+\s*//"
+git diff | rg '^\+\s*(#|//)'
 ```
 
 For each new comment:
@@ -120,7 +121,7 @@ When the AI says "I removed X":
 
 ```bash
 # Did X actually go away?
-grep -rn "X" .
+rg "X" --glob '!node_modules/**' --glob '!vendor/**' --glob '!dist/**'
 
 # What remains?
 git log --diff-filter=D --all -- path/to/file/X
@@ -191,10 +192,10 @@ A useful heuristic: if the AI's diff is much larger or much smaller than you'd e
 
 ## What to write in the review
 
-For AI-authored code, your review should explicitly mention:
+For suspected or disclosed AI-authored code, write the review around verified risk, not provenance guesses:
 
 ```
-This appears to be AI-authored. I verified:
+For this change, I verified:
 - [list of library calls / APIs you confirmed exist]
 - [list of dependencies you confirmed in the registry]
 - [tests that fail when the production change is reverted]
@@ -205,4 +206,4 @@ Outstanding concerns:
 - [antipatterns flagged]
 ```
 
-This protects the team — the next reviewer or the author later knows what was checked and what wasn't.
+This protects the team: the next reviewer or the author later knows what was checked and what wasn't. Mention AI authorship only when it is disclosed or policy-relevant.

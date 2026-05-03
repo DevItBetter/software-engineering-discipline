@@ -138,7 +138,7 @@ Async code looks like sync code but isn't. Common bugs:
 
 Specific to JavaScript: a `Promise` rejection without a handler is a silent failure (or worse, a process crash in newer Node versions). Always `.catch()` or `await` in a try.
 
-Specific to Python: `asyncio.gather` propagates the first exception; the others are silently lost unless you collect them. Use `gather(..., return_exceptions=True)` to handle.
+Specific to Python: `asyncio.gather(..., return_exceptions=False)` propagates the first exception immediately while other awaitables keep running. If you need all results/errors, use `return_exceptions=True`, inspect task results explicitly, or prefer `asyncio.TaskGroup` for structured concurrency and grouped failures.
 
 Specific to Go: a goroutine that panics crashes the whole program (unless recovered). A goroutine that hangs leaks. A WaitGroup that's not drained leaks. Always handle goroutine errors and lifetime.
 

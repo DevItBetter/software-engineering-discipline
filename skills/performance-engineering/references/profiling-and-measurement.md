@@ -89,6 +89,8 @@ Methodology:
 - Find the inflection point where latency or errors start growing nonlinearly.
 - Drive past saturation to see failure mode.
 
+Avoid coordinated omission when validating latency SLOs. Closed-loop load generators wait for each response before sending the next request, so they stop measuring during stalls and underreport p99/p99.9. Use an open-loop or constant-arrival-rate generator, or a tool that records latency from the intended start time. Closed-loop tests are still useful for capacity exploration, but they can hide tail-latency failures.
+
 A specific test worth running: **bursty load**. Production traffic is rarely smooth; sudden spikes test queue depths, autoscaling, and recovery behavior.
 
 ## Distributed tracing

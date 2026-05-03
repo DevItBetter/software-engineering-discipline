@@ -1,6 +1,6 @@
 ---
 name: debugging-and-incident-response
-description: "Find bugs systematically, run incidents calmly, write postmortems that actually produce learning. Use this skill whenever the task involves diagnosing a bug (especially a hard one — intermittent, distributed, \"it worked yesterday\"), responding to a production incident, deciding how to investigate a slow or wrong system, writing a postmortem, designing on-call practice, or asking \"where do I even start.\" Debugging is a skill distinct from coding; most engineers learn it by accident over years. Built on Andreas Zeller (Why Programs Fail), David Agans (Debugging: 9 Indispensable Rules), Brian Kernighan, the Google SRE workbook, John Allspaw / Etsy on blameless postmortems, and Sidney Dekker on Safety II."
+description: "Find bugs systematically, run incidents calmly, write postmortems that actually produce learning. Use this skill whenever the task involves diagnosing a bug (especially a hard one — intermittent, distributed, \"it worked yesterday\"), responding to a production incident, deciding how to investigate a slow or wrong system, writing a postmortem, designing on-call practice, or asking \"where do I even start.\" Debugging is a skill distinct from coding; most engineers learn it by accident over years. Built on Andreas Zeller (Why Programs Fail), David Agans (Debugging: 9 Indispensable Rules), Brian Kernighan, the Google SRE workbook, John Allspaw / Etsy on blameless postmortems, Erik Hollnagel on Safety-I/Safety-II, and Sidney Dekker on Just Culture / Safety Differently."
 
 ---
 
@@ -268,9 +268,9 @@ It has known limitations:
 
 Use five whys as a starting prompt, not as a complete method. Real causal analysis examines multiple branches, surfaces the systemic conditions, and looks for the contributing factors that interacted.
 
-### Safety II — beyond root cause
+### Safety-II — beyond root cause
 
-Sidney Dekker's "New View" / Safety II framing: don't just look for what went wrong. Look at how the system normally goes *right*, and what made this case different. Often the answer is "the same conditions that produce normal success produced this failure under a slightly different combination" — meaning there's no specific bug to fix; the system has tolerable risk that occasionally manifests.
+Erik Hollnagel's Safety-I/Safety-II framing and Sidney Dekker's New View / Safety Differently both push the same operational question: don't just look for what went wrong. Look at how the system normally goes *right*, and what made this case different. Often the answer is "the same conditions that produce normal success produced this failure under a slightly different combination" — meaning there's no specific bug to fix; the system has tolerable risk that occasionally manifests.
 
 Practically: ask not only "why did this fail?" but "given how often this could fail, why doesn't it fail more often?" The answer reveals the implicit safety mechanisms — and tells you what would happen if any of those mechanisms eroded.
 
@@ -308,7 +308,7 @@ Alerts are the input to on-call. Bad alerts produce burnt-out on-call.
 The goals:
 
 - **Every alert is actionable.** "CPU is high" is not (so what? do what?). "Error rate is above SLO and burn rate is X" is.
-- **Every alert has a runbook.** Even one paragraph is fine; "see this dashboard, try this command, escalate if not better in 10 min."
+- **Every paging alert has an owned runbook.** A minimal runbook may start as one short entry, but it must still be actionable: what the alert means, first checks, likely causes, mitigation steps, escalation path, owner, and last-reviewed date.
 - **No alert fatigue.** If on-call gets 10 alerts a shift and 9 are non-actionable, they'll miss the real one. Page only on what's worth waking someone for.
 - **Alerts on symptoms, not causes.** "Users seeing 5xx" is what matters. "CPU is high" is incidental — sometimes high CPU is fine, sometimes user impact happens with low CPU.
 - **SLO-based alerting.** Alert when error budget is burning fast enough to matter, not on every dip. Multi-burn-rate alerts (Google SRE) are the canonical pattern.
@@ -330,8 +330,9 @@ For every alert, a runbook entry that includes:
 - **Common causes.** What it usually turns out to be.
 - **Mitigations.** What to do, in order of severity.
 - **Escalation.** Who to call if the runbook doesn't help.
+- **Owner and last-reviewed date.** Who maintains the runbook, and when it was last checked.
 
-Runbooks rot. Date them. Review periodically. After every incident that revealed a runbook gap, update.
+Runbooks rot. Date them. Review periodically. For high-severity or recurring alerts, require numbered executable steps and validation in a game day or incident follow-up. After every incident that revealed a runbook gap, update.
 
 ## What to flag in review
 

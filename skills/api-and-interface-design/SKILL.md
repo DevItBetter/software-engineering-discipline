@@ -132,6 +132,8 @@ Error responses are contract. Design them as deliberately as success responses.
 - **Don't leak internals.** No stack traces, no SQL, no internal URLs.
 - **Document each error type.** Callers handle errors they know about; undocumented errors become "unexpected error" handling.
 
+For HTTP JSON APIs, consider RFC 9457 Problem Details (`application/problem+json`): stable `type` URI, `title`, `status`, occurrence-specific `detail`, `instance`, and extension members. Do not expose stack traces or internals; clients must not parse human-readable `detail` as a stable contract.
+
 ### Idempotency
 
 Any operation a client might retry needs an idempotency model:
@@ -150,7 +152,7 @@ Pick a versioning strategy and commit:
 - **Date-based version pinning** (Stripe-style). Callers opt into a dated contract; you can evolve defaults without silently breaking pinned clients.
 - **Major version in URL** (`/v1/`, `/v2/`). Clear; locks you into supporting v1 indefinitely if you have customers there.
 - **Header-based version negotiation.** Flexible; harder to debug.
-- **Graphql/protobuf field deprecation.** Mark fields deprecated; remove them in the next major.
+- **GraphQL/protobuf field deprecation.** Mark fields deprecated, provide replacement guidance, measure usage, and remove only under an explicit breaking-change/versioning policy. Deprecation metadata alone does not make removal safe.
 
 Whatever you pick, make it possible to add capability without breaking callers:
 
@@ -189,7 +191,7 @@ Same principles, with extra weight on:
 
 - **Imports are the public surface.** Only export what you intend to support.
 - **Names matter more.** Library names appear in caller code permanently; renaming is a major version bump.
-- **Semver discipline is non-negotiable.** Breaking changes get major versions. Period. (`semver.org` defines the rules; follow them.)
+- **SemVer discipline for stable public APIs.** Breaking changes get major versions. For pre-1.0, internal, or experimental APIs, state the compatibility policy explicitly and do not surprise consumers.
 - **Document every public function.** Inputs, outputs, errors, side effects, examples.
 - **Provide a "getting started" path** that produces a working result in <5 minutes.
 

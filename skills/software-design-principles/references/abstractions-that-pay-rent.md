@@ -78,11 +78,11 @@ If you see one of these names in a review, ask: what concept is being named here
 
 ## Specific anti-patterns
 
-**The "I" interface with one implementation.** `IOrderRepository` extended only by `OrderRepository`. The interface is overhead. Use the concrete type. Add the interface when the second implementation arrives.
+**The "I" interface with one implementation.** `IOrderRepository` extended only by `OrderRepository`. The interface is suspicious when it does not mark a boundary, hide volatility, support independent testing, or define a public contract. At an architectural seam, one implementation can still be correct; otherwise use the concrete type and add the interface when the abstraction pays rent.
 
 **The "Strategy" pattern with one strategy.** Same problem. Either inline the strategy or delete the indirection.
 
-**The "Service / Repository / Controller" stack with no logic in the service.** The service is a pass-through from the controller to the repository. Remove the service; the controller can call the repository directly.
+**The "Service / Repository / Controller" stack with no logic in the service.** The service is a pass-through from the controller to the repository. If the project has no service-layer contract, remove it. If the service layer is the application boundary, keep the boundary and make its responsibility explicit: transactions, authorization, validation, orchestration, domain events, or use-case policy.
 
 **The "Manager" / "Helper" with state.** A manager that holds state probably wants to be the entity itself. (E.g., `UserManager.delete(user)` should probably be `user.delete()` — Tell Don't Ask.)
 

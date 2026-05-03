@@ -20,7 +20,7 @@ When complexity is present, you observe one or more of:
 
 3. **Unknown unknowns.** The developer doesn't know what they need to know. They make a change that looks correct in isolation but breaks something three modules away because of a hidden coupling. This is the worst symptom because there is no way to defend against it locally — the system itself doesn't tell you what to look at.
 
-When you find yourself saying "this looks fine but I'm worried I'm missing something," you're staring at unknown unknowns. The fix is design that makes dependencies explicit and surprising-behavior impossible.
+When you find yourself saying "this looks fine but I'm worried I'm missing something," you're staring at unknown unknowns. The fix is design that makes dependencies explicit and makes surprising behavior hard to create, easy to detect, or impossible to express where the language and architecture allow it.
 
 ## The two causes of complexity
 

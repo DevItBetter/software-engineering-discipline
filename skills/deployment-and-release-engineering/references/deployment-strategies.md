@@ -18,7 +18,7 @@ Two production environments — blue (live) and green (idle). Deploy v2 to green
 **Strengths:** rollback is a router flip — seconds, not minutes. Smoke-testing happens against real production environment, on real production capacity, before any user traffic.
 **Weaknesses:** doubles infrastructure during cutover (cost). Doesn't help if v2 has a bug that only appears under live traffic patterns the smoke test doesn't exercise. Database changes still must be expand-contract — the database is shared between blue and green.
 
-The original ThoughtWorks blue/green pattern (circa 2005, Daniel Terhorst-North + Jez Humble) was specifically about deploying to the *same* hardware to keep the test environment honest. Modern blue/green tends to use cloud capacity that's spun up only during cutover — different mechanics, same property.
+Fowler's bliki describes blue/green as two production environments that are different but as identical as possible; the environments may be separate hardware, virtual machines, or partitions. Fowler credits the name to a "foggy combination" of Daniel Terhorst-North and Jez Humble.
 
 ## Canary deployment
 
@@ -55,7 +55,7 @@ When done correctly, shadow is the highest-confidence pre-rollout signal you can
 
 ## Dark launch
 
-The Facebook 2008 chat-launch pattern: deploy code, execute it in production, but its effects are invisible to users. The chat backend was load-tested by silently generating chat traffic from the live web app long before any chat UI shipped.
+Canonical example: Facebook's 2008 chat launch is widely cited as an early large-scale dark-launch example. The chat backend was load-tested by silently generating chat traffic from the live web app long before any chat UI shipped.
 
 **Tight definition** (Fowler's bliki, 2020): the code runs in production; users can't tell.
 **Distinct from:** canaries (which expose users to v2), feature flags (which gate user-visible features), shadow (which mirrors traffic). All four are sometimes conflated under "dark launch" in casual usage; tight terminology helps.
@@ -78,7 +78,7 @@ Don't conflate. A "canary" that runs for two weeks waiting for statistical signi
 
 ## Progressive delivery
 
-James Governor (RedMonk, 2018) coined the term as the umbrella for **canary + feature flags + observability + automated rollback** as one practice. Tools that implement it: Argo Rollouts, Flagger, AWS CodeDeploy with linear/canary configurations, Spinnaker.
+James Governor (RedMonk, 2018) coined/popularized the term as an umbrella for incremental, policy-driven rollout using practices such as canaries, feature flags, target cohorts/rings, A/B experimentation, observability, and automated hold/rollback where tooling supports it. Tools that implement parts of it: Argo Rollouts, Flagger, AWS CodeDeploy with linear/canary configurations, Spinnaker.
 
 A progressive-delivery rollout looks like this:
 
@@ -90,7 +90,7 @@ A progressive-delivery rollout looks like this:
 6. At each stage, an automated rule can hold or roll back based on signal.
 7. Once the flag is at 100%, schedule it for removal.
 
-When a design doc says "progressive delivery," verify all four pieces are actually present — not just renamed canary stages.
+When a design doc says "progressive delivery," verify explicit rollout policy, targeting, telemetry, and hold/rollback behavior are present — not just renamed canary stages.
 
 ## Choosing a strategy
 
@@ -112,6 +112,6 @@ The decision is rarely "which strategy" alone — it's "which combination, gated
 - Martin Fowler. *BlueGreenDeployment* bliki. `https://martinfowler.com/bliki/BlueGreenDeployment.html`.
 - Danilo Sato. *Canary Release* on martinfowler.com (2014). `https://martinfowler.com/bliki/CanaryRelease.html`.
 - Martin Fowler. *DarkLaunching* bliki (2020). `https://martinfowler.com/bliki/DarkLaunching.html`.
-- James Governor. *Towards Progressive Delivery* (RedMonk, 2018-08-06). `https://redmonk.com/jgovernor/2018/08/06/towards-progressive-delivery/`.
+- James Governor. *Towards Progressive Delivery* (RedMonk, 2018-08-06). `https://redmonk.com/jgovernor/towards-progressive-delivery/`.
 - Pete Hodgson. *Feature Toggles (aka Feature Flags)* (martinfowler.com, 2017-10-09). `https://martinfowler.com/articles/feature-toggles.html`.
 - Argo Rollouts and Flagger documentation for production progressive-delivery implementations.

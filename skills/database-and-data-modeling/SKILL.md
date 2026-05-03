@@ -27,7 +27,7 @@ The default reasonable choice in 2026 for most applications is **PostgreSQL**. I
 When the answer is something else:
 
 - **MySQL / MariaDB** — comparable to Postgres for most workloads. Pick based on team familiarity and ecosystem; few decisions hinge on the difference at small scale.
-- **SQLite** — single-process or embedded. Excellent for desktop apps, small services, tests, edge deployments. Hugely under-used; goes much further than people expect.
+- **SQLite** — embedded/serverless, device-local or app-local storage. Supports multiple processes and many readers, but only one writer per database file at a time; avoid direct many-writer access over network filesystems. Excellent for desktop apps, small services, tests, edge deployments.
 - **A document store (MongoDB, DynamoDB)** — when the data is genuinely document-shaped (varying fields per record), when the access pattern is single-key-lookup, and when you don't need cross-document transactions. Often chosen for the wrong reasons; many apps that "need" a document store actually need JSONB columns in Postgres.
 - **A wide-column store (Cassandra, ScyllaDB, BigTable)** — high write throughput, time-series or sparse data, eventual consistency acceptable. Niche; if you're choosing this and you're not sure, you don't need it.
 - **A timeseries DB (TimescaleDB, InfluxDB, ClickHouse, Prometheus)** — append-mostly time-stamped data with aggregation queries. Use one of these instead of inventing your own retention policies.
@@ -131,7 +131,7 @@ Read the query plan (`EXPLAIN` / `EXPLAIN ANALYZE` in Postgres, `EXPLAIN` in MyS
 
 ### What to index
 
-- **Foreign keys.** Almost always. The database does *not* automatically index FKs; you must.
+- **Foreign keys.** Almost always. PostgreSQL does *not* automatically index referencing FK columns; add indexes where parent deletes/updates or joins need them. MySQL/InnoDB requires an index on FK columns and auto-creates one if absent, but still review whether its order and composition match query patterns.
 - **Columns in WHERE clauses for queries you actually run.**
 - **Columns in JOIN conditions.**
 - **Columns in ORDER BY** if the query has a useful LIMIT.
@@ -164,10 +164,10 @@ Knowing these exist saves you from rolling your own when the database has a buil
 
 ### Read the query plan
 
-`EXPLAIN ANALYZE` is non-negotiable for any non-trivial query. The plan shows you what the database actually does:
+Read the query plan for non-trivial queries. Use `EXPLAIN` first; use `EXPLAIN ANALYZE` when it is safe to execute the query, preferably on production-shaped data or inside a rollback-safe transaction for writes. The plan shows you what the database actually does:
 
 - **Sequential Scan** on a big table is usually a red flag. Expected for very small tables; otherwise, missing index.
-- **Index Scan** vs **Index Only Scan** — the latter doesn't touch the heap (covering index); much faster.
+- **Index Scan** vs **Index Only Scan** — the latter can avoid heap access only when all referenced columns are in the index and the visibility map proves rows are visible. In PostgreSQL, check `Heap Fetches`; high heap fetches mean it behaved closer to a regular index scan.
 - **Hash Join** vs **Nested Loop** vs **Merge Join** — each is right for different inputs. Nested loop on two large tables is a bug.
 - **Sort** with a high cost — needed an index on the sort columns.
 - **Filter** above an Index Scan — the index isn't filtering as much as you thought.
@@ -323,7 +323,7 @@ Each step is a separate deploy. Yes, this is slow. The alternative is downtime o
 
 ### Migration discipline
 
-- Migrations are version-controlled; one direction (up) is enough for forward-only schemas; many teams skip writing down migrations and rely on backups for "rollback."
+- Migrations are version-controlled. Every schema change needs a rollback story, but not every migration needs a down migration. For routine deploy rollback, prefer backward-compatible, forward-only migrations so old and new code both work against the current schema. Treat backup/restore as catastrophic recovery, not normal rollback.
 - Migrations run as part of deployment, with a known order, and a clear policy on which migrations run before vs. after the new code is live.
 - Long-running migrations (backfills, reindexes) run as background jobs, not as blocking deploy steps.
 - Pre-prod testing on prod-shape data — never assume a migration that ran fast on 1k rows runs fast on 100M.

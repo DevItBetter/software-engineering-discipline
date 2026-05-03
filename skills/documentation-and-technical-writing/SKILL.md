@@ -33,7 +33,7 @@ The README is the front door. Most readers will not go further. Optimize for the
 
 A useful default structure:
 
-```markdown
+````markdown
 # [Project name]
 
 [One sentence: what this is and why it exists. Concrete, not aspirational.]
@@ -72,7 +72,7 @@ make run
 ## License
 
 [License name. Link to LICENSE file.]
-```
+````
 
 Common README failures:
 
@@ -139,8 +139,9 @@ that implementation details aren't pinned down prematurely.]
 
 ## Alternatives considered
 
-[Each significant alternative considered, with reasons for rejection. This section is
-non-negotiable; a design doc with no alternatives wasn't designed, it was advocated.]
+[For substantive design decisions, include significant alternatives considered and
+reasons for rejection. If there were no meaningful alternatives, say why the choice
+was constrained.]
 
 ### Alternative A: [Name]
 [What it was. Why we considered it. Why we rejected it. Conditions under which we'd reconsider.]
@@ -196,7 +197,7 @@ ADRs are short documents — usually 1-2 pages — capturing one significant dec
 
 ADRs and design docs complement each other. A design doc may produce several ADRs as it converges. ADRs outlast design docs, which often go stale; they are the durable record of "why is it this way?"
 
-The minimum viable ADR (Michael Nygard's structure):
+Minimum viable ADR, based on Michael Nygard's structure and commonly extended with an alternatives section:
 
 ```markdown
 # ADR NNNN: [Decision title]
@@ -218,7 +219,7 @@ The minimum viable ADR (Michael Nygard's structure):
 [For each: what it was, why we didn't pick it.]
 ```
 
-ADRs are append-only. When a decision changes, write a new ADR that supersedes the old; mark the old one's status `Superseded by ADR-XXXX`. Don't edit history; the prior reasoning is the input to the new decision.
+Preserve decision history. When a decision changes, normally write a new ADR that supersedes the old; mark the old one's status `Superseded by ADR-XXXX`. Small metadata, link, typo, and status updates are fine; don't rewrite prior reasoning to make the old decision look cleaner in hindsight.
 
 Store in `docs/adr/` numbered sequentially. For the full template, worked examples, and operational guidance, see the `systems-architecture` skill (decisions live with the architecture they decide).
 
@@ -357,7 +358,7 @@ For runbook structure and quality, see `skills/debugging-and-incident-response/r
 
 The writing-specific notes:
 
-- **Specific commands.** "Restart the service" → `kubectl rollout restart deployment/order-service -n production`.
+- **Specific commands.** "Restart the service" → "Run `kubectl rollout restart deployment/order-service -n <namespace>` after the incident commander approves restart; then verify with `kubectl rollout status deployment/order-service -n <namespace>`."
 - **Expected output.** What "success" looks like — so the reader can tell if it worked.
 - **Time estimates.** "This takes about 2 minutes" — so the reader knows when something's wrong.
 - **Branch on observed conditions.** "If you see X, do Y; if you see Z, do W."
@@ -420,10 +421,21 @@ For text-renderable diagrams (works in version control, easy to update): Mermaid
 
 ### Specific words to use carefully
 
-- **"Should" vs "must" vs "may".** Per RFC 2119: must = required, should = recommended (with reason for deviation), may = optional. Engineers reading specs expect this.
+- **"Should" vs "must" vs "may".** For formal specs, use BCP 14 keywords (`RFC 2119` plus `RFC 8174`) only when the document says they are interpreted that way and the words are uppercase: `MUST`, `SHOULD`, `MAY`. Lowercase `must`, `should`, and `may` keep their ordinary English meanings.
 - **"Will" vs "would".** Will = factual claim about future. Would = conditional or hypothetical.
 - **"We" vs passive.** "We chose X" beats "X was chosen" — more direct, more honest.
 - **"Probably" / "I think".** Use sparingly in formal docs; engineers read these as hedging when the writer isn't confident. Either be confident or explicit about uncertainty.
+
+### Accessibility and inclusive language
+
+Docs are part of the product surface. Make them usable:
+
+- Use descriptive link text; avoid "click here".
+- Use headings in order so screen readers and skim readers can navigate.
+- Provide alt text for informative images and mark decorative images as decorative.
+- Give tables real headers; don't use tables for layout.
+- Avoid directional-only instructions such as "click the button on the right"; name the control.
+- Use inclusive, global-audience language. Avoid idioms, culture-specific metaphors, and terms that exclude or stigmatize.
 
 ## What to flag in review
 

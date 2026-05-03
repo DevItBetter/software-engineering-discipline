@@ -61,9 +61,11 @@ Common shapes:
 - An OAuth callback URL not strictly validated.
 
 Defense:
-- Allow-list the domains the server will fetch from.
-- Block private IP ranges (`127.0.0.1`, `10.0.0.0/8`, `169.254.169.254` — the last is the AWS metadata endpoint, a famous SSRF target).
-- Run outbound fetches through a proxy that enforces the policy.
+- Parse URLs with a vetted parser; allow only required schemes and ports.
+- Allow-list the destinations the server will fetch from, then resolve DNS server-side and verify every resolved IP before connecting.
+- Block loopback, private, link-local, multicast, IPv6 local ranges, and cloud metadata services (`169.254.169.254` is the famous AWS metadata endpoint).
+- Re-check policy after redirects and before the final connect; do not rely on string-matching hostnames.
+- Run outbound fetches through an egress proxy or firewall that enforces the same policy.
 
 ### A02:2025 Security Misconfiguration
 

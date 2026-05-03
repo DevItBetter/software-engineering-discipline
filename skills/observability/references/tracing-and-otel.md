@@ -6,7 +6,7 @@ Reference for distributed tracing and the OpenTelemetry standard. Verify current
 
 The *Dapper* paper (Sigelman, Barroso, Burrows, Stephenson, Plakal, Beaver, Jaspan, Shanbhag; Google, 2010) established the model still in use:
 
-- **Trace** = a tree of spans representing one logical unit of work spanning multiple services.
+- **Trace** = usually a parent/child span tree representing one logical unit of work, with span links for async, batch, messaging, and fan-in/fan-out relationships that do not fit a strict tree.
 - **Span** = one unit of work within the trace: an RPC call, a function call, a queue operation. Has a start time, duration, parent span, attributes, and events.
 - **Context** = the metadata that travels with the request and lets downstream spans attach to the right parent.
 
@@ -30,7 +30,7 @@ A trace is only as useful as its weakest propagation hop. **W3C Trace Context Le
 Use Trace Context end-to-end. The most common debugging frustration is a trace that ends mid-stack because:
 - A library on a hot path doesn't propagate headers (older HTTP clients, custom RPC frameworks, in-process queues).
 - An async hop (thread pool, goroutine, message queue) doesn't carry context across the boundary.
-- A non-HTTP transport (database, cache, message bus) doesn't have a propagation convention. (Some do — OpenTelemetry database semantic conventions, AMQP/Kafka headers — but none are universally implemented.)
+- A non-HTTP transport doesn't have a universal propagation convention. Messaging systems often propagate via message headers; databases and caches usually do not propagate context to a downstream service and are instrumented as client/server spans unless the protocol provides a carrier.
 
 Audit propagation explicitly. Tools that confirm context survives every hop are worth the time.
 
@@ -47,12 +47,12 @@ It was formed in 2019 from the merger of OpenTracing and OpenCensus. CNCF Incuba
 
 ### Signal stability (verify on the status page)
 
-As of early 2026, by signal:
+As of early 2026, check `https://opentelemetry.io/status/` before adopting. Snapshot:
 
-- **Tracing**: spec stable; SDKs Stable in C++, .NET, Erlang, Go, Java, JavaScript, PHP, Python, Ruby, Swift; Rust Beta.
-- **Metrics**: spec stable; Stable in most major SDKs; some still maturing.
-- **Logs**: most recent signal to stabilize; spec stable, but SDK stability varies by language. Check the status page before adopting OTel logs SDKs in production.
-- **Collector**: mixed — core components have varying stability; v1 GA anticipated but not yet declared.
+- **Tracing**: Stable for C++, .NET, Go, Java, JavaScript, PHP, Python, Ruby, Swift; Rust is Beta; Kotlin is Development.
+- **Metrics**: Stable for C++, .NET, Go, Java, JavaScript, PHP; Rust is Beta; Erlang/Elixir, Kotlin, Ruby, and Swift are Development.
+- **Logs**: Stable for C++, .NET, Java, PHP; Go and Rust are Beta; Erlang/Elixir, JavaScript, Kotlin, Python, Ruby, and Swift are Development.
+- **Collector**: mixed by component; verify the receiver, processor, exporter, and connector stability you plan to depend on.
 
 When picking up OpenTelemetry, check the status page for *your language* and *your signal* before assuming production-readiness.
 
@@ -87,12 +87,14 @@ Limitation: cannot sample-on-error because you do not yet know whether the reque
 
 Record everything, then decide at the end whether to keep it. Catches anomalies (errors, slow requests, suspicious attribute combinations). Requires buffering somewhere — typically the OpenTelemetry Collector with the `tail_sampling` processor.
 
-Production pattern: head-sample at high rate (10–100%) at the edge to control cost, then tail-sample in the Collector with policies like:
+Production pattern: choose the highest head-sampling rate your collector/backend budget can sustain, then tail-sample in the Collector with policies like:
 
 - Keep all traces with a span-level error.
 - Keep all traces with total duration over a threshold (e.g., the p99 of recent traffic).
 - Keep all traces with a feature-flag attribute set to a specific value (during a rollout).
 - Keep 1% of the rest.
+
+Validate collector memory pressure and dropped spans under peak traffic; tail sampling buffers traces before deciding what to keep.
 
 ### Common sampling failure modes
 

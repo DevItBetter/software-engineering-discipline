@@ -35,7 +35,7 @@ Equivalent patterns in other languages:
 - **Node**: `dataloader` (Facebook) batches and dedupes concurrent loads for the request lifetime.
 - **Rust**: `tokio::sync::OnceCell` per key, or `dashmap` of futures.
 
-Single-flight is the simplest stampede mitigation and works in-process. By itself it does not solve cross-instance stampedes — N service instances each hitting the source on the same cold key is N times the source load. In practice, in-process single-flight paired with a shared cache (Redis read-through populated by single-flight per instance) bounds the worst case to N, not unbounded — for typical service deployments that's a 100×–1000× reduction over no protection. For full cross-instance coalescing, layer distributed locks or probabilistic expiration on top.
+Single-flight is the simplest stampede mitigation and works in-process. By itself it does not solve cross-instance stampedes — N service instances each hitting the source on the same cold key is N times the source load. In practice, in-process single-flight paired with a shared cache (Redis read-through populated by single-flight per instance) bounds duplicate recomputation roughly to the number of service instances for that key, rather than the number of concurrent requests. For full cross-instance coalescing, layer distributed locks or probabilistic expiration on top.
 
 ## Probabilistic early expiration
 
@@ -69,13 +69,22 @@ The Redis primitive: `SET NX` (set-if-not-exists). Pseudocode:
 ```
 got_lock = redis.SET("lock:key", request_id, NX=true, EX=lock_ttl)
 if got_lock:
-    value = expensive_computation()
-    cache.set(key, value)
-    redis.DEL("lock:key")
+    try:
+        value = expensive_computation()
+        cache.set(key, value)
+    finally:
+        redis.eval("""
+        if redis.call("GET", KEYS[1]) == ARGV[1] then
+          return redis.call("DEL", KEYS[1])
+        end
+        return 0
+        """, keys=["lock:key"], args=[request_id])
 else:
     # Either wait (poll) or serve stale
     return cache.get_stale(key)
 ```
+
+Always release only if the stored token still matches this worker's `request_id`; never plain `DEL` a distributed lock. If the lock TTL expires and another worker acquires it, an unconditional delete can remove the new worker's valid lock.
 
 Trade-offs:
 
@@ -104,7 +113,7 @@ Cache-Control: max-age=60, stale-while-revalidate=300, stale-if-error=86400
 
 — gives stampede mitigation *and* an availability boost when the source is down.
 
-For HTTP responses this is the simplest and most effective stampede mitigation; it doesn't require single-flight or probabilistic logic at the application layer. The cache layer handles it transparently. Vendor support is uneven — most modern CDNs honor it, but some clients and corporate proxies still strip the directive. Verify with your specific cache layer before relying on it.
+For HTTP responses this is often the simplest stampede mitigation; it doesn't require single-flight or probabilistic logic at the application layer. The cache layer handles it transparently when supported. Many CDNs support `stale-while-revalidate`, but behavior is vendor- and configuration-specific. Verify support, freshness semantics, and observability headers in your chosen cache layer.
 
 ## CDN request collapsing
 

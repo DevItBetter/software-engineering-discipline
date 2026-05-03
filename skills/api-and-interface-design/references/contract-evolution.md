@@ -80,9 +80,12 @@ The workarounds:
 
 ### Removing a field
 
-- Mark deprecated.
-- Wait for one or more major versions (depending on stability commitment).
-- Remove in a major version.
+- Mark deprecated with replacement guidance.
+- Measure usage if the platform allows it.
+- Wait for the published deprecation window or one or more major versions, depending on the stability commitment.
+- Remove only under the explicit breaking-change/versioning policy. GraphQL `@deprecated`, OpenAPI `deprecated: true`, and similar metadata warn clients; they do not make removal safe.
+
+For protobuf, reserve field numbers and names after removal so the old wire meaning cannot be accidentally reused.
 
 A specific failure: removing a field that consumers grep'd for. Adding a `_legacy` suffix is sometimes used to indicate "this field will go away" — works for consumers who notice, doesn't help the rest.
 

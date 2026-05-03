@@ -18,8 +18,9 @@ A botched `git reset --hard`, a deleted branch, a rebase that ate work — usual
 
 ```
 git reflog                   # find the SHA you want back
-git reset --hard HEAD@{4}    # restore HEAD to that point
-git checkout -b recovery <sha>   # or branch from the lost commit
+git branch rescue-before-reset HEAD   # preserve current state before destructive moves
+git switch -c recovery <sha>          # branch from the lost commit
+git reset --hard HEAD@{4}             # only after git status confirms no needed work remains
 ```
 
 The reflog is local-only. Remote git servers do not have your reflog. This is fine; the discipline is to recover before you push.
@@ -86,12 +87,12 @@ The discipline is the same as for any incident: rotate, contain, communicate, mo
 
 | Symptom | Recovery |
 |---|---|
-| `git reset --hard` then realized I lost work | `git reflog`, find the SHA before the reset, `git reset --hard <sha>` |
+| `git reset --hard` then realized I lost work | `git reflog`, find the SHA before the reset, branch from it with `git switch -c recovery <sha>`; only hard-reset back after preserving current work |
 | Deleted a branch that hadn't been merged | `git reflog`, find the tip SHA, `git checkout -b <name> <sha>` |
-| Rebase corrupted my branch | `git reflog`, find HEAD@{N} before the rebase, `git reset --hard HEAD@{N}` |
+| Rebase corrupted my branch | `git reflog`, find HEAD@{N} before the rebase, create a rescue branch, then reset or cherry-pick selectively |
 | Force-pushed and teammate's work disappeared | Teammate has it in their local; have them push their version after rebasing onto your new history. Apologize. |
 | Secret committed | Rotate the secret. Then `git filter-repo` to scrub from history. Then communicate to the team. |
-| Botched merge | `git merge --abort` if still in progress. If completed, `git reset --hard HEAD@{N}` from reflog. |
+| Botched merge | `git merge --abort` if still in progress. If completed, preserve current work, then restore from reflog or revert the merge commit. |
 | Pushed to main accidentally and tests fail | `git revert <sha>` to roll forward (preferred — preserves history). Force-push to main only as a last resort, and only with explicit authorization. |
 
 ## What to flag in review

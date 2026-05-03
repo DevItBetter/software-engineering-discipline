@@ -140,7 +140,7 @@ Originally for Heroku, now the de facto baseline for cloud-native applications. 
 5. **Build, release, run** — strictly separated stages; release is build + config and is immutable.
 6. **Processes** — stateless; share-nothing.
 7. **Port binding** — exports services by binding to a port; no app server needed in front.
-8. **Concurrency** — scale via the process model (more processes), not threads in one process.
+8. **Concurrency** — scale out via explicit process types and process counts; individual processes may still use threads or async I/O internally, but the app must not depend solely on vertical scaling inside one process.
 9. **Disposability** — fast startup, graceful shutdown.
 10. **Dev/prod parity** — dev, staging, prod as similar as possible.
 11. **Logs** — write to stdout; environment routes them.
@@ -153,7 +153,7 @@ These are operational discipline that maps cleanly to modern container/Kubernete
 A system that works in development is not the same as a system that runs in production. Operability is a first-class concern:
 
 - **Observable.** Logs (with context), metrics (with cardinality discipline), traces. Every failure mode has a signal — see "observability as design" below.
-- **Recoverable.** What happens when the database is down? When a region fails? When the deploy fails? Each scenario has a documented response.
+- **Recoverable.** What happens when the database is down? When a region fails? When the deploy fails? Each scenario has a documented response, explicit RTO/RPO, and a tested restore or failover path.
 - **Deployable.** Zero-downtime deploys. Canary or blue-green for risky changes. Easy rollback. See "progressive delivery" below.
 - **Configurable.** Behavior tunable without redeploying via feature flags.
 - **Documented.** Runbooks for known failures. Architecture docs current. On-call onboarding exists.
@@ -164,10 +164,12 @@ Design reviews that don't include an operability section have skipped half the j
 
 Observability is the property of being able to ask new questions about your system without shipping new code. It is built in at design time, not bolted on after an incident.
 
-The three pillars (per the conventional framing):
+The three pillars (per the conventional framing) are a starting point, not the whole model. Architecture reviews should require a correlation model: metrics for SLO math and dashboards, traces for causality, logs/events for forensic detail, and wide structured request/job events where the backend supports high-cardinality exploration.
 
-- **Logs** — discrete events with structured context. Every error path logs the inputs needed to diagnose. Cardinality is OK; volume should be controlled.
-- **Metrics** — numeric time series, low-cardinality. Latency, throughput, error rate, resource usage. Per-endpoint, per-tenant, per-version. The basis for SLIs and alerts.
+Signals to design:
+
+- **Logs/events** — discrete events with safe structured context. Every error path logs the bounded identifiers and metadata needed to diagnose. High-cardinality context belongs here or in traces/wide-event stores, not in metrics; volume and sensitive-data exposure must be controlled.
+- **Metrics** — numeric time series, low-cardinality. Latency, throughput, error rate, resource usage. Use bounded dimensions such as route template, method, status class, version, region, and environment. Tenant/customer IDs belong in traces, logs, exemplars, or a wide-event store unless the tenant set is deliberately bounded and budgeted.
 - **Traces** — the request's journey across services. Reveals where latency goes, where errors originate, where retries happen.
 
 A fourth pillar increasingly recognized:
@@ -178,7 +180,7 @@ Design-time decisions:
 
 - **What's the SLI for this service?** Define it before the service ships, not after the first incident.
 - **What context does each log line need to be useful?** "Failed to fetch user" is useless; "Failed to fetch user (user_id=X, source=Y, latency=Z, error_class=W)" is actionable. Structured logging (JSON) by default.
-- **What's the cardinality model for metrics?** Per-tenant metrics are useful for big customers but explode storage cost; pick the dimensions deliberately.
+- **What's the cardinality model for metrics?** Per-tenant metrics are useful for a bounded set of big customers but explode storage cost; pick the dimensions deliberately and budget them.
 - **What's the trace propagation model?** Every cross-service call passes the trace ID. Internal jobs and async work also.
 - **What's the retention?** 24-hour high-resolution; 90-day downsampled; as cheap and as long as the budget allows.
 

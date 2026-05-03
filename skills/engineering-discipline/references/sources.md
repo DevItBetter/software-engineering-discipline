@@ -89,14 +89,14 @@ The orchestrator's foundational citations are above. Each specialty skill anchor
 ### Build and dependencies
 - **Ken Thompson, *Reflections on Trusting Trust*** (ACM Turing lecture, CACM 27.8, August 1984). Compiler-inserted backdoors; reproducibility as defense.
 - **Reproducible Builds project** — `reproducible-builds.org`. The bit-for-bit-identical-artifacts definition.
-- **SLSA** (Supply-chain Levels for Software Artifacts) — `slsa.dev`. v1.0 (April 2023); Build track L1–L3.
+- **SLSA** (Supply-chain Levels for Software Artifacts) — `slsa.dev`. Current spec v1.2 defines separate Build and Source tracks; Build Track levels L1-L3 supersede pre-1.0 L4 language.
 - **Sigstore** (OpenSSF graduated 2024) — `sigstore.dev`. cosign / fulcio / rekor / gitsign.
 - **SPDX** (Linux Foundation; ISO/IEC 5962:2021) and **CycloneDX** (OWASP). SBOM standards.
 - **Karger et al., *Consistent Hashing and Random Trees*** (STOC '97). The sharding canon.
 - **Raemaekers et al., *Semantic Versioning versus Breaking Changes: A Study of the Maven Repository*** (SCAM 2014, EMSE 2017). Empirical SemVer compliance.
 
 ### Caching strategies
-- **Phil Karlton** — "There are only two hard things in Computer Science: cache invalidation and naming things." Folkloric; never documented in print (earliest internet trace: Tim Bray, 23 December 2005).
+- **Phil Karlton** — "There are only two hard things in Computer Science: cache invalidation and naming things." Folkloric; never documented in print (earliest internet trace: Tim Bray, *On PHP*, 23 December 2005, `https://www.tbray.org/ongoing/When/200x/2005/12/23/UPHP`).
 - **RFC 9111** *HTTP Caching* (June 2022). The current spec; obsoletes RFC 7234.
 - **RFC 5861** *Cache-Control Extensions for Stale Content* (May 2010). `stale-while-revalidate`, `stale-if-error`.
 - **RFC 9211** *Cache-Status* (June 2022). Cross-cache annotation.
@@ -107,6 +107,24 @@ The orchestrator's foundational citations are above. Each specialty skill anchor
 - **Yang et al., *FIFO Queues are All You Need for Cache Eviction*** (S3-FIFO, SOSP 2023).
 - **DHH, *How key-based cache expiration works*** (Signal v. Noise, 19 February 2012). Russian-doll caching.
 - **AWS Builders' Library, *Caching challenges and strategies***. Cache addiction.
+
+### Debugging and incident response
+- **Andreas Zeller, *Why Programs Fail*** (2nd ed., 2009). Scientific debugging, cause-effect chains, delta debugging.
+- **David J. Agans, *Debugging: The 9 Indispensable Rules*** (2002). Practical debugging heuristics: reproduce, quit thinking and look, change one thing at a time.
+- **John Allspaw / Etsy** on blameless postmortems and learning from incidents.
+- **Google SRE Book and Workbook** — incident response, postmortems, alerting, and error-budget policy.
+- **Erik Hollnagel, *Safety-I and Safety-II*** (2014). Look at how systems normally succeed, not only how they fail.
+- **Sidney Dekker, *Just Culture*** and *Safety Differently*. Blame-aware incident learning and human factors.
+
+### Database and data modeling
+- **Martin Kleppmann, *Designing Data-Intensive Applications***. Storage, replication, consistency, transactions, and data-system trade-offs.
+- **Markus Winand, *SQL Performance Explained*** and **Use The Index, Luke!** — query planning, indexing, and SQL performance.
+- **PostgreSQL documentation** and **MySQL documentation** for engine-specific migration, indexing, isolation, and optimizer behavior.
+
+### Documentation and technical writing
+- **Daniele Procida, Diátaxis** — `https://diataxis.fr/`. Tutorial / how-to / reference / explanation taxonomy.
+- **Michael Nygard, Architecture Decision Records**. Lightweight ADR structure: context, decision, status, consequences.
+- **Google Developer Documentation Style Guide**. Clear, accessible, inclusive developer documentation.
 
 ## Why a sources section matters
 

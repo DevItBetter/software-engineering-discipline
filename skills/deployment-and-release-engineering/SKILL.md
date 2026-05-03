@@ -8,7 +8,7 @@ description: "How to ship software safely and often — continuous delivery, dep
 
 The discipline of getting code from commit to production safely, repeatedly, and reversibly. The bar is not "we deployed it"; it is "we deployed it, observed it, and could roll it back inside minutes if it misbehaved."
 
-The empirical research is unambiguous. Forsgren, Humble, and Kim (*Accelerate*, IT Revolution, 2018) and the DORA *State of DevOps* program (2014–present) show that **high deployment frequency correlates with lower change failure rate and faster recovery**, not higher risk. Small batches are easier to review, easier to debug when they fail, and faster to roll back. The intuition that "go slow to be safe" is empirically wrong at the team-system level.
+Research from *Accelerate* and DORA consistently finds that, in many software-delivery organizations, high deployment frequency correlates with lower change failure rate and faster recovery. The safer lesson is not "ship recklessly"; it is that small, reversible, well-observed batches usually reduce risk better than large, infrequent releases.
 
 ## Continuous delivery vs. continuous deployment — get this distinction right
 
@@ -43,11 +43,11 @@ The strategy is the gradient between "deploy and watch" and "fully automate the 
 
 **Shadow / mirroring deployment.** v2 receives a *copy* of production traffic; its responses are discarded. Implemented at the proxy or service-mesh layer (Envoy, Istio `mirror`, NGINX `mirror`). Useful for behavior comparison and load testing under real traffic without user risk. Caveat: stateful side effects (writes, third-party calls, payments, emails) must be stubbed or routed to a sandbox — otherwise shadow doubles real load on downstream systems.
 
-**Dark launch.** New backend behavior is deployed and *executed* in production but its effects are invisible to users. Origin: Facebook's 2008 chat launch (load-tested the chat backend by silently generating traffic from the live web app before any UI shipped). Tight definition (Fowler's bliki, 2020): the code runs; users can't tell. Often confused with canaries and feature flags — it is neither. It is the load-test-in-production pattern.
+**Dark launch.** New backend behavior is deployed and *executed* in production but its effects are invisible to users. Canonical example: Facebook's 2008 chat launch is widely cited as an early large-scale dark-launch example; Fowler's tighter 2020 definition is that the code runs in production while users cannot tell. Often confused with canaries and feature flags — it is neither. It is the load-test-in-production pattern.
 
 **A/B testing.** Same plumbing as canary; different intent. Canary is *release engineering* (short window, watching system SLIs, defaulting to rollback on regression). A/B testing is *experimentation* (long enough to reach statistical significance, randomized cohorts, business metric outcomes). Don't conflate — the success criteria, monitoring duration, and decision logic are different.
 
-**Progressive delivery.** Coined by James Governor (RedMonk, 2018), crediting inspiration from Sam Guckenheimer at Microsoft. The umbrella term for **canary + feature flags + observability-driven rollout + automated rollback**, treated as one practice. The natural successor to "continuous delivery" once flag-based gating became table stakes. When the design doc says "progressive delivery," check that all four pieces are actually present — not just a renamed canary.
+**Progressive delivery.** Coined/popularized by James Governor (RedMonk, 2018), crediting inspiration from Sam Guckenheimer at Microsoft. The umbrella for incremental, policy-driven rollout using practices such as canaries, feature flags, target cohorts/rings, A/B experimentation, observability, and automated hold/rollback where tooling supports it. The natural successor to "continuous delivery" once flag-based gating became table stakes. When the design doc says "progressive delivery," check that the rollout has explicit policy, targeting, and telemetry — not just renamed canary stages.
 
 ## Feature flags / feature toggles
 
@@ -75,7 +75,7 @@ Many flag systems exist (LaunchDarkly, Split, Unleash, Flagsmith, Statsig, Growt
 
 Every deploy must be reversible — by forward-fix or rollback — within minutes. This is foundational: Humble & Farley ch. 10, Google SRE Book ch. 8 ("Release Engineering"), and DORA's recovery-time metric.
 
-**The hard case is data.** Code is reversible by redeploy; data, once destroyed or transformed, usually is not. A `DROP COLUMN` cannot simply be rolled back. The canonical solution is **parallel change** (Danilo Sato, martinfowler.com, 2014), also called **expand-contract**:
+**The hard case is data.** Code is reversible by redeploy; data, once destroyed or transformed, usually is not. A `DROP COLUMN` cannot simply be rolled back. The canonical solution is **parallel change**, also called **expand-contract**: first documented as a refactoring strategy by Joshua Kerievsky in 2006 and later named/detailed by Danilo Sato on martinfowler.com in 2014.
 
 1. **Expand.** Add the new form (column, table, API field) alongside the old.
 2. **Migrate.** Dual-write to both; backfill historical data; switch reads to the new form.
@@ -91,7 +91,9 @@ Each step is independently deployable and individually reversible. Only the fina
 
 **Pipeline as code.** The pipeline definition (`.github/workflows/`, `.gitlab-ci.yml`, Jenkinsfile, etc.) lives in the same repo as the code, reviewed in the same PRs. Humble & Farley ch. 5; reinforced by GitOps practice.
 
-**Stage ordering — fail fast.** Cheap tests first: build → unit test → static analysis → security and dependency scan → integration test → artifact build → deploy to stage → smoke / acceptance → deploy to prod. The unit-test stage should fail in seconds, not minutes. The whole pipeline should fail in minutes, not hours, for the common-case bug.
+**Stage ordering — fail fast, then promote one artifact.** Cheap checks should fail early, but the deployable artifact must be built once and promoted through later stages: checkout → dependency resolution → build/package immutable artifact → unit/static/security scans → integration/acceptance/smoke against that artifact or exact image → release config binding → deploy. The unit-test stage should fail in seconds, not minutes; the common-case bug should fail in minutes, not hours.
+
+**Artifact identity and provenance.** Production deploys use immutable artifact digests, not mutable tags. Artifacts are signed; provenance links artifact to commit and CI run; the deploy system verifies signature/provenance; SBOM and vulnerability scan results attach to the artifact.
 
 **Hermetic and reproducible builds.** A hermetic build depends only on declared inputs, with no leakage from the host environment. A reproducible build produces bit-identical artifacts from the same source, environment, and instructions. They reinforce each other but are distinct properties. Bazel, Buck2, Pants v2, and Nix all push in this direction. See `build-and-dependencies` for depth.
 
@@ -153,13 +155,13 @@ Two disciplines that surround release engineering and deserve mention:
 - **Rollback only tested during incidents.** See above.
 - **Deploys that require database downtime.** Fixable with parallel change; not acceptable for user-facing services.
 - **"Deploy = push the button at the end of the sprint."** Classic weak-delivery signature.
-- **Canary that doesn't auto-roll-back.** A canary without a rollback policy is a slow rolling deploy.
+- **Canary without a defined SLI gate.** High-traffic canaries should hold or auto-rollback on SLI regression. Low-traffic services should use blue/green, smoke tests, synthetic checks, or a staged rolling deploy with an explicit manual gate; don't label that pattern a canary.
 - **Feature flag whose default is dangerous.** Defaults should fail safe; release toggles default to off; ops kill switches default to "do the safe thing."
 
 ## What to flag in review
 
 - A deploy strategy with no rollback path (especially database changes that aren't expand-contract).
-- A canary with no defined SLI gate or no automated rollback.
+- A high-traffic canary with no defined SLI gate or automated hold/rollback policy; a low-traffic staged rollout mislabeled as a canary.
 - A feature flag with no owner, no expiration, or default-on for a new behavior.
 - A rolling deploy described as a "canary" because it has stages — no metric gate means it isn't.
 - A pipeline that bypasses tests for "hotfix" or "emergency" paths.

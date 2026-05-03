@@ -25,7 +25,7 @@ A test that doesn't serve at least the first purpose is dead weight. A test that
 
 **Test behavior, not implementation.** Equivalently: test what the function returns, the side effects it has, and the contract it honors — never test that it called this private helper, set this internal field, or took this code path.
 
-The diagnostic: would this test still pass if I rewrote the function from scratch with the same input/output behavior? If yes, the test is a behavior test (good). If no, the test is locked to the current implementation (bad). It will break on every refactor and will *fail to catch* the kind of bug that changes the implementation while preserving the wrong behavior.
+The diagnostic: would this test still pass if I rewrote the function from scratch with the same externally observable behavior: return values, state changes, emitted events, persisted data, and required boundary interactions? If yes, the test is a behavior test (good). If no, the test is locked to the current implementation (bad). It will break on every refactor and will *fail to catch* the kind of bug that changes the implementation while preserving the wrong behavior.
 
 This is the rule that, more than any other, separates test suites that work from test suites that obstruct.
 
@@ -44,7 +44,7 @@ For each public function or component:
 
 Every time a real bug ships:
 
-- **Add a regression test that fails on the bug-revealing input and passes after the fix.** This is non-negotiable. A bug that escapes once will escape again if there's no test pinning the fix.
+- **Add a regression check that fails on the bug-revealing condition and passes after the fix whenever practical.** Prefer an automated test; if the bug is nondeterministic or environment-specific, pin it with the strongest feasible guard: characterization test, property test, integration test, monitor, assertion, or documented manual verification.
 
 ### The tests AI-generated suites usually skip
 
@@ -54,7 +54,7 @@ These are the ones that catch real production failures and that lazy or AI-gener
 - **Error-path tests.** What happens when the database is down? When the upstream returns malformed data? When the network times out partway through a write?
 - **Boundary tests.** Exactly the boundary, not "a small number." Off-by-one bugs live at the boundary.
 - **Tests with realistic data sizes.** Not 3-element lists. The N+1 query, the O(n²) algorithm, the unbounded-memory allocation only surface at scale.
-- **Tests on actual data.** Anonymized samples from production. Real data has structure your synthetic data doesn't.
+- **Tests shaped by actual data.** Production-derived fixtures are valuable because real data has structure synthetic data often misses, but use them only when privacy-reviewed, minimized, de-identified, deterministic, and versioned. Prefer synthetic fixtures shaped by production observations when raw production data would introduce privacy or security risk.
 - **Tests of the absence of behavior.** "Does NOT call the email service when the user is opted out." Easy to forget; the bug is the side effect that shouldn't happen.
 
 ## What NOT to test
@@ -79,9 +79,9 @@ The "ice cream cone" anti-pattern is the inverted shape — many slow E2E tests,
 
 Modern variants worth knowing:
 
-- **Honeycomb** (André Schaffer, microservices). Many integration tests, few unit tests, few E2E tests. Justified for thin-service architectures where most logic is at the integration boundary.
+- **Honeycomb** (Spotify Engineering: André Schaffer and Rickard Dybeck, microservices). Many service-boundary integration tests, a few implementation-detail tests for isolated internal complexity, and ideally no integrated tests that depend on other running systems.
 - **Trophy** (Kent C. Dodds, frontend). Static (TypeScript, ESLint) > unit > integration > E2E. The "static" layer catches a lot of frontend bugs cheaply.
-- **Crab** / no fixed shape. The right shape depends on what your code actually does — pick test types based on what bugs each catches in *your* system.
+- **No universal shape.** The right shape depends on what your code actually does — pick test types by feedback speed, reliability, failure locality, and the bugs they catch in *your* system.
 
 The framework matters less than the principle: **test as low in the pyramid as you can get reliable feedback, and as high as you need to verify integration.**
 
@@ -142,7 +142,7 @@ Verify performance characteristics. Distinct from correctness tests. Important f
 - **Tests that depend on each other (order-dependent, shared mutable state).** Flake source.
 - **Tests with snapshots larger than a screen.** Reviewer can't see what changed.
 - **One giant test that exercises ten things.** When it fails, you don't know which thing broke.
-- **Tests that assert on log output.** Brittle. Test the behavior, not the log.
+- **Tests that assert exact log prose.** Usually brittle. If logs, audit records, metrics, or traces are part of the contract, assert structured fields, event type, severity, and required semantics rather than incidental wording.
 - **Tests that import the entire framework, the database, and three services to test a pure function.** Wrong scope.
 - **Mocks of the standard library, the language runtime, or the network stack at the wrong level.** Mocks are for the boundary between your code and *external* systems, not internal collaborators.
 - **`@pytest.mark.skip` / `it.skip` / `xit` with no ticket and no expiration.** Skipped tests rot. Either fix or delete.

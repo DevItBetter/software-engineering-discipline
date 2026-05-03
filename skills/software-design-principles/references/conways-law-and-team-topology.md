@@ -2,7 +2,7 @@
 
 > "Organizations which design systems are constrained to produce designs which are copies of the communication structures of these organizations." — Melvin Conway, 1968.
 
-This is one of the few empirical regularities in software engineering. Treat it as physics, not advice.
+This is one of the stronger empirical regularities in software engineering. Treat team/software misalignment as a design risk, not as a deterministic law of nature.
 
 ## What the law actually predicts
 
@@ -13,7 +13,7 @@ Specific consequences observed across many organizations:
 - **Cross-team interfaces become rigid** (slow to change, formal, often over-engineered) regardless of whether the technical situation calls for it.
 - **Within-team coupling grows** (modules call each other freely, share types, depend on internal details).
 - **Components owned by no single team rot** — the broken-windows zone where everyone touches and nobody owns.
-- **Team splits cause subsystem splits.** When a team is split in two, the system the team owned splits along that fault line within ~6–18 months.
+- **Team splits tend to cause subsystem splits.** When ownership changes, interfaces and deployment boundaries usually drift toward the new communication paths unless leaders deliberately preserve or redesign them.
 - **Team merges cause subsystem fusion.** Components previously separate begin to interpenetrate.
 
 ## Implications for design review
@@ -45,7 +45,7 @@ The key idea: most of your teams should be **stream-aligned** (own a slice of va
 
 ## When the design is right but the org is wrong
 
-Sometimes a clean design is impossible because the org is structured wrong. Recognize this and say so explicitly:
+Sometimes a clean design is hard to sustain because the org is structured against it. Recognize the organizational constraint and say so explicitly:
 
 - "Technically, the right boundary is between A and B. But team T owns both, so that boundary will erode within a year. Either we keep them together (and accept the technical compromise), or we split T (and accept the org change)."
 - "This module sits between two teams with no clear owner. We need to assign owner before we ship it; otherwise it becomes the broken-windows zone."

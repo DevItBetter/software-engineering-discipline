@@ -1,6 +1,6 @@
 # LLM and Agent Security — Deep Dive
 
-LLMs and agentic systems introduce security categories that don't exist in traditional applications. The threats are not hypothetical — prompt injection has produced real-world data exfiltration, action execution by attackers, and reputation incidents.
+LLMs and agentic systems recombine familiar security failures in new ways: untrusted data becomes instruction-like, models may control tools, and natural-language outputs can cross trust boundaries. The threats are not hypothetical — prompt injection has produced real-world data exfiltration, action execution by attackers, and reputation incidents.
 
 This is a working reference, not a complete treatment. For high-stakes deployments, get a real adversarial review.
 
@@ -44,7 +44,7 @@ Examples:
 Mitigations:
 
 - **Treat retrieved content as untrusted.** Even if it's from "your" documents — anyone who can write to those documents can inject.
-- **Strip or escape suspicious patterns** (instruction-like text) from retrieved content before adding to the model context. Imperfect but raises the bar.
+- **Delimit untrusted content clearly, but don't rely on pattern stripping as a security boundary.** Least-privilege tools, retrieval authorization, action confirmation, and output validation are the enforcement controls.
 - **Don't use the model's response to retrieved content as input to another model action without human review.** Especially not for actions with side effects.
 - **Isolate trust contexts.** A different model instance or different prompt for "summarize this content" vs "act on user request."
 - **Make exfiltration channels narrow.** If the model can call tools that send data externally (HTTP, email, file write), tightly constrain what data those tools can see.
@@ -64,7 +64,7 @@ Mitigations:
 - **Least-privilege tool design.** Each tool does the smallest useful operation. The "transfer money" tool requires explicit user confirmation per transfer; the "send email" tool requires an allow-list of recipients; the "delete file" tool requires a typed confirmation.
 - **Human-in-the-loop for high-impact actions.** Define the bar (financial transactions, destructive operations, external communication) and require human confirmation.
 - **Action allow-lists.** The agent can read; if it wants to write or call externally, it must use a constrained tool.
-- **Audit logs.** Every agent-initiated action is logged with the user, the prompt that led to it, the model response, the tool called, the result. Reviewable after the fact.
+- **Audit logs.** Log enough context to reconstruct authorization and tool decisions: user/account, tool, parameters after redaction, result metadata, prompt/request IDs, policy decisions, and pointers to retained artifacts. Redact secrets/PII, define retention, and restrict access.
 - **Cost ceilings.** A runaway agent that calls a paid tool a million times is its own incident. Hard limits, escalating alerts.
 
 ## Tool design for safe agents
@@ -149,7 +149,7 @@ For any new agent or LLM-using feature:
 - [ ] Are tenant boundaries enforced in retrieval?
 - [ ] Are PII / secrets kept out of context where possible?
 - [ ] Is there a cost ceiling and a tool-call-count ceiling?
-- [ ] Is every agent action logged with full context for after-the-fact review?
+- [ ] Is every agent action logged with enough redacted context for after-the-fact review?
 - [ ] Is there a kill switch (revoke an active agent's permissions)?
 - [ ] Has someone tried to break it? (Not "we tested the happy path" — specifically: tried prompt injection, tool abuse, exfiltration.)
 

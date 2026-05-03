@@ -96,7 +96,7 @@ If service A calls B which calls C, the timeouts should be:
 
 If timeouts *increase* down the stack, you get the failure mode where C is slow, B keeps waiting, A times out, A's caller retries, and now there are two requests in flight to a system that's already overloaded.
 
-Propagate deadlines explicitly. gRPC has built-in deadline propagation; HTTP services need to add a `X-Deadline` header convention. Whatever the mechanism: every call should know "you have N ms to respond, after which I'm not going to use the result."
+Propagate deadlines explicitly. gRPC has built-in deadline propagation; HTTP services need an organization-specific non-`X-` header convention such as `Request-Deadline` or a standard mechanism in the platform. Whatever the mechanism: every call should know "you have N ms to respond, after which I'm not going to use the result."
 
 ## Idempotency keys (expanded)
 

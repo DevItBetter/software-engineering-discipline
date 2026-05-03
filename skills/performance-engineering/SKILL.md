@@ -110,7 +110,13 @@ Fix: load the related data in one query (JOIN or batched).
 ```python
 # Better
 orders = db.query("""
-    SELECT orders.*, items.*
+    SELECT
+      orders.id AS order_id,
+      orders.created_at,
+      orders.status,
+      items.id AS item_id,
+      items.sku,
+      items.quantity
     FROM orders
     LEFT JOIN items ON items.order_id = orders.id
     WHERE orders.user_id = ?
@@ -135,7 +141,7 @@ The fastest code is the code that doesn't run.
 
 - **Linear search where a hash lookup would be O(1)**. List membership tests in a loop are O(n²).
 - **Hash where you needed sorted access** (now you can't binary-search).
-- **Array where you needed frequent insert/delete in the middle** (linked list better).
+- **Array where the access pattern needs frequent middle insert/delete.** Linked lists help only when you already hold node handles and traversal is not the cost; often a deque, gap buffer, rope, B-tree-like structure, indexed skip list, or batched array rebuild is better.
 - **Synchronized data structure where access is single-threaded** (overhead for nothing).
 
 The right data structure depends on the access pattern. The default (list/array, hash map) is usually right; specialized cases want specialized structures (heap for top-K, trie for prefix lookup, bloom filter for "definitely-not-present" checks).
@@ -173,7 +179,7 @@ For cache stampede: use a single-flight pattern (one request fetches; others wai
 - **O(n²) where O(n) was possible.** Often hiding in nested loops, repeated `find` calls, or list-of-list operations.
 - **O(n log n) where O(n) was possible.** Sorting when a single pass would suffice.
 - **Exponential blowup.** Recursive algorithms without memoization. The Fibonacci-by-naive-recursion class of bug.
-- **O(n!) ever.** Never; always wrong for n > ~10.
+- **O(n!) beyond tiny fixed inputs.** Use exhaustive search only when `n` is tightly bounded, the workload is offline or rare, and the choice is intentional and documented.
 
 When you see nested loops, ask the complexity. When you see recursive calls, ask whether memoization or iteration would help. When you see `find` inside a loop, ask whether a hash lookup is possible.
 

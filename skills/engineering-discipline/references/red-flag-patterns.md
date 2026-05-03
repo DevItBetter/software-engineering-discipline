@@ -50,7 +50,7 @@ When you see one, do not silently approve. Either the author has a reason that s
 
 **`get_or_create_or_update_or_delete()`** — a function whose name uses "or" or "and" multiple times. Multiple responsibilities. Split.
 
-**`if isinstance(x, A): ... elif isinstance(x, B): ...` chains over a closed set of types.** Replace with polymorphism, pattern matching, or a sealed-class dispatch. The `isinstance` chain is a sign that behavior wants to live with the data.
+**Scattered or non-exhaustive type checks.** For closed sets, exhaustive pattern matching or sealed-class dispatch can be the clearest design. For open sets, prefer polymorphism or registration-based dispatch. The smell is duplicated, drifting dispatch logic, not every `match` or `isinstance`.
 
 **Reaching into another object's private members (or its members' members).** Train wreck (`a.b.c.d.do_thing()`). Either move the behavior to where the data lives (Tell, Don't Ask), or define an explicit interface between modules.
 

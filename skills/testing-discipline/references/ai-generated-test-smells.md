@@ -72,7 +72,7 @@ def test_user_creation():
     assert user.email == "alice@example.com"
 ```
 
-This test exercises the constructor of a data class. If you broke the constructor (made it not store `name`), this test would catch it. But the constructor *can't* meaningfully break in this language — and if the data class is defined idiomatically (Pydantic, dataclass, attrs), the test is purely verifying that the language feature works.
+This test exercises the constructor of a plain generated data holder. If you broke the constructor (made it not store `name`), this test would catch it, but for an idiomatic dataclass or equivalent it is mostly verifying the language or framework feature. Keep constructor/model tests when they cover domain validation, defaults, coercion, serialization, aliases, post-init hooks, or compatibility behavior.
 
 Tests like this inflate coverage and create the illusion of thoroughness. Delete them.
 
@@ -86,7 +86,7 @@ def test_user_login(caplog):
 
 Tests the log message, which is a brittle, implementation-detail string that's allowed to change. A real test of "user login" asserts on the *behavior* — the user is now in a logged-in state, the session token was issued, the last-login timestamp was updated.
 
-Logs are diagnostic output for humans, not contract for programs.
+Operational logs are usually diagnostics, not behavior contracts. Test log output only when the emitted event is part of an explicit contract, such as audit logging, security events, compliance records, metrics/exemplars, trace propagation, or documented operator workflows. In those cases assert structured fields, event type, severity, identifiers, redaction, and required semantics, not message wording.
 
 ## Tests that pass when the production code is reverted
 
@@ -104,7 +104,7 @@ def test_returns_a_list():
     assert isinstance(result, list)
 ```
 
-The function is annotated to return a list. The type system already enforces this. The test verifies a property the language already verifies, while ignoring the *content* of the list (which is what the function is actually responsible for).
+If the function is statically typed and type checking runs in CI, the return type is already covered there. If not, this assertion only checks a shallow container shape and still ignores the *content* of the list, which is what the function is actually responsible for.
 
 ## Hallucinated test fixtures
 

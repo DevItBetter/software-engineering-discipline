@@ -38,7 +38,7 @@ The target should come from what users actually need, calibrated against what th
 
 - Set 100% as the target. There is no error budget, every blip is a violation, the SLO becomes meaningless.
 - Set the target wherever current performance is. The SLO becomes "don't get any worse," which is operational, not aspirational.
-- Set per-component SLOs that don't compose into a credible end-to-end SLO. If your service depends on three 99.9% services serially, your achievable SLO is bounded near 99.7% before you add your own faults.
+- Set per-component SLOs that don't compose into a credible end-to-end SLO. If every request synchronously requires three independent 99.9% dependencies with no fallback, the upper bound is roughly 99.7% before you add your own faults. Adjust for correlation, partial usage, retries, caching, fallbacks, and degraded modes.
 
 ## Error budget
 
@@ -54,7 +54,7 @@ The mechanism is a release/freeze gate. While budget remains, ship faster — th
 
 ## Burn-rate alerting
 
-A burn rate is how fast you are consuming the error budget relative to the SLO window. A burn rate of 1 means you exhaust the budget exactly at the end of the SLO window. A burn rate of 14.4 means at the current rate you'll exhaust the budget in about 1/14.4 of the SLO window.
+A burn rate is how fast you are consuming the error budget relative to the SLO window. A burn rate of 1 means you exhaust a full budget exactly at the end of the SLO window. A burn rate of 14.4 means at the current rate you'll exhaust a full budget in about 1/14.4 of the SLO window; remaining-budget time is shorter if budget has already been spent.
 
 The Workbook's canonical multi-window, multi-burn-rate recipe (Table 5-8 of Chapter 5) uses a **30-day SLO window** and specific budget-consumption thresholds:
 
@@ -73,6 +73,8 @@ budget_consumed_threshold = burn_rate × (long_window / SLO_window)
 ```
 
 Pick budget thresholds first (how much consumed before paging is reasonable), then derive burn rates for chosen windows. Convert the burn rate to an alert threshold by multiplying it by the service's error budget fraction.
+
+For low-volume services, add denominator/min-request guards or use synthetic probes and longer windows; otherwise a handful of failures can produce mathematically high burn with poor statistical confidence.
 
 ### Why two windows
 

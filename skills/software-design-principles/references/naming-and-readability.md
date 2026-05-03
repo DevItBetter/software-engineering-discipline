@@ -62,7 +62,7 @@ A well-shaped function:
 
 - **Does one thing.** Stating its purpose in one verb-noun pair. If you need "and," it's two functions.
 - **Is at one level of abstraction.** Either it orchestrates (calls higher-level operations) or it implements (does low-level work). Mixing produces "step 1 is two lines of detailed string manipulation, step 2 is `processOrder()`" — jarring to read.
-- **Has a small parameter list.** Three or four max. More than that is a code smell (Long Parameter List). Group with a parameter object.
+- **Has a small parameter list.** Long parameter lists are a smell, especially same-typed positional parameters. Consider named arguments, splitting the function, preserving a whole object, replacing parameters with queries, or introducing a parameter object only when the values form a coherent concept.
 - **Returns one kind of thing.** `getUser` should not sometimes return a `User`, sometimes a list, sometimes `None`, sometimes an error code. Pick one.
 - **Has clear preconditions and postconditions.** Either documented, type-encoded, or asserted at the boundary.
 

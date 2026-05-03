@@ -21,7 +21,7 @@ The trap is choosing for *ease* and getting *complexity* you didn't see. The cla
 
 - **State / mutable variables.** Easy to use; complect time, identity, and value. Reasoning about a value-that-changes requires reasoning about *when* it changes and *who* sees what.
 - **Inheritance.** Easy to set up (extend a class); complect type, behavior, identity, and namespace. Changes to the base class affect every subclass in non-obvious ways.
-- **ORMs and ActiveRecord patterns.** Easy to start with; complect data access, schema knowledge, identity, transactions, and lazy loading. Result: queries hidden inside attribute access; N+1 problems; impossible-to-test boundaries.
+- **ORMs and ActiveRecord patterns.** Easy to start with; complect data access, schema knowledge, identity, transactions, and lazy loading. Result: queries hidden inside attribute access; N+1 problems; boundaries that are hard to test unless data access is isolated deliberately.
 - **Conditionals (`if/else`).** Easy; complect "what to do" with "when to do it." A scattered set of `if isinstance` checks complects the type-discrimination logic across many places.
 - **Frameworks with lifecycle hooks.** Easy to start a project; complect structure, lifecycle, configuration, and conventions. Changes to one piece reverberate through the framework's hidden coordination.
 - **Globals, singletons, service locators.** Easy; complect every consumer with the global's lifecycle, identity, and changes.

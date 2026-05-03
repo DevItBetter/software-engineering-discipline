@@ -44,7 +44,7 @@ The general rule: **handle an error at the level that has the context to make a 
 - **Domain errors where the domain logic is.** "Order is in a state that doesn't allow this transition" is handled where the order's state machine lives.
 - **Infrastructure errors at the infrastructure boundary** — typically with a retry, a fallback, or a clean propagation that the higher level knows what to do with.
 - **Programmer errors should crash the process** (or the request, depending on isolation). Catching `NullPointerException` or `KeyError` and continuing is hiding a bug. Let it bubble; let the supervisor handle the restart.
-- **Unknown errors at the top of the request lifecycle.** A handler-level catch that logs, returns a 500, and continues serving other requests. Specifically: not a `try: ... except Exception: pass` at every level; one at the top, with full context logged.
+- **Unknown errors at the top of the request lifecycle.** A handler-level catch that logs, returns a 500, and continues serving other requests. Specifically: not a `try: ... except Exception: pass` at every level; one at the top, with safe diagnostic context logged.
 
 The diagnostic for over-defensive code: count the levels of try/except in a single call stack. More than two is usually a smell. The middle layers should propagate; only the outermost level (or a level with concrete recovery) should catch.
 
@@ -79,7 +79,7 @@ Don't try to "recover" from these. The state is corrupt; continuing makes it wor
 An exception or error type is a contract. Design it deliberately.
 
 - **Be specific.** `InvalidEmailFormat` beats `ValidationError` beats `Exception`. The caller should be able to handle some error kinds and propagate others without a giant catch-all.
-- **Include the context.** The error should carry the data needed to debug or recover. "Could not find user" — which user? Include the id. "Database query failed" — what query, what arguments?
+- **Include safe diagnostic context.** The error should carry the data needed to debug or recover: stable identifiers, query name or fingerprint, route template, error class, correlation id, and bounded metadata. Do not include raw query arguments, request bodies, tokens, secrets, or full PII unless explicitly approved and redacted.
 - **Don't leak internals.** The error message that goes to the *user* shouldn't include database table names, file paths, or stack traces. The error logged for the *operator* should include all of them.
 - **Be stable.** Once an error type is part of your public API, callers will catch it. Removing it is a breaking change.
 - **Distinguish retryable from non-retryable.** A transient failure (timeout, 503) is retryable. A permanent failure (404, 401) is not. Encode the distinction in the type or in a method on the error.
@@ -148,17 +148,22 @@ No exponential backoff (synchronizes retries from many clients), no jitter (crea
 # Better (sketch)
 def retry(call, max_attempts=5, base_delay_s=0.1, max_delay_s=10, deadline_s=30):
     deadline = monotonic() + deadline_s
+    last_error = None
+
     for attempt in range(max_attempts):
         try:
             return call()
         except RetryableError as e:
-            if monotonic() >= deadline:
-                raise RetryBudgetExceeded() from e
-            delay = min(max_delay_s, base_delay_s * 2 ** attempt)
+            last_error = e
+            remaining = deadline - monotonic()
+            if attempt == max_attempts - 1 or remaining <= 0:
+                raise MaxAttemptsExceeded() from e
+            delay = min(max_delay_s, base_delay_s * 2 ** attempt, remaining)
             time.sleep(random.uniform(0, delay))
         except NonRetryableError:
             raise
-    raise MaxAttemptsExceeded()
+
+    raise MaxAttemptsExceeded() from last_error
 ```
 
 ## Idempotency
@@ -200,8 +205,8 @@ A specific failure pattern worth knowing: **service A's timeout is 30s, service 
 
 Every error path needs observability: log, metric, trace.
 
-- **Log with context.** The log message must include the inputs (or relevant identifiers) that caused the error. "Failed to fetch user" is useless; "Failed to fetch user (user_id=abc-123, source=cache, error=ConnectionRefused)" tells on-call where to look.
-- **Metric for error rate.** Per error type, per endpoint. Spikes alert on-call.
+- **Log with safe context.** The log message must include relevant identifiers and bounded metadata. "Failed to fetch user" is useless; "Failed to fetch user (user_id=abc-123, source=cache, error=ConnectionRefused)" tells on-call where to look. Do not log raw query arguments, request/response bodies, tokens, secrets, or full PII unless explicitly approved and redacted.
+- **Metric for error rate.** Use bounded labels such as route template, status class, dependency name, and normalized error category. Put raw exception messages, request IDs, tenant IDs, and user-specific context in logs/events/traces, not metric labels.
 - **Trace spans and events according to the relevant semantic convention.** Tracing reveals which downstream caused the error; for HTTP, 5xx generally maps to error on server spans, while 4xx usually stays unset on server spans unless application context says otherwise.
 - **Don't log secrets, PII, or tokens.** Sanitize before logging. Especially in error contexts, where the impulse is "log everything."
 

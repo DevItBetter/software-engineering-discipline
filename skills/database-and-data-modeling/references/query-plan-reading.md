@@ -10,7 +10,11 @@ EXPLAIN ANALYZE SELECT ...;    -- actually runs it; shows actual times and rows
 EXPLAIN (ANALYZE, BUFFERS) SELECT ...;  -- also shows buffer hits/reads (cache vs disk)
 ```
 
-`EXPLAIN ANALYZE` *runs the query*. For UPDATE/DELETE, wrap in a transaction and rollback:
+`EXPLAIN ANALYZE` *runs the query*, but it measures executor work, not full client-observed latency. PostgreSQL does not deliver result rows to the client during `EXPLAIN ANALYZE`; large-result serialization, fetch, rendering, and network time may be missing. Measure from the application too, or use `EXPLAIN (ANALYZE, SERIALIZE)` where appropriate.
+
+For write statements, start with plain `EXPLAIN`. Use `EXPLAIN ANALYZE` on writes only on non-production, a restored prod snapshot, or during an approved maintenance/debug window; `ROLLBACK` undoes data changes but cannot undo locks taken, trigger execution, sequence consumption, WAL, or production latency impact.
+
+If you explicitly accept those effects, wrap in a transaction and rollback:
 
 ```sql
 BEGIN;
@@ -36,10 +40,10 @@ Sort  (cost=...  rows=10  width=...)
 This reads as: scan all orders filtering by paid status; scan all customers; hash-join them; sort the result.
 
 Key fields:
-- **cost** — planner's estimate (start..total). Two values; the second is what matters.
+- **cost** — planner's estimate (start..total). Total cost often dominates batch queries; startup cost matters for `LIMIT`, `EXISTS`, cursor/streaming, and first-row latency.
 - **rows** — estimated row count. With `ANALYZE`, also the actual count.
 - **width** — average row size in bytes.
-- **actual time** (with ANALYZE) — first row .. all rows, in milliseconds.
+- **actual time** (with ANALYZE) — first row .. all rows, in milliseconds. With `loops > 1`, actual rows/time are per-loop averages; multiply mentally when estimating total repeated work.
 
 ## The operations and what they mean
 
@@ -140,7 +144,7 @@ Sort  (cost=... rows=100000 ...)
   Sort Key: created_at DESC
 ```
 
-`external merge ... Disk` means it spilled to disk because work_mem was too small. Either increase `work_mem`, add a matching index, or reduce the data sorted (filter earlier).
+`external merge ... Disk` means it spilled to disk because `work_mem` was too small for that operation. Prefer query/index fixes first. If raising `work_mem`, do it per session/query where possible and account for concurrent connections and multiple sort/hash nodes.
 
 ### Aggregate / GroupAggregate / HashAggregate
 

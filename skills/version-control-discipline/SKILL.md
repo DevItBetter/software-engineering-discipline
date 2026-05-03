@@ -120,7 +120,7 @@ The Linux kernel routinely bisects across a multi-million-line codebase. If it s
 
 ### Reflog — the local safety net
 
-Every HEAD movement is logged. Default retention: 90 days for reachable entries, 30 days for unreachable. `git reflog` shows the journal; `git reset --hard HEAD@{n}` or `git checkout -b recovery <sha>` recovers.
+Every HEAD movement is logged. Default retention: 90 days for reachable entries, 30 days for unreachable. `git reflog` shows the journal. Prefer preserving work first with `git branch rescue-before-reset HEAD` or `git switch -c recovery <sha>`; use `git reset --hard HEAD@{n}` only after `git status` confirms no needed working-tree changes remain.
 
 A botched `git reset --hard`, a deleted branch, a rebase gone wrong — usually recoverable from reflog. If reflog has expired, `git fsck --lost-found` finds dangling commits.
 

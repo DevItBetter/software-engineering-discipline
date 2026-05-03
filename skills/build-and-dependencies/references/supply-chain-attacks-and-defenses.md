@@ -10,7 +10,7 @@ These are the canonical examples. They are useful precisely because they are con
 
 A remote-code-execution vulnerability in Apache Log4j 2's JNDI lookup feature, present in the codebase since 2013. Privately disclosed by Chen Zhaojun (Alibaba Cloud) on 24 November 2021; exploit went public 9 December 2021; CVE assigned 10 December 2021.
 
-The lesson is the **transitive-dependency depth**. Most affected teams did not directly depend on Log4j. They depended on a framework that depended on a library that depended on Log4j. SBOM and dependency scanning would have surfaced it; absent those, every team had to grep their entire build cache to discover whether they were affected.
+The lesson is the **transitive-dependency depth**. Most affected teams did not directly depend on Log4j. They depended on a framework that depended on a library that depended on Log4j. SBOMs and dependency scanning would have reduced the manual hunt and identified many affected artifacts, but exposure still requires validation against packaged/runtime contents, shaded dependencies, vulnerable configuration, and exploitability.
 
 ### xz-utils backdoor — CVE-2024-3094 (March 2024)
 
@@ -34,7 +34,7 @@ The 5.6.0 and 5.6.1 release tarballs were affected; the payload triggered only d
 
 *Dependency Confusion: How I Hacked Into Apple, Microsoft and Dozens of Other Companies* (Medium, 9 February 2021). The mechanic: an internal package name with no public-registry counterpart can be claimed by an attacker; many resolvers default to public-registry priority, so the attacker's package is fetched into the build with the build's privileges.
 
-Birsan breached 35 companies (Apple, Microsoft, PayPal, Shopify, Netflix, Yelp, Tesla, Uber, etc.), earning over $130k in bug bounties. Defense:
+Birsan demonstrated dependency confusion against 35 organizations (Apple, Microsoft, PayPal, Shopify, Netflix, Yelp, Tesla, Uber, etc.) through responsible disclosure, showing code execution and data-exfiltration paths in internal build environments and earning over $130k in bug bounties. Defense:
 
 - Scope or namespace internal packages (`@mycompany/foo` rather than `foo`).
 - Configure resolvers to refuse public-registry fallback for private names. npm: scoped internal package names plus `.npmrc` scope-to-registry mappings and private-registry enforcement; pip: `--index-url` plus explicit `--extra-index-url` policy.
@@ -60,13 +60,13 @@ Lesson: **a single 11-line dependency was a single point of failure for half the
 
 ## SLSA — Supply-chain Levels for Software Artifacts
 
-Introduced by Google in June 2021, now an OpenSSF project at `slsa.dev`. SLSA v1.0 (April 2023) defines a **Build track** with three levels:
+Introduced by Google in June 2021, now an OpenSSF project at `slsa.dev`. Use the current SLSA spec when citing levels; as of early 2026, SLSA v1.2 defines separate **Build** and **Source** tracks. The Build Track has three levels:
 
 - **L1**: automated build process; provenance generated.
 - **L2**: hosted build platform; provenance signed.
 - **L3**: build platform hardened; provenance non-forgeable; builds isolated from one another and from provenance-signing material.
 
-Older SLSA v0.1 had four levels (L1–L4); the v1.0 restructure split SLSA into separate orthogonal tracks (Build, with Source and Dependencies tracks planned), so the v0.1 L4 requirements did not map 1:1 onto a future Source track. When citing SLSA levels, anchor to v1.0 — articles citing "L1–L4" predate the restructure.
+Older SLSA v0.1 had four levels (L1–L4); the v1.0 restructure changed the model. Do not mix pre-1.0 L4 language with current Build Track levels.
 
 The point of SLSA is to make claims about your build *checkable*. A claim of "L3" can be verified by examining the provenance and the build platform's properties. Without that framework, "we have a secure pipeline" is unfalsifiable.
 
@@ -79,14 +79,14 @@ OpenSSF graduated project (graduated 2024) at `sigstore.dev`. Components:
 - **`rekor`** — append-only transparency log; v2 GA reached 2025.
 - **`gitsign`** — sign git commits with sigstore identities.
 
-The model is **sign with your identity, verify against the transparency log**. No key rotation required because keys are ephemeral; anyone can verify a signature was made by a given identity at a given time.
+For keyless signing, the model is **sign with your identity, verify the artifact digest, certificate identity, issuer/OIDC claims, and Rekor inclusion or signed bundle/timestamp as applicable**. Keyless Sigstore reduces long-lived signing-key management; keyful or KMS-backed signing still needs normal key lifecycle controls. Verification policy matters as much as the signature.
 
 ## SBOM
 
-A Software Bill of Materials lists every component in an artifact: name, version, license, supplier, hash. Two competing standards:
+A Software Bill of Materials lists every component in an artifact: name, version, license, supplier, hash. Common active standards:
 
-- **SPDX** — Linux Foundation, originated 2010 for license compliance. SPDX 2.2.1 became ISO/IEC 5962:2021. Current major version SPDX 3.0 (2024).
-- **CycloneDX** — OWASP, security-first focus, standardized as ECMA-424.
+- **SPDX 3.0** — Linux Foundation, originated 2010 for license compliance. SPDX 2.2.1 became ISO/IEC 5962:2021; SPDX 3.0 expands the supply-chain model.
+- **CycloneDX 1.7** — OWASP, security-first focus, standardized as ECMA-424, strong for security/VEX and operational BOM use cases.
 
 Either is fine; pick by what your downstream consumers expect. Tools that generate SBOMs at build time:
 
@@ -108,7 +108,8 @@ The discipline that connects the framework to the day-to-day:
 - **Renovate / Dependabot.** Automation produces PRs; **the discipline is merging them**. A repo with 80 stale Dependabot PRs is worse than one with no automation.
 - **Pre-merge build provenance.** Every released artifact has a SLSA provenance attestation, signed via cosign, queryable via rekor.
 - **Private registry proxy.** All package fetches go through a registry your team controls; the proxy enforces allowlists, scans, and pinning policies. Nexus, Artifactory, GitHub Packages, AWS CodeArtifact.
-- **Privilege isolation in CI.** Split the pipeline into a "fetch deps" stage with no secrets and an "execute" stage with scoped credentials. A compromised dep in the fetch stage cannot exfiltrate `GITHUB_TOKEN` or `AWS_ROLE`.
+- **Privilege isolation in CI.** Do not expose production secrets to dependency resolution, install scripts, PR builds, or untrusted code execution. Disable lifecycle scripts where feasible, build in isolated workers, use short-lived OIDC credentials only in deploy/promote jobs after artifact creation and policy checks, and promote immutable artifacts instead of rebuilding with secrets.
+- **Dangerous workflow review.** Flag `pull_request_target` or `workflow_run` workflows that check out untrusted PR code, untrusted GitHub context interpolated into shell, missing least-privilege `permissions`, or write tokens available before tests/builds of untrusted code.
 - **2FA on every registry account.** Verify periodically.
 - **License audit gating.** A new dependency with a license incompatible with your distribution policy must be caught before it ships. License-scanning tools (FOSSA, ScanCode, Black Duck) integrate at PR time.
 
@@ -133,6 +134,7 @@ The discipline that connects the framework to the day-to-day:
 - npm Blog, *kik, left-pad, and npm*. `https://blog.npmjs.org/post/141577284765/kik-left-pad-and-npm`.
 - SLSA. `https://slsa.dev/`.
 - Sigstore (OpenSSF). `https://openssf.org/community/sigstore/`.
+- Sigstore Blog, *Rekor v2 GA - Cheaper to run, simpler to maintain* (2025-10-10). `https://blog.sigstore.dev/rekor-v2-ga/`.
 - SPDX. `https://spdx.dev/`.
 - CycloneDX (OWASP). `https://cyclonedx.org/`.
 - US EO 14028. `https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/`.

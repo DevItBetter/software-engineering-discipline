@@ -36,7 +36,7 @@ Beck's recent framing: when you want to make a change that touches messy code, y
 - **Don't tidy**: just change. Acceptable when you'll never touch this code again, or when the cleanup cost exceeds the value.
 
 The disciplines:
-- Tidy and behavior changes are **always separate commits**, ideally separate PRs. Mixing them makes review and bisect impossible.
+- Keep tidying and behavior changes separate by default, ideally in separate commits and often separate PRs. Mixing them increases review and bisect cost; only combine them when the cleanup is tiny, local, and necessary to make the behavior change understandable.
 - Each tidying is small enough that "did I break anything" has a fast answer (the test suite passing).
 - Tidyings are **reversible** — if the tidy turns out to be wrong, you can roll back without losing the behavior change.
 

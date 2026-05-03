@@ -33,6 +33,7 @@ software-engineering-discipline/
 │   ├── caching-strategies/
 │   ├── documentation-and-technical-writing/
 │   └── ai-coding-antipatterns/
+├── package.json
 ├── README.md
 └── LICENSE
 ```
@@ -40,7 +41,7 @@ software-engineering-discipline/
 Each skill is a directory with:
 - `SKILL.md` — the entry point (frontmatter + instructions)
 - `references/` — deeper material loaded on demand
-- `agents/openai.yaml` — universal adapter for non-Claude models
+- `agents/openai.yaml` — OpenAI-style interface prompt for consumers that read this adapter directly. For `npx skills`, install to supported agents such as `claude-code`, `codex`, or `universal`; `openai` is not a valid `--agent` target.
 
 ## Which skill for which question
 
@@ -79,7 +80,7 @@ The work is built on three convictions:
 
 ## Sources
 
-The canon this suite is built on: Fowler (*Refactoring* 2nd ed.), Ousterhout (*A Philosophy of Software Design*), Hickey (*Simple Made Easy*), Parnas (*On the Criteria…*), Kleppmann (*DDIA*), Evans / Vernon (DDD), Lampson (*Hints*), Newman (*Building Microservices*), Beck (*TDD*, *Tidy First?*), Feathers (*Working Effectively with Legacy Code*), Metz (POODR), Allspaw (Etsy postmortems), Dekker (Safety II), Zeller (*Why Programs Fail*), Agans (*Debugging: 9 Indispensable Rules*), Procida (Diátaxis), Winand (*SQL Performance Explained*), Google Engineering Practices, Google SRE Workbook, OWASP Top 10 (and OWASP Top 10 for LLM Applications). Full citations in `skills/engineering-discipline/references/sources.md`.
+The canon this suite is built on: Fowler (*Refactoring* 2nd ed.), Ousterhout (*A Philosophy of Software Design*), Hickey (*Simple Made Easy*), Parnas (*On the Criteria…*), Kleppmann (*DDIA*), Evans / Vernon (DDD), Lampson (*Hints*), Newman (*Building Microservices*), Beck (*TDD*, *Tidy First?*), Feathers (*Working Effectively with Legacy Code*), Metz (POODR), Allspaw (Etsy postmortems), Hollnagel (Safety-I/Safety-II), Dekker (Just Culture / Safety Differently), Zeller (*Why Programs Fail*), Agans (*Debugging: 9 Indispensable Rules*), Procida (Diátaxis), Winand (*SQL Performance Explained*), Google Engineering Practices, Google SRE Workbook, OWASP Top 10 (and OWASP Top 10 for LLM Applications). Full citations in `skills/engineering-discipline/references/sources.md`.
 
 ## Using the suite
 
@@ -87,6 +88,12 @@ The canon this suite is built on: Fowler (*Refactoring* 2nd ed.), Ousterhout (*A
 
 ```bash
 npx skills add DevItBetter/software-engineering-discipline --all
+```
+
+List available skills before installing a subset:
+
+```bash
+npx skills add DevItBetter/software-engineering-discipline --list
 ```
 
 Or install individual skills:
@@ -106,3 +113,5 @@ The orchestrator and specialties trigger when their domain is in play. The orche
 The suite was built with two rounds of adversarial red-team review per addition. The pattern: write, red-team, fix the substantive findings, ship. When extending the suite, follow the same pattern — bare assertions don't survive expert scrutiny, and the suite's authority depends on every skill holding up to it.
 
 Most `SKILL.md` files include a "What to flag in review" section that doubles as a checklist for self-review. If you're modifying a skill and that section exists, run it on your changes.
+
+When updating an `agents/openai.yaml` adapter, preserve the operational contract from the full skill: when to use it, what evidence to collect, verification gates, stop/escalation conditions, and what to report as unchecked. The adapter is not just marketing copy; for some agents it is the only guidance loaded.

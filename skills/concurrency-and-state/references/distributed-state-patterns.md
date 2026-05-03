@@ -98,18 +98,18 @@ Don't implement these. Use a library (etcd, Zookeeper, Consul) or a system that 
 
 ## Quorum reads/writes
 
-For a system with N replicas, write to W of them and read from R of them. As long as W + R > N, every read intersects with at least one replica that has the latest write — strongly consistent.
+For a system with N replicas, write to W of them and read from R of them. `W + R > N` ensures quorum intersection for a single replica set, which can prevent stale reads in the simple case. It does not by itself guarantee linearizability in Dynamo/Cassandra-style systems; concurrent writes, sloppy quorum, hinted handoff, clock/version resolution, and failed read repair can still produce stale or conflicting reads. Treat quorum settings as a consistency tool, not a proof.
 
 Trade-offs:
-- High W: writes are slow (waits for many replicas) but recent writes are immediately visible.
-- High R: reads are slow but always consistent.
+- High W: writes are slow (waits for many replicas) and reduce the window for stale reads.
+- High R: reads are slow and can see more replicas, but still depend on conflict resolution and repair behavior.
 - Both moderate: balanced.
 
 Cassandra/Dynamo-style systems expose these as tunables per query. The application chooses per-operation what consistency level to pay for.
 
 ## CAP / PACELC, practically
 
-CAP: in a partition, choose Consistency or Availability. Not both.
+CAP: under a partition, for operations whose correctness depends on communication across the partition, you cannot guarantee both linearizability and CAP-availability. Name which operations reject, degrade, or serve potentially stale data.
 
 PACELC (Daniel Abadi): even when there's no partition (Else), choose Latency or Consistency.
 
