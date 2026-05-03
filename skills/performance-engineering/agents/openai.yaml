@@ -2,4 +2,18 @@ interface:
   display_name: "Performance Engineering"
   short_description: "Measure first; optimize the bottleneck; verify"
   default_prompt: |
-    Use $performance-engineering. Knuth's quote in full: 97% don't optimize prematurely; for the critical 3%, optimize aggressively and well — both halves matter. Define what "fast enough" means before you start (latency target, throughput target, cost target). Measure before optimizing; measure after optimizing; compare. Always optimize the bottleneck — a 10x speedup on 1% of runtime is 0.9% improvement. Use realistic workloads with realistic data for real-world claims; microbenchmarks are only useful for narrow isolated questions and often mislead when generalized. For tail latency, p99 matters more than mean. Don't add caches, indexes, or async indirections speculatively — earn each one with a measurement.
+    Use when: latency, throughput, cost, resource use, query speed, algorithmic complexity, capacity, profiling, or benchmarking is in scope.
+
+    Evidence to collect: target SLO or budget, baseline measurement, representative workload/data, profiler or query-plan evidence, resource saturation, percentile/histogram data, and before/after comparison.
+
+    Verification gates:
+    - Define "fast enough" before optimizing: latency, throughput, cost, or resource target.
+    - Measure before and after; optimize the bottleneck.
+    - Use realistic workloads for real-world claims; microbenchmarks only answer narrow isolated questions.
+    - Check tail latency, not just mean.
+    - Avoid coordinated omission in load tests that validate latency SLOs.
+    - Earn caches, indexes, async, batching, and pooling with evidence.
+
+    Stop/escalate when: there is no baseline, the workload is unrepresentative, the proposed optimization adds complexity without measured bottleneck evidence, or production risk needs a rollout/rollback plan.
+
+    Report: include target, baseline, bottleneck evidence, change, after-measurement, and residual performance risk.

@@ -2,20 +2,19 @@ interface:
   display_name: "Version Control Discipline"
   short_description: "Atomic commits, buildable history, useful PRs, recoverable mistakes"
   default_prompt: |
-    Use $version-control-discipline. The bar: every commit on main builds, passes tests, represents one logical change, and has a message that explains *why*.
+    Use when: commits, branches, PRs, rebases, merges, force-pushes, secret leaks, history recovery, or release branching are in scope.
 
-    Priorities, in order:
+    Evidence to collect: `git status`, relevant diff, recent log, branch tracking state, PR size/description, CI status, shared-history risk, and whether secrets were exposed.
 
-    1. Commit messages: 50/72 (Pope 2008) and the seven rules (Beams 2014). Imperative subject. Body explains why, not what. Use Conventional Commits only when downstream tooling reads them.
+    Verification gates:
+    - Every commit on main should build, pass tests, represent one logical change, and explain why.
+    - Commit subjects should be imperative and concise; bodies explain why, not what. Use Conventional Commits only when tooling reads them.
+    - Keep refactors and behavior changes in separate commits by default.
+    - Prefer trunk-based or GitHub Flow for continuous delivery; reserve GitFlow-style branches for versioned, multi-major-supported products.
+    - Rebase only private history. Never rebase shared history without explicit coordination.
+    - Force-push only personal branches, prefer `--force-with-lease`, and use explicit expected refs for high-risk rewrites.
+    - For leaked secrets, rotate first; history rewriting does not unleak the secret.
 
-    2. Atomic commits. Refactor and behavior change land in separate commits. Each commit on main is bisectable: builds and passes tests on its own.
+    Stop/escalate when: force-push targets main/shared history, hooks are being bypassed, secrets are involved, or a rewrite could affect other contributors.
 
-    3. Branching: trunk-based or GitHub Flow for continuous delivery. GitFlow only for versioned, multi-major-supported software (Driessen retired it for SaaS in 2020). Short-lived branches; merge daily; small batches.
-
-    4. Rebase vs. merge: rebase to clean up your private branch before merging; never rebase shared history (Corbet's distillation of the kernel-community rule: "Thou Shalt Not Rebase Trees With History Visible To Others" — not Linus verbatim). Force-push only on personal branches. Use `--force-with-lease`; for high-risk rewrites, prefer `--force-with-lease=<ref>:<expected-sha-or-tag>` because the default lease relies on remote-tracking refs and can be weakened by background fetches. `push.useForceIfIncludes=true` / `--force-if-includes` is a useful guard for default leases, not a substitute for an explicit expected value.
-
-    5. PRs: small (Google: ~100 lines reasonable, 1000+ usually too large). One self-contained change per PR. Description has what / why / how-tested / risk / rollback.
-
-    6. Recovery: `git reflog` is the safety net (90-day default). For leaked secrets, **rotate first**, then use `git filter-repo` (filter-branch is deprecated). History rewriting does not unleak the secret.
-
-    Common findings to flag: wip/fix/asdf commit messages on main; refactor + behavior change in one commit; 1000+ line PRs; long-lived feature branches; force-push to main; --no-verify habit; secret leaked without rotation; merge bubble where fast-forward was intent; PR description with no "why" or "rollback"; squash-merge of everything (loses bisect granularity).
+    Report: state the logical change, commit/PR hygiene, tests/CI evidence, branch risk, recovery path, and any irreversible actions avoided.

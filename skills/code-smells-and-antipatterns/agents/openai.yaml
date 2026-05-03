@@ -2,4 +2,16 @@ interface:
   display_name: "Code Smells and Antipatterns"
   short_description: "Diagnose what's wrong with code; name it sharply"
   default_prompt: |
-    Use $code-smells-and-antipatterns. When code feels off, find the named smell — Long Function, Long Parameter List, Primitive Obsession, Feature Envy, Shotgun Surgery, Boolean Trap, Anemic Domain Model, etc. Each finding is: the name, file:line, the concrete cost it imposes, and the smallest named refactoring from the sibling skill. Before flagging, show a current or likely change this structure makes harder and check local conventions; do not report a smell based only on size, taste, or unfamiliar style. Don't pile findings on one diff — if you'd flag five, the right finding is usually "request a redesign conversation." Also call out antipatterns above the code level — Distributed Monolith, Big Ball of Mud, Database-as-Integration, Cargo Cult Programming — when they apply.
+    Use when: code feels wrong and the job is to diagnose the smell or antipattern sharply.
+
+    Evidence to collect: exact code region, local conventions, current or likely change made harder by the structure, and the smallest relevant refactoring.
+
+    Verification gates:
+    - Name the smell: Long Function, Long Parameter List, Primitive Obsession, Feature Envy, Shotgun Surgery, Boolean Trap, Anemic Domain Model, etc.
+    - Explain the concrete cost, not just the label.
+    - Map to the smallest named refactoring from $refactoring.
+    - Do not flag based only on size, taste, or unfamiliar style.
+
+    Stop/escalate when: you would leave many smell comments on one small diff; the right finding may be a redesign conversation.
+
+    Report: one finding is name + file:line + cost + fix. Also flag larger antipatterns such as Distributed Monolith, Big Ball of Mud, Database-as-Integration, and Cargo Cult Programming when evidence supports them.

@@ -2,4 +2,16 @@ interface:
   display_name: "Testing Discipline"
   short_description: "Test what matters; don't test the implementation"
   default_prompt: |
-    Use $testing-discipline. The single most important rule: test behavior, not implementation. Before writing or evaluating any test, ask "would this test still pass if I rewrote the function from scratch with the same externally observable behavior: return values, state changes, emitted events, persisted data, and required boundary interactions?" If yes, the test is healthy. If no, it's locked to current implementation and will block refactoring. Cover: happy path with realistic data, each documented edge case and invariant (empty/null/max/boundary/unicode/timezone/locale where relevant), each documented failure mode, realistic data sizes on risky paths, and idempotency under retry where retries can occur. Use real or fake collaborators internally; mock only at external boundaries. For AI-generated tests, always check whether the test would still pass with the production change reverted — many don't.
+    Use when: writing, reviewing, or repairing tests; deciding what to test; or evaluating test quality.
+
+    Evidence to collect: public behavior contract, documented edge cases, failure modes, realistic data shape/size, retry/idempotency behavior, and whether tests fail without the production change.
+
+    Verification gates:
+    - Test behavior, not implementation.
+    - Ask whether the test would still pass after rewriting the implementation with the same observable behavior: returns, state changes, emitted events, persisted data, and required boundary interactions.
+    - Cover relevant happy paths, documented edge cases and invariants, documented failure modes, realistic data sizes on risky paths, and retry/idempotency where retries can occur.
+    - Mock only external or slow/non-deterministic boundaries; use real or fake collaborators internally.
+
+    Stop/escalate when: the test only verifies mocks/frameworks/types, asserts incidental logs/prose, is brittle to refactoring, or cannot fail with the production change reverted.
+
+    Report: explain what behavior is covered, what is intentionally not covered, and any residual testing risk.

@@ -2,4 +2,15 @@ interface:
   display_name: "Engineering Discipline (Orchestrator)"
   short_description: "Senior-engineer entry point: triage, dispatch, verify, report"
   default_prompt: |
-    Use $engineering-discipline as the orchestrator. First, identify the mode: review, design, debug/incident, implement, document, or refactor — most non-trivial work involves several but one dominates. Then run the four-stage workflow: orient (intent, blast radius, classification), triage by risk (correctness → security → data/concurrency → resilience → contracts → design → tests → observability → performance → style), verify before claiming (read the symbol not the name, one adversarial input, would the test fail without the change, do the dependencies actually exist), and report in the structured format with explicit "What I checked" and "Residual risk" sections. Dispatch to specialty skills when their domain is in play; do not pre-load them. Avoid both failure modes: sycophantic acceptance ("looks good") and stylistic nitpicking. Every finding cites file:line, names the failure mode, and includes a fix. If you can't articulate the specific failure mode, demote the finding.
+    Use when: the task is non-trivial engineering work, review, design, debugging, incident response, implementation, documentation, or refactoring.
+
+    Evidence to collect: user intent, changed files or proposed design, relevant symbols/callers, tests, dependency/API facts, runtime evidence where available, and which specialty domains are in play.
+
+    Verification gates:
+    - Identify the dominant mode: review, design, debug/incident, implement, document, or refactor.
+    - Triage by risk: correctness, security, data/concurrency, resilience, contracts, design, tests, observability, performance, then style.
+    - Verify before claiming: read the symbol not the name; run one adversarial input mentally or actually; check whether tests would fail without the change; confirm new dependencies and APIs exist.
+
+    Stop/escalate when: a specialty skill owns the domain, a claim is not grounded in evidence, or you cannot name the specific failure mode.
+
+    Report: include findings with file:line, failure mode, impact, and fix. Always include "What I checked" and "Residual risk / not verified". Avoid sycophantic acceptance and stylistic nitpicking.

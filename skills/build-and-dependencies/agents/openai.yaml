@@ -2,20 +2,18 @@ interface:
   display_name: "Build and Dependencies"
   short_description: "Lockfiles, reproducibility, supply-chain hygiene, build-system choice"
   default_prompt: |
-    Use $build-and-dependencies. The bar: builds are deterministic given the same inputs; every direct dependency is owned and justified; the supply chain is auditable.
+    Use when: dependencies, lockfiles, package managers, build systems, CI supply chain, SBOMs, signatures, provenance, or containers are in scope.
 
-    Priorities, in order:
+    Evidence to collect: manifest and lockfile diff, package registry metadata, integrity hashes, CI install command, toolchain pins, build artifact identity, SBOM/provenance/signature configuration, and whether secrets are in scope during dependency execution.
 
-    1. Manifests vs. lockfiles. Manifest = intent (constraint band). Lockfile = resolution (exact versions + hashes). **Always commit the lockfile for applications**; for libraries commit it for CI determinism but understand it doesn't constrain consumers. CI uses frozen-install (npm ci, --immutable, --frozen-lockfile, --locked, --require-hashes).
+    Verification gates:
+    - Applications commit lockfiles; libraries may commit lockfiles for CI determinism but must not claim they constrain consumers.
+    - CI uses frozen install mode.
+    - For app package manifests with lockfiles, prefer compatible ranges plus deliberate lockfile updates; for CI actions, containers, direct downloads, build tooling, or ecosystems without lockfiles, pin hashes/digests and automate updates.
+    - Treat SemVer as aspirational; verify high-risk updates.
+    - Build/release artifacts should have deterministic inputs, SBOM, signature, and provenance where the risk warrants it.
+    - No production secrets during dependency resolution, install scripts, PR builds, or untrusted code execution.
 
-    2. SemVer is aspirational. Hyrum's Law applies: minor and patch releases regularly break consumers. For application package manifests with a committed lockfile, prefer caret/tilde range + lockfile over pinned-exact and never use *. For build/release tooling, CI actions, containers, direct downloads, and ecosystems without lockfiles, pin immutable hashes/digests and automate updates.
+    Stop/escalate when: a new dependency has unclear ownership/license/source, a build runs untrusted code with credentials, or provenance/signature claims cannot be verified.
 
-    3. Reproducibility is the foundation of supply-chain auditability. Aim for *deterministic* builds (same lockfile + same toolchain = same artifact) for most teams; full bitwise reproducibility is a real cost trade-off.
-
-    4. Supply chain defenses: current SLSA Build/Source tracks, Sigstore (cosign for signing, Rekor or signed bundles for transparency), SBOMs (SPDX or CycloneDX). Dependency scanning in CI; merge the bot PRs; patch SLAs by severity.
-
-    5. The lessons are recent: Log4Shell (CVE-2021-44228), xz-utils backdoor (CVE-2024-3094), Birsan dependency confusion (2021), event-stream (2018), ua-parser-js (2021), left-pad (2016). Cite them by name.
-
-    6. Privilege isolation in CI: no production secrets during dependency resolution, install scripts, PR builds, or untrusted code execution. Use short-lived OIDC credentials only in deploy/promote jobs after artifact and policy checks.
-
-    Common findings to flag: no committed lockfile; manifest changed without lockfile regenerated; * or latest in production; pinned-exact on a dep with active CVE patches; --force / --ignore-engines / npm i --force; auto-merge Dependabot without tests; 200 transitive deps for one function; "we forked it" with no README; build pulls from public registry with prod secrets in env; new dep with no owner / license check / rationale; "verified publisher" badge cited as the security control.
+    Report: include dependency rationale, lockfile status, install mode, supply-chain controls checked, and residual risk. Flag no lockfile, `*`/latest, force flags, unreviewed auto-merge, unowned forks, public-registry fallback for private names, and verified-publisher badges treated as sufficient security.

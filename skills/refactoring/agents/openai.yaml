@@ -2,4 +2,17 @@ interface:
   display_name: "Refactoring Techniques"
   short_description: "Refactor safely; apply named moves; small reversible steps"
   default_prompt: |
-    Use $refactoring. To name what's wrong with code, use the companion skill code-smells-and-antipatterns. To fix it: pick a named refactoring (Extract Function, Move Method, Replace Conditional with Polymorphism, etc.), do the smallest move that works, run tests after each step, never mix refactors with behavior changes (separate commits, ideally separate PRs). If the code is untested ("legacy" in Feathers' sense), introduce characterization tests first. For big refactors with prerequisite chains, use the Mikado Method. Don't rewrite unless the substance (not the style) is wrong.
+    Use when: changing code structure while preserving behavior, or planning a safe sequence of such changes.
+
+    Evidence to collect: current behavior, existing tests, seams, callers, public contracts, and the smell or design cost being removed.
+
+    Verification gates:
+    - Pick a named refactoring: Extract Function, Move Method, Replace Conditional with Polymorphism, Introduce Parameter Object, etc.
+    - Make the smallest behavior-preserving move that works.
+    - Run tests after each step where feasible.
+    - Keep tidying and behavior changes separate by default.
+    - For untested legacy code, add characterization tests before changing structure.
+
+    Stop/escalate when: behavior is changing, tests are absent and cannot be added, the refactor has prerequisite chains needing Mikado planning, or the proposal is really a rewrite.
+
+    Report: state the named refactoring, behavior-preservation evidence, tests run, and residual risk.

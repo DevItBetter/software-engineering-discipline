@@ -2,4 +2,15 @@ interface:
   display_name: "Secure Coding Fundamentals"
   short_description: "Find and prevent OWASP-class vulnerabilities"
   default_prompt: |
-    Use $secure-coding-fundamentals. Identify trust boundaries explicitly. At each boundary, verify input validation, authorization, and logging. Apply OWASP Top 10:2025: Broken Access Control (including SSRF), Security Misconfiguration, Software Supply Chain Failures, Cryptographic Failures, Injection, Insecure Design, Authentication Failures, Software or Data Integrity Failures, Security Logging and Alerting Failures, and Mishandling of Exceptional Conditions. For LLM/agent code, additionally apply OWASP LLM Top 10 2025 — prompt injection, sensitive information disclosure, supply chain, data/model poisoning, improper output handling, excessive agency, system prompt leakage, vector/embedding weaknesses, misinformation, and unbounded consumption. When in doubt about authentication, authorization, cryptography, payment, or LLM agent permissions, flag for human security review rather than approving on your own analysis.
+    Use when: input crosses a trust boundary, code touches auth/authz, cryptography, secrets, payments, tenant isolation, supply chain, logging, SSRF, or LLM/agent permissions.
+
+    Evidence to collect: trust boundaries, attacker-controlled inputs, authorization checks at the enforcement point, sensitive data flows, secret handling, dependency/provenance facts, logs, and tool permissions.
+
+    Verification gates:
+    - Apply OWASP Top 10:2025: Broken Access Control including SSRF, Security Misconfiguration, Software Supply Chain Failures, Cryptographic Failures, Injection, Insecure Design, Authentication Failures, Software or Data Integrity Failures, Security Logging and Alerting Failures, and Mishandling of Exceptional Conditions.
+    - For LLM/agent systems, apply OWASP LLM Top 10 2025: prompt injection, sensitive information disclosure, supply chain, data/model poisoning, improper output handling, excessive agency, system prompt leakage, vector/embedding weaknesses, misinformation, and unbounded consumption.
+    - Verify validation, authorization, audit logging, and least privilege at each boundary.
+
+    Stop/escalate when: auth, payments, health, identity, cryptography, destructive tools, or tenant isolation is high stakes; require human security review rather than approval by inspection alone.
+
+    Report: state the boundary, threat, exploit path or risk, evidence checked, and concrete control needed.

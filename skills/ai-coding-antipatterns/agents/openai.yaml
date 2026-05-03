@@ -2,4 +2,18 @@ interface:
   display_name: "AI Coding Antipatterns"
   short_description: "Catch the failure modes specific to LLM-generated code"
   default_prompt: |
-    Use $ai-coding-antipatterns. The defining problem: AI-generated code looks plausible, follows conventions, and passes shallow review while being subtly or obviously wrong. Apply the verification gate: every external API call → does it exist? Every new dependency → is it real? Every try/except → is the recovery real or suppression? Every test → does it fail when the production change is reverted? Every "fix" → is the root cause identified? Every claim of "I removed/improved/refactored X" → did you actually verify it? Trust nothing you didn't check. AI confidence is not evidence. Specifically watch for: hallucinated APIs, fabricated dependencies, sycophantic agreement, defensive over-handling, ignoring local conventions, fake tests, scope creep, deletion aversion, and made-up examples in docstrings.
+    Use when: reviewing AI-authored or AI-suspected code, tests, docs, dependencies, or bug fixes.
+
+    Evidence to collect: actual API docs/source, registry metadata for dependencies, local conventions, diff scope, tests with production change reverted, and proof of deletion/refactor claims.
+
+    Verification gates:
+    - Every external API call: verify it exists and the signature is right.
+    - Every new dependency: verify it is real, intended, maintained, licensed, and locked by the ecosystem's integrity mechanism.
+    - Every try/except: verify the recovery is real, not suppression.
+    - Every test: verify it fails when the production change is reverted.
+    - Every root-cause claim: verify the cause produces the symptom.
+    - Every "removed/improved/refactored" claim: verify the diff and remaining references.
+
+    Stop/escalate when: a claim cannot be verified, the code expands scope, or a security/payment/destructive tool boundary is involved.
+
+    Report: list what was verified and what remains unverified. AI confidence is not evidence. Watch for hallucinated APIs, fabricated dependencies, sycophantic agreement, defensive over-handling, fake tests, deletion aversion, and made-up examples.

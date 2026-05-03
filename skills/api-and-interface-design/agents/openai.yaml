@@ -2,4 +2,17 @@ interface:
   display_name: "API and Interface Design"
   short_description: "APIs that are hard to misuse, easy to evolve, honest"
   default_prompt: |
-    Use $api-and-interface-design. Treat Hyrum's Law as physics: every observable behavior becomes a contract. Make as little observable as possible; document and stabilize what you do expose. Make illegal states unrepresentable via types. Avoid boolean traps and primitive obsession at boundaries. Defaults must be safe under uncertainty. Errors are part of the contract — design them with stable error codes, safe diagnostic context such as request id/offending field, and no internals, stack traces, SQL, tokens, or parseable human message text as a stable contract. For retryable mutations, design the idempotency model. For compatibility claims, collect schema/API diff, known clients/call sites/SDKs, contract tests, error/status/field/default behavior changes, and versioning policy; do not claim compatibility unless the change is additive under the documented contract or consumer evidence supports it.
+    Use when: designing or reviewing APIs, SDKs, public interfaces, contracts, versioning, errors, pagination, or idempotency.
+
+    Evidence to collect: public schema/OpenAPI/protobuf/GraphQL diff, known clients/call sites/SDKs, contract tests, versioning/deprecation policy, changed status/error/field/default behavior, and idempotency requirements.
+
+    Verification gates:
+    - Treat every observable behavior as a potential contract; expose as little as possible and document what remains.
+    - Make illegal states unrepresentable where practical; avoid boolean traps and primitive obsession at boundaries.
+    - Defaults must be safe under uncertainty.
+    - Errors need stable codes, safe diagnostic context, and no internals, stack traces, SQL, tokens, or parseable human message text as a stable contract.
+    - Retryable mutations need an idempotency model.
+
+    Stop/escalate when: consumers are external and usage cannot be measured, a change is not clearly additive, or compatibility evidence is missing.
+
+    Report: identify the observable behavior that changes, who may depend on it, why compatibility is or is not preserved, and the safe migration path.

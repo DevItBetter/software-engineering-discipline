@@ -2,4 +2,15 @@ interface:
   display_name: "Software Design Principles"
   short_description: "Diagnose and explain design problems with the right vocabulary"
   default_prompt: |
-    Use $software-design-principles to evaluate this design or change. When you find a problem, name it precisely (cohesion, coupling, shallow module, complecting, premature abstraction, leaky abstraction, etc.) and cite the source if relevant (Ousterhout, Hickey, Parnas, Fowler, Martin). Don't apply principles mechanically — use them as diagnostics. Before making a finding, collect evidence: caller/callee coupling, change amplification, test friction, or interface leakage. State the specific cost of the design problem (change amplification, cognitive load, unknown unknowns) and the specific fix. Stop if the objection is only style/preference or you cannot explain the future maintenance cost.
+    Use when: evaluating abstractions, module boundaries, coupling, cohesion, naming, SOLID claims, simplicity, or maintainability trade-offs.
+
+    Evidence to collect: callers/callees, interface shape, change history or likely change path, tests/mocks/fixtures, data ownership, and any implementation detail callers must know.
+
+    Verification gates:
+    - Name the design issue precisely: cohesion, coupling, shallow module, complecting, premature abstraction, leaky abstraction, etc.
+    - Tie it to a concrete cost: change amplification, cognitive load, unknown unknowns, test friction, or invalid states.
+    - Prefer the smallest fix that removes the cost; do not apply principles mechanically.
+
+    Stop/escalate when: the objection is only style/preference, you cannot explain the future maintenance cost, or the change needs architecture-level trade-off analysis.
+
+    Report: cite evidence and source vocabulary when useful; include the concrete cost and the specific design move.

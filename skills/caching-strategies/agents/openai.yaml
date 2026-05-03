@@ -2,24 +2,19 @@ interface:
   display_name: "Caching Strategies"
   short_description: "Placement, invalidation, stampede protection, eviction; trade freshness for latency"
   default_prompt: |
-    Use $caching-strategies. The bar: every cache trades freshness for latency, throughput, and load reduction — name what you're trading and bound the staleness.
+    Use when: adding, reviewing, or debugging browser, CDN, proxy, app, distributed, database, materialized-view, or HTTP caching.
 
-    Priorities, in order:
+    Evidence to collect: cached value, source of truth, cache layer, key design, TTL/staleness SLO, invalidation path, max size/eviction policy, stampede protection, failure behavior, sensitivity/personalization, and write/update flow.
 
-    1. Frame the trade. A cache is not free. Cached values are potentially stale. AWS's "cache addiction" is the failure mode: the cache becomes load-bearing and cache loss becomes an outage.
+    Verification gates:
+    - Name the freshness, latency, throughput, and load trade-off; bound staleness explicitly.
+    - Every cache needs max size and TTL or an equally explicit lifecycle.
+    - Place the cache deliberately and verify invalidation at every layer.
+    - Pick the strategy by consistency and write-throughput needs: cache-aside, read-through, write-through, write-back, write-around, or refresh-ahead.
+    - Protect hot or cold-miss paths from stampedes with single-flight, probabilistic early expiration, or stale-while-revalidate where appropriate.
+    - For HTTP caching, apply RFC 9111 semantics. `Vary` is cache-key matching, not a privacy control.
+    - Avoid non-atomic DB/cache dual writes; use transactional outbox plus CDC where correctness requires it.
 
-    2. Placement. Browser / CDN / reverse-proxy / app-in-process / distributed (Redis, Memcached) / DB / materialized view. Each layer has different reach and different invalidation cost. Multiple layers are often correct; each layer's invalidation must work.
+    Stop/escalate when: cache becomes source of truth, loss of cache causes outage, personalized/auth-dependent data may enter shared cache, TTL is gut feel, or writes require cross-store atomicity.
 
-    3. Strategies. Cache-aside (most common; on update write source first then invalidate). Read-through, write-through, write-back, write-around — pick by consistency vs. latency vs. write-throughput needs. Refresh-ahead for predictable hot keys.
-
-    4. Invalidation: TTL, event-driven (CDC, pub/sub), tag/dependency-based (Russian-doll, DHH 2012), versioned keys (`app.a1b2c3.js` with HTTP `immutable`), manual purge. Choose by staleness tolerance and write rate. TTLs derive from the staleness SLO, not from gut feel.
-
-    5. Stampede protection: single-flight (Go `singleflight`, Caffeine LoadingCache); probabilistic early expiration (Vattani et al. VLDB 2015); stale-while-revalidate (RFC 5861, RFC 9111). Default: single-flight in-process plus stale-while-revalidate at the cache layer.
-
-    6. Sizing: max size + TTL always. Watch key cardinality (same problem as metric labels). LRU is the safe default; W-TinyLFU is the modern default for serious workloads; S3-FIFO is the new entrant.
-
-    7. HTTP caching (RFC 9111, June 2022): `Cache-Control` directives (`public/private`, `max-age`, `s-maxage`, `no-cache` ≠ `no-store`, `stale-while-revalidate`, `immutable`). Personalized or auth-dependent responses should normally be `private` or `no-store`; only allow shared caching when the response explicitly permits it (`public`, `s-maxage`, or `must-revalidate`) and the cache key is proven to separate users. `Vary` is cache-key matching, not a privacy control. Immutable content-hashed assets are the cleanest invalidation strategy.
-
-    8. Dual-write problem: writing to DB + cache without a distributed transaction is non-atomic. Transactional outbox + CDC is the standard solution.
-
-    Common findings to flag: cache without max size or TTL; cache-aside writing to cache before source; in-process cache treated as shared in a multi-instance service; negative-cache TTL longer than time-to-create; auth-dependent response cached by a shared cache without explicit `Cache-Control` permission and a proven per-user cache key; sensitive personalized response cached without `private` or `no-store`; 5xx cached for minutes; "just add Redis" as a fix for a slow query; TTL chosen by gut feel; cache as hidden source of truth (deploy that flushes Redis loses data); unprotected cold-cache stampede; cache key including unbounded user input.
+    Report: state source of truth, cache placement, key, invalidation, staleness bound, stampede control, sensitivity controls, and failure behavior.

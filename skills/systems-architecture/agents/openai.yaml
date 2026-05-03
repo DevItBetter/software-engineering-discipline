@@ -2,4 +2,17 @@ interface:
   display_name: "Systems Architecture"
   short_description: "Architecture decisions reviewed honestly"
   default_prompt: |
-    Use $systems-architecture. Apply the fallacies of distributed computing as physics — assume the network drops, latency is real, services fail, time isn't shared. Identify data ownership (who is the source of truth for each piece of state). Identify bounded contexts and verify service boundaries match them. Identify failure modes and recovery paths for every dependency. Identify the SLO and the operability story. For substantial decisions, look for the ADR (or insist on one). Demand explicit alternatives-considered. Don't approve "we'll add it later" for things that are hard to add later (multi-tenancy, audit, encryption, regions, versioning).
+    Use when: reviewing architecture, service boundaries, distributed-system design, data ownership, scalability, operability, or major technical decisions.
+
+    Evidence to collect: ADR or design doc, alternatives considered, bounded contexts, source of truth for each state type, dependency failure modes, recovery paths, SLOs, deployment topology, and operational ownership.
+
+    Verification gates:
+    - Treat the fallacies of distributed computing as physics: networks drop, latency matters, services fail, bandwidth is finite, topology changes, and clocks disagree.
+    - Verify service boundaries match bounded contexts and data ownership.
+    - Identify every cross-boundary dependency and its failure/recovery behavior.
+    - Check the operability story: SLOs, observability, rollout, rollback, scaling, and on-call ownership.
+    - Require explicit alternatives considered for substantial decisions.
+
+    Stop/escalate when: the design defers hard-to-add-later concerns such as multi-tenancy, audit, encryption, regions, data residency, or API/versioning; or no ADR exists for a substantial irreversible decision.
+
+    Report: state the architectural decision, main trade-off, alternatives rejected, failure modes, operability evidence, and residual risk.

@@ -2,4 +2,19 @@ interface:
   display_name: "Documentation and Technical Writing"
   short_description: "Write docs that hold up: design docs, ADRs, READMEs, commits"
   default_prompt: |
-    Use $documentation-and-technical-writing. Before writing, identify the doc's primary Diátaxis mode (tutorial / how-to / reference / explanation), read the code/commands/config/API being documented, and run quick-start or operational commands when feasible; otherwise mark them unverified. For design docs, alternatives considered are non-negotiable — without them, the doc is advocacy not design. No performance, security, compatibility, or operational claim without benchmark, source link, test, or cited code. For commit messages: imperative subject line ≤50 chars, body explains *why*, not *what*. For READMEs: optimize for the first 30 seconds; a working quick-start beats prose. Be concrete, honest about trade-offs and uncertainty, lead with the answer, and cut filler.
+    Use when: writing or reviewing READMEs, design docs, ADRs, runbooks, API docs, tutorials, how-tos, reference docs, explanations, commit messages, or technical prose.
+
+    Evidence to collect: audience, task, Diataxis mode, source code/config/API, commands run, screenshots or outputs where useful, alternatives considered, claims that need evidence, and verification gaps.
+
+    Verification gates:
+    - Identify the primary mode: tutorial, how-to, reference, or explanation.
+    - Read the thing being documented; run quick-start or operational commands when feasible, otherwise mark them unverified.
+    - For design docs, require alternatives considered; without them, the doc is advocacy.
+    - Do not make performance, security, compatibility, or operational claims without benchmark, source link, test, or cited code.
+    - For READMEs, optimize for the first 30 seconds; a working quick-start beats prose.
+    - For commit messages, use an imperative concise subject and explain why in the body when needed.
+    - Lead with the answer, state trade-offs and uncertainty, and cut filler.
+
+    Stop/escalate when: required commands cannot be run, claims lack evidence, the audience/task is unclear, or the doc needs a decision record but lacks alternatives.
+
+    Report: state the mode, audience, verified commands or sources, unverified claims, and the main reader action enabled.

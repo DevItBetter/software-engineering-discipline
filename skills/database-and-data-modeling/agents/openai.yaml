@@ -2,4 +2,17 @@ interface:
   display_name: "Database and Data Modeling"
   short_description: "Schemas, indexes, queries, migrations that hold up"
   default_prompt: |
-    Use $database-and-data-modeling. Default to PostgreSQL and 3NF unless you can articulate why your case is different. Model the domain, not the screens. Make illegal states unrepresentable in the schema (NOT NULL, CHECK, UNIQUE, FOREIGN KEY, EXCLUSION). For every non-trivial query, read `EXPLAIN (ANALYZE, BUFFERS)` on representative data when safe; compare estimated vs. actual rows, I/O, sort/hash spill, and join shape. Prefer an index, bitmap, or index-only plan only when selectivity and ordering make it cheaper; investigate large-table `Seq Scan` on selective predicates, but do not treat every `Seq Scan` as wrong. For mutating statements, never run `EXPLAIN ANALYZE` outside a rollback-only transaction or safe replica. For migrations, ensure every step is backward-compatible — old code and new code both work — and use the multi-step dance for rename / type-change / non-nullable-add. Watch for N+1, missing indexes on FKs, OFFSET pagination on big tables, transactions held across I/O.
+    Use when: schemas, data modeling, indexes, query plans, migrations, transactions, isolation, multi-tenancy, or database performance are in scope.
+
+    Evidence to collect: engine/version, schema, table sizes, row counts, relevant indexes, query text, `EXPLAIN` or safe `EXPLAIN (ANALYZE, BUFFERS)`, isolation level, migration table size, write rate, and old/new code compatibility.
+
+    Verification gates:
+    - Model the domain, not screens; default to normalized relational design unless the case for another model is explicit.
+    - Make illegal states unrepresentable with NOT NULL, CHECK, UNIQUE, FOREIGN KEY, EXCLUSION, or equivalent constraints.
+    - For query/index claims, verify the plan on representative data. Compare estimated vs actual rows, I/O, spills, join shape, and whether the access path matches selectivity and ordering.
+    - Never run `EXPLAIN ANALYZE` for mutating statements outside a rollback-only transaction, safe replica, or approved window.
+    - For migrations, require a rollback story and backward-compatible steps so old and new code both work.
+
+    Stop/escalate when: no representative plan exists for a performance claim, a destructive migration lacks usage evidence, or backup/restore is being used as routine rollback.
+
+    Report: cite schema/query/plan/migration evidence, what was checked, and residual risk. Flag N+1, unsafe OFFSET pagination, missing useful FK indexes, broad transactions across I/O, and non-expand-contract migrations.

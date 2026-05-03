@@ -2,4 +2,18 @@ interface:
   display_name: "Error Handling and Resilience"
   short_description: "Errors handled at the right level; failures designed for"
   default_prompt: |
-    Use $error-handling-and-resilience. Default rules: only handle errors you know how to recover from — let the rest propagate. Reject "except Exception: pass" and over-defensive try/except wrapping. Use exceptions for exceptional conditions; use return values (Result/Optional) for expected outcomes; let unrecoverable programmer errors crash. Every retry needs exponential backoff with jitter, max attempts, max time, and an idempotency key if the operation isn't naturally idempotent. Every external call needs a timeout. Every error path needs log/metric/trace context. When designing, look for opportunities to define errors out of existence rather than handle them.
+    Use when: designing or reviewing error handling, retries, timeouts, circuit breakers, idempotency, fallbacks, or failure-mode behavior.
+
+    Evidence to collect: error types, caller recovery options, external calls, retry policy, idempotency keys, timeout/deadline propagation, failure telemetry, and user/operator-facing error messages.
+
+    Verification gates:
+    - Handle only errors you know how to recover from; let the rest propagate to the right boundary.
+    - Reject `except Exception: pass`, broad catch-and-continue, and over-defensive wrapping.
+    - Use exceptions for exceptional failures and Result/Optional-style returns for expected outcomes where that is idiomatic.
+    - Every retry needs exponential backoff with jitter, max attempts, max total time, and idempotency if the operation is not naturally idempotent.
+    - Every external call needs a timeout/deadline.
+    - Every error path needs safe log context, low-cardinality metric labels, and trace context.
+
+    Stop/escalate when: retries can duplicate side effects, a fallback can hide data loss, raw sensitive data would be logged, or the code continues after unrecoverable programmer errors.
+
+    Report: state which errors are expected, which are retryable, where they are handled, telemetry evidence, and residual failure modes. Prefer defining errors out of existence where possible.

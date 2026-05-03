@@ -2,20 +2,19 @@ interface:
   display_name: "Observability"
   short_description: "Make systems understandable from outside: logs, metrics, traces, SLOs, alerting"
   default_prompt: |
-    Use $observability. The goal is operability — can on-call diagnose this at 3am from telemetry alone?
+    Use when: logs, metrics, traces, SLOs, alerts, dashboards, telemetry cost, or on-call diagnosability are in scope.
 
-    Priorities, in order:
+    Evidence to collect: SLIs/SLOs, alert rules, metric labels, log schema, trace propagation path, sampling policy, PII/secret redaction point, retention tiers, dashboards, and incident questions the telemetry must answer.
 
-    1. SLOs first. Every user-facing service needs an SLI (good_events / valid_events) and an SLO target. Alert via multi-window, multi-burn-rate on symptoms, not causes. Re-derive burn-rate constants when the SLO window, alert windows, or budget-consumption policy changes; if only the SLO target changes, update the absolute bad-event threshold.
+    Verification gates:
+    - Start with operability: can on-call diagnose this at 3am from telemetry alone?
+    - User-facing services need an SLI and SLO target; alert on symptoms using multi-window, multi-burn-rate policies.
+    - Keep high-cardinality identifiers out of Prometheus-style metric labels; put them in events or trace attributes.
+    - Prefer wide structured events at request boundaries over scattered logs.
+    - Use W3C Trace Context end-to-end and verify async propagation across queues and pools.
+    - Redact PII and secrets at the logging boundary; allowlist fields and avoid auth-bearing request/response bodies.
+    - Treat cardinality, synchronous instrumentation, and retention as cost/design constraints.
 
-    2. Cardinality discipline. High-cardinality fields (user_id, request_id, build_sha) go in event stores or trace attributes, never as metric labels in a Prometheus-style backend. If you only have a metrics store, do not tag customer_id, period.
+    Stop/escalate when: telemetry can leak regulated data, alert math was copied across different SLO windows or budget policies, or observability is deferred for a design that will be hard to debug later.
 
-    3. Wide structured events at request boundaries (canonical log lines: one per request) beat scattered log lines. Note: a canonical log line is still a log; a true wide-event store is a different backend.
-
-    4. Use W3C Trace Context end-to-end. Verify propagation across async boundaries (queues, thread pools). Tail-sample on errors and tail latency at scale; head-sample is fine below a few hundred spans/sec.
-
-    5. PII and secret hygiene: redact at the logging library boundary, allowlist not denylist. Never log request/response bodies at auth-bearing endpoints. Compliance regimes apply to logs.
-
-    6. Cost is a design constraint. Cardinality drives the bill. Synchronous instrumentation runs in the hot path. Retention tiers (hot/warm/cold) shape what questions you can answer.
-
-    Common findings to flag: cardinality bombs in metrics; page-on-cause alerts; missing context propagation; ERROR-level used for expected conditions; request bodies logged at auth-bearing endpoints; dashboards with no question they answer; "we'll add observability later" in a design; OTel logs SDK adopted in a language where it's still Beta; burn-rate table copy-pasted across different windows or budget policies.
+    Report: state the user symptom, SLI/SLO, alerting path, telemetry fields, cardinality/cost risk, and what an operator can diagnose.

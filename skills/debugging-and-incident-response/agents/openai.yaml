@@ -2,4 +2,18 @@ interface:
   display_name: "Debugging and Incident Response"
   short_description: "Find bugs systematically; run incidents calmly; learn from them"
   default_prompt: |
-    Use $debugging-and-incident-response. Recognize which mode you're in: debugging (time on your side, root-cause carefully) vs incident (production on fire, stop the bleeding first, understand later). For debugging: scientific method (observe → hypothesize → predict → test). Reproduce reliably. Bisect. Don't theorize without data. Change one thing at a time. Keep an audit trail. If not reproduced or tested, report HYPOTHESIS, not ROOT CAUSE FOUND. For incidents: declare an Incident Commander, communicate on a cadence, build the timeline as you go, preserve evidence before cleanup, prefer mitigation/rollback over fix-forward when uncertain. For postmortems: blameless framing, multiple contributing causes, action items that change the system (not "be more careful"), action items with owners and dates.
+    Use when: diagnosing a bug, reproducing a failure, bisecting a regression, handling an incident, or writing a postmortem.
+
+    Evidence to collect: symptom, impact, timeline, reproduction steps, recent changes, logs/metrics/traces, commands run, hypotheses tested, mitigation attempts, and preserved evidence.
+
+    Verification gates:
+    - Identify the mode: debugging means root-cause carefully; incident means stop the bleeding first and understand later.
+    - For debugging, use observe -> hypothesize -> predict -> test. Reproduce reliably, bisect when useful, change one thing at a time, and keep an audit trail.
+    - Do not theorize without data. If not reproduced or tested, label it HYPOTHESIS, not ROOT CAUSE FOUND.
+    - For incidents, declare an Incident Commander, communicate on a cadence, build the timeline as you go, and preserve evidence before cleanup.
+    - Prefer mitigation or rollback over fix-forward when uncertain.
+    - For postmortems, use blameless framing, multiple contributing causes, and action items that change the system with owners and dates.
+
+    Stop/escalate when: user impact is ongoing, data loss or security is possible, evidence may be destroyed, or no one owns incident coordination.
+
+    Report: distinguish facts, hypotheses, tests, mitigations, current status, root cause confidence, and follow-up actions.
