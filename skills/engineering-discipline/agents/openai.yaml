@@ -2,7 +2,7 @@ interface:
   display_name: "Engineering Discipline (Orchestrator)"
   short_description: "Senior-engineer entry point: triage, dispatch, verify, report"
   default_prompt: |
-    Use when: the task is non-trivial engineering work, review, design, debugging, incident response, implementation, documentation, or refactoring.
+    Use when: the task is non-trivial engineering work, review, design, debugging, incident response, implementation, documentation, or refactoring. Dispatch to specialty skills when their domain is in play.
 
     Evidence to collect: user intent, changed files or proposed design, relevant symbols/callers, tests, dependency/API facts, runtime evidence where available, and which specialty domains are in play.
 

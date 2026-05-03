@@ -354,7 +354,7 @@ Common API doc failures:
 
 A runbook is a how-to guide for a specific operational task. The reader is on-call at 3am; optimize for that.
 
-For runbook structure and quality, see `skills/debugging-and-incident-response/references/incident-roles-and-runbooks.md`.
+For runbook structure and quality, see `debugging-and-incident-response`.
 
 The writing-specific notes:
 

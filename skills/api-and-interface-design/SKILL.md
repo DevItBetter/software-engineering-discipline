@@ -214,3 +214,11 @@ A library that's hard to start with, hard to discover the right API, easy to mis
 ## Reference library
 
 - `references/contract-evolution.md` — what's safely addable, what's breaking, semantic versioning honestly.
+
+## Sibling skills
+
+- `engineering-discipline` — review triage and how to report contract risk.
+- `error-handling-and-resilience` — failures are part of the contract.
+- `secure-coding-fundamentals` — trust boundaries and auth on public surfaces.
+- `concurrency-and-state` — idempotency, ordering, and retries across callers.
+- `version-control-discipline` — semver, release discipline, and compatibility history.

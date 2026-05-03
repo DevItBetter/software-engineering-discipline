@@ -9,7 +9,7 @@ interface:
     Verification gates:
     - Name the smell: Long Function, Long Parameter List, Primitive Obsession, Feature Envy, Shotgun Surgery, Boolean Trap, Anemic Domain Model, etc.
     - Explain the concrete cost, not just the label.
-    - Map to the smallest named refactoring from $refactoring.
+    - Map to the smallest named refactoring from `refactoring`.
     - Do not flag based only on size, taste, or unfamiliar style.
 
     Stop/escalate when: you would leave many smell comments on one small diff; the right finding may be a redesign conversation.

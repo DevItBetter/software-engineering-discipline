@@ -634,7 +634,7 @@ A change that does the requested thing *and* renames variables, restructures a l
 
 **Fix:** split into focused PRs. The requested change is one. Each ancillary improvement is another.
 
-## How to use smells in code review
+## What to flag in review
 
 A finding looks like:
 

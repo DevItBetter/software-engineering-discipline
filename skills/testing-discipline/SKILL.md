@@ -133,7 +133,7 @@ A handful of fast tests that verify the system boots and the critical paths are 
 
 Verify performance characteristics. Distinct from correctness tests. Important for hot paths; expensive to keep stable; need a controlled environment to be meaningful. See `performance-engineering` skill.
 
-## Anti-patterns to flag in review
+## What to flag in review
 
 - **Tests that mock the function under test.** Always wrong.
 - **Tests that pass with the production change reverted.** They're not testing what they claim.
@@ -199,3 +199,11 @@ A test that earns its keep:
 
 - `references/test-design-patterns.md` — patterns for fixture management, mocking discipline, parametrization, contract/property/mutation testing in depth.
 - `references/ai-generated-test-smells.md` — failure modes specific to AI-generated tests, with examples.
+
+## Sibling skills
+
+- `engineering-discipline` — review triage and how to report findings about test gaps.
+- `refactoring` — characterization tests and refactors that depend on a safety net.
+- `code-smells-and-antipatterns` — names for structural test smells.
+- `ai-coding-antipatterns` — the failure modes AI-generated tests usually miss.
+- `performance-engineering` — when benchmark tests belong in the suite.

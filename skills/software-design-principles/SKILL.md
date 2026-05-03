@@ -217,6 +217,15 @@ Signs that a design is fighting you:
 
 When you see these in review, the right response is often "this needs a design conversation, not a line-comment fix." See `engineering-discipline` for how to escalate from review to design.
 
+## What to flag in review
+
+- A change that touches many unrelated files to make one feature work.
+- A change that makes one file absorb unrelated reasons to change.
+- Tests that require deep mocking because the design is too coupled.
+- An interface that leaks implementation details callers should not need.
+- An abstraction that adds indirection but hides no volatile decision.
+- A design problem that needs a design conversation instead of a line comment.
+
 ## Reference library
 
 - `references/complexity-and-deep-modules.md` — Ousterhout's framing in depth: complexity, dependencies, obscurity, deep vs shallow modules, define-errors-out-of-existence, tactical vs strategic.
@@ -227,3 +236,11 @@ When you see these in review, the right response is often "this needs a design c
 - `references/abstractions-that-pay-rent.md` — when an abstraction earns its keep, and the names that signal it doesn't.
 - `references/naming-and-readability.md` — names, function shape, comments-for-why, the squint test, idiomatic local consistency.
 - `references/conways-law-and-team-topology.md` — how organization shapes design, and when to change the org.
+
+## Sibling skills
+
+- `engineering-discipline` — review triage and when to escalate from findings to design work.
+- `code-smells-and-antipatterns` — the diagnostic vocabulary for naming design problems.
+- `refactoring` — the corrective moves once a design problem is named.
+- `api-and-interface-design` — public contracts, defaults, and evolution pressure at the boundary.
+- `systems-architecture` — boundaries, ownership, and system-level trade-offs.

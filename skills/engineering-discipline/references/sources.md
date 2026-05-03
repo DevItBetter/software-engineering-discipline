@@ -43,7 +43,7 @@ The wisdom in this skill suite is not invented. It is condensed from a body of w
 - **NIST Secure Software Development Framework (SSDF)** — https://csrc.nist.gov/projects/ssdf
 - **CERT Secure Coding** — https://wiki.sei.cmu.edu/confluence/display/seccode
 - **The Twelve-Factor App** — https://12factor.net/. Cloud-native operational discipline.
-- **DORA / Accelerate research** — https://dora.dev/. Empirical research on what makes high-performing software teams (deployment frequency, lead time, MTTR, change failure rate).
+- **DORA / Accelerate research** — https://dora.dev/. Empirical research on what makes high-performing software teams (deployment frequency, lead time, FDRT, change failure rate, deployment rework rate).
 
 ## Foundational concepts referenced throughout
 

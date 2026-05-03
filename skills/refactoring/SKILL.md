@@ -202,6 +202,15 @@ Refactoring is not free. Skip or defer when:
 - **You don't understand the code yet.** Read it. Then refactor. Renaming things you don't understand turns one bug into many.
 - **Someone else is in flight on the same code.** Coordinate, or wait.
 
+## What to flag in review
+
+- A refactor mixed with behavior change in the same diff.
+- A refactor with no tests, or tests that still pass if the production change is reverted.
+- An extraction that names a mechanical step instead of a real concept.
+- A rewrite that increases indirection without reducing coupling or duplication.
+- A rename or move that was not propagated to call sites, imports, or references.
+- A broad cleanup when a smaller, reversible step would do.
+
 ## Reference library
 
 - `references/refactoring-catalog.md` — extended catalog of named refactorings with mechanics, when each applies, and the order to do them.

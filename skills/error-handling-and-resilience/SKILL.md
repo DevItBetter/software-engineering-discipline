@@ -229,3 +229,11 @@ A common smell: a try/except that catches and logs but provides no context, no m
 ## Reference library
 
 - `references/resilience-patterns.md` — bulkheads, fallback, hedging, load shedding, graceful degradation, dead-letter queues.
+
+## Sibling skills
+
+- `engineering-discipline` — review triage and how to communicate failure risk.
+- `concurrency-and-state` — retries, idempotency, ordering, and shared-state failure modes.
+- `observability` — logs, metrics, and traces on the error path.
+- `secure-coding-fundamentals` — safe handling when the failure path crosses a trust boundary.
+- `ai-coding-antipatterns` — over-defensive try/except and other AI-shaped failure handling.

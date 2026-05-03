@@ -119,6 +119,8 @@ Each comment restates the next line. They add nothing. They are a tell — gener
 
 **Verification**: every comment should explain *why*, not *what*. Comments that narrate the line below them: delete or replace with a comment about intent.
 
+For the general smell framing and review wording, see `code-smells-and-antipatterns`.
+
 ### Scope creep
 
 You asked the model to fix a bug. It also "improved" five other things in the same diff: renamed a variable, restructured a loop, added type hints, "cleaned up" a function. None of the additional changes were requested; each carries risk; the diff is now hard to review and hard to revert.
@@ -259,3 +261,10 @@ When you find one, name it. Authors (and other AIs) learn to do better when the 
 ## Reference library
 
 - `references/verification-recipes.md` — concrete, executable steps for catching each antipattern. When an antipattern is suspected, this file has the actual command/check.
+
+## Sibling skills
+
+- `code-smells-and-antipatterns` — the general diagnostic catalog for code smells that often show up in AI output.
+- `testing-discipline` — AI-generated tests and what makes a test actually useful.
+- `engineering-discipline` — triage and report findings with evidence.
+- `refactoring` — the safe moves once the AI-generated change needs structure fixed.
