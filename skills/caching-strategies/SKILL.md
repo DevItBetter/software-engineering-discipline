@@ -21,7 +21,7 @@ Caches live at every layer; placement governs both reach and the cost of getting
 - **Reverse proxy / API gateway.** Varnish, NGINX, Envoy. Also HTTP-semantics-aware.
 - **Application in-process cache.** Caffeine (Java), Ristretto (Go), `functools.lru_cache` (Python), Guava. Sub-microsecond reads — but **per-instance**. See antipatterns.
 - **Distributed / shared cache.** Redis, Memcached, Hazelcast. Network round-trip; survives restarts (Redis with persistence) at the cost of latency and a new failure domain.
-- **Database query / result cache.** Postgres has shared buffers and per-session plan caches but no result cache. **MySQL deprecated the query cache in 5.7.20 (2017) and removed it in 8.0.3 (September 2017)** — `query_cache_*` variables, `FLUSH QUERY CACHE`, and `SQL_CACHE` are gone.
+- **Database query / result cache.** Postgres has shared buffers and per-session plan caches but no result cache. **MySQL deprecated the query cache in 5.7.20 (2017) and removed it during the 8.0 release-candidate series (8.0.3, September 2017)** — `query_cache_*` variables, `FLUSH QUERY CACHE`, and `SQL_CACHE` are gone in MySQL 8.0 GA and later.
 - **Materialized views.** Database-managed cached query results, refreshed on schedule or on demand. Conceptually a cache with a query as its key.
 
 Place a cache where the cost it saves outweighs the staleness it introduces and the failure mode it adds. Multiple layers (browser + CDN + app) are often correct, but each layer's invalidation discipline must work.

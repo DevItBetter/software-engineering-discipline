@@ -198,3 +198,11 @@ For code reviewers: if the change touches a published distributed protocol (Raft
 ## Reference library
 
 - `references/distributed-state-patterns.md` — eventual consistency, CRDTs, sagas, outbox pattern, two-phase commit alternatives.
+
+## Sibling skills
+
+- `error-handling-and-resilience` — deadlines, retries, idempotency, and failure behavior around concurrent or distributed operations.
+- `database-and-data-modeling` — transaction isolation, constraints, and schema choices that preserve state invariants.
+- `caching-strategies` — stampede protection, invalidation, and consistency when cached state is shared.
+- `systems-architecture` — service boundaries, consistency models, and distributed-systems trade-offs.
+- `performance-engineering` — lock contention, async blocking, queueing, and other concurrency-driven bottlenecks.

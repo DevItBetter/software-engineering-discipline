@@ -305,3 +305,12 @@ For these, the right action is "request a security-team review" — not approve 
 ## Reference library
 
 - `references/llm-security-deep-dive.md` — prompt injection, excessive agency, agent permission models in depth.
+
+## Sibling skills
+
+- `api-and-interface-design` — authorization, trust boundaries, and error behavior as public contract.
+- `build-and-dependencies` — supply-chain risk, lockfiles, provenance, and dependency vetting.
+- `deployment-and-release-engineering` — signed artifacts, SBOMs, rollout gates, and secure release controls.
+- `error-handling-and-resilience` — safe failure modes, idempotent retries, and avoiding information leaks.
+- `observability` — security-relevant signals and logs without secrets or sensitive data exposure.
+- `ai-coding-antipatterns` — AI-generated code review and agent-tool permission risks.

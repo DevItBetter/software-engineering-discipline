@@ -302,3 +302,13 @@ For an architectural change that doesn't match the org: either the org changes, 
 
 - `references/distributed-systems-deep-dive.md` — CAP/PACELC, consensus, replication, partitioning, transactions, in honest depth.
 - `references/architecture-decision-records.md` — how to document decisions so future readers can re-evaluate them.
+
+## Sibling skills
+
+- `software-design-principles` — implementation-level design, module boundaries, abstractions, and Conway's Law in code structure.
+- `concurrency-and-state` — distributed state, consistency, consensus, ordering, and idempotency details.
+- `error-handling-and-resilience` — timeouts, retries, circuit breakers, bulkheads, and graceful degradation.
+- `database-and-data-modeling` — data ownership, schema evolution, migrations, and system-of-record choices.
+- `deployment-and-release-engineering` — progressive delivery, feature flags, rollback, and migration rollout.
+- `observability` — SLOs, SLIs, traces, logs, and operability designed into the architecture.
+- `documentation-and-technical-writing` — design docs and ADR writing discipline.

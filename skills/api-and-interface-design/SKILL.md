@@ -219,6 +219,6 @@ A library that's hard to start with, hard to discover the right API, easy to mis
 
 - `engineering-discipline` — review triage and how to report contract risk.
 - `error-handling-and-resilience` — failures are part of the contract.
-- `secure-coding-fundamentals` — trust boundaries and auth on public surfaces.
+- `secure-coding-fundamentals` — trust boundaries and authorization are part of the API contract, not separate implementation details.
 - `concurrency-and-state` — idempotency, ordering, and retries across callers.
 - `version-control-discipline` — semver, release discipline, and compatibility history.

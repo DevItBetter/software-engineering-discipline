@@ -353,3 +353,11 @@ For code review, design review, or post-incident review:
 
 - `references/postmortem-template.md` — usable postmortem template with example sections.
 - `references/incident-roles-and-runbooks.md` — IC / CL / OL responsibilities, runbook structure, drill exercises.
+
+## Sibling skills
+
+- `observability` — logs, metrics, traces, SLOs, and burn-rate alerts that make incidents diagnosable.
+- `error-handling-and-resilience` — retries, circuit breakers, graceful degradation, and failure modes that shape incidents.
+- `deployment-and-release-engineering` — rollback, feature flags, deploy correlation, and progressive delivery under pressure.
+- `testing-discipline` — regression tests that prove the found bug stays fixed.
+- `documentation-and-technical-writing` — runbook and postmortem writing discipline once the operational content is known.

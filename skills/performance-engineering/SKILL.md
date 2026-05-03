@@ -245,3 +245,11 @@ For these, performance is a first-class design concern, not an afterthought. Des
 ## Reference library
 
 - `references/profiling-and-measurement.md` — how to actually measure: tools, methodology, common mistakes.
+
+## Sibling skills
+
+- `observability` — profiling, traces, exemplars, and production signals that show where time goes.
+- `database-and-data-modeling` — query plans, indexes, N+1 queries, and connection-pool bottlenecks.
+- `caching-strategies` — caching as a measured optimization, including invalidation and stampede costs.
+- `concurrency-and-state` — lock contention, async blocking, queues, and parallelism trade-offs.
+- `systems-architecture` — scalability decisions, service boundaries, and load-shape trade-offs.

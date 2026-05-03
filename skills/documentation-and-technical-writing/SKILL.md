@@ -462,3 +462,11 @@ For project-level documentation:
 ## Reference library
 
 - `references/diataxis-applied.md` — applying Diátaxis to a specific docs system, with worked examples.
+
+## Sibling skills
+
+- `systems-architecture` — ADRs, architecture decisions, alternatives, and system-design trade-offs.
+- `debugging-and-incident-response` — postmortems and runbooks as operational artifacts.
+- `api-and-interface-design` — API reference docs, public contracts, errors, defaults, and compatibility notes.
+- `version-control-discipline` — commit messages, PR structure, history hygiene, and reviewable change narrative.
+- `engineering-discipline` — evidence-backed review reports and what to mark as checked or unchecked.

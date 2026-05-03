@@ -436,3 +436,11 @@ The honest version: ORMs save substantial time for simple cases and cost substan
 
 - `references/query-plan-reading.md` — how to read EXPLAIN output and what to look for.
 - `references/migration-patterns.md` — concrete patterns for common high-risk schema changes.
+
+## Sibling skills
+
+- `concurrency-and-state` — transaction isolation, races, idempotency, and wall-clock traps around shared data.
+- `performance-engineering` — N+1 queries, slow plans, indexes, and database bottlenecks in hot paths.
+- `deployment-and-release-engineering` — rollout sequencing for migrations and parallel change.
+- `systems-architecture` — data ownership, service boundaries, CQRS, and the system-of-record decision.
+- `caching-strategies` — when cached query results or materialized views help, and when they hide a data-modeling problem.
